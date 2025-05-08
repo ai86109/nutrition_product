@@ -4,9 +4,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import { CardContent } from "@/components/ui/card"
+import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
 
 export default function BioResultSection() {
-  const { submittedValues, tdeeFactors, setTdeeFactors, proteinFactors, setProteinFactors } = useBioInfo()
+  const { tdeeFactors, setTdeeFactors, proteinFactors, setProteinFactors } = useBioInfo()
+  const { calculateBMI, calculateIdealWeight, calculateTDEE, calculateProtein } = useNutritionCalculations()
 
   const handleFactorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
@@ -24,41 +26,6 @@ export default function BioResultSection() {
     }))
   }
 
-  const calculateProtein = () => {
-    const idealWeight = calculateIdealWeight()
-    const { min, max } = proteinFactors
-    const minValue = Math.min(min * idealWeight, max * idealWeight).toFixed(2)
-    const maxValue = Math.max(min * idealWeight, max * idealWeight).toFixed(2)
-
-    return { minValue, maxValue }
-  }
-  
-  const calculateBMI = () => {
-    const { height, weight } = submittedValues
-    if (height === 0 || weight === 0) return 0
-    
-    return (weight / ((height / 100) ** 2)).toFixed(2)
-  }
-
-  const calculateIdealWeight = () => {
-    const { height } = submittedValues
-    if (height === 0) return 0
-    return Math.abs(Number((((height / 100) ** 2) * 22).toFixed(2))) || 0
-  }
-
-  const calculateTDEE = () => {
-    const { height, weight, age, gender } = submittedValues
-    const { activityFactor, stressFactor } = tdeeFactors
-    if (height === 0 || weight === 0 || age === 0) return 0
-
-    const idealWeight = calculateIdealWeight()
-    const manBEE = 13.7 * idealWeight + 5 * height - 6.8 * age + 66
-    const womanBEE = 9.6 * idealWeight + 1.8 * height - 4.7 * age + 655
-    const BEE = gender === "man" ? manBEE : womanBEE
-    const TDEE = BEE * activityFactor * stressFactor
-    return TDEE.toFixed(2)
-  }
-
   return (
     <CardContent>
       <div>
@@ -71,28 +38,33 @@ export default function BioResultSection() {
         <span>{calculateIdealWeight()}</span>
       </div>
 
-      <div className="mt-2">
-        <span className="font-bold">TDEE：</span>
-        <span>{calculateTDEE()}</span>
-        <div className="flex space-x-2">
-          <div>
-            <Label htmlFor="activityFactor" className="mb-2">活動因子</Label>
-            <Input id="activityFactor" type="number" placeholder="活動因子" value={tdeeFactors.activityFactor} onChange={handleFactorChange} />
+      <div className="mt-2 flex items-center justify-between space-x-2">
+        <div>
+          <span className="font-bold">TDEE：</span>
+          <span className="mr-4">{calculateTDEE()}</span>
+        </div>
+
+        <div className="flex items-center space-x-2">
+          <div className="flex">
+            <Label htmlFor="activityFactor" className="mr-2">活動因子</Label>
+            <Input className="w-[50px]" id="activityFactor" type="number" placeholder="活動因子" value={tdeeFactors.activityFactor} onChange={handleFactorChange} />
           </div>
-          <div>
-            <Label htmlFor="stressFactor" className="mb-2">壓力因子</Label>
-            <Input id="stressFactor" type="number" placeholder="壓力因子" value={tdeeFactors.stressFactor} onChange={handleFactorChange} />
+          <div className="flex">
+            <Label htmlFor="stressFactor" className="mr-2">壓力因子</Label>
+            <Input className="w-[50px]" id="stressFactor" type="number" placeholder="壓力因子" value={tdeeFactors.stressFactor} onChange={handleFactorChange} />
           </div>
         </div>
       </div>
 
-      <div className="mt-2">
-        <span className="font-bold">蛋白質需求：</span>
-        <span>{calculateProtein().minValue}g - {calculateProtein().maxValue}g</span>
-        <div className="flex items-center space-x-2 mb-2">
-          <Input id="min" type="number" placeholder="0.8" value={proteinFactors.min} onChange={handleProteinFactorChange} />
+      <div className="mt-2 flex justify-between items-center space-x-1">
+        <div>
+          <p className="font-bold">蛋白質需求：</p>
+          <p>{calculateProtein().minValue}g - {calculateProtein().maxValue}g</p>
+        </div>
+        <div className="flex items-center w-[150px] space-x-2 ml-4">
+          <Input className="w-[70px]" id="min" type="number" placeholder="0.8" value={proteinFactors.min} onChange={handleProteinFactorChange} />
           <p>-</p>
-          <Input id="max" type="number" placeholder="1" value={proteinFactors.max} onChange={handleProteinFactorChange} />
+          <Input className="w-[70px]" id="max" type="number" placeholder="1" value={proteinFactors.max} onChange={handleProteinFactorChange} />
         </div>
       </div>
     </CardContent>

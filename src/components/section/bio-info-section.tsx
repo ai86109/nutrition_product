@@ -58,9 +58,9 @@ export default function BioInfoSection() {
             </div>
           </div>
         </RadioGroup>
+        <Button className="mt-4" variant="outline" onClick={handleSubmit}>送出</Button>
       </div>
 
-      <Button className="mt-4" variant="outline" onClick={handleSubmit}>送出</Button>
     </CardContent>
   )
 }

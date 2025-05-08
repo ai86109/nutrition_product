@@ -34,14 +34,14 @@ export default function ProductSearchSection() {
   return (
     <CardContent>
       <div>
-        <p>查詢區塊</p>
-        <Button className="mt-4" variant="outline" onClick={handleSearchSubmit}>送出</Button>
+        {/* <p>查詢區塊</p>
+        <Button className="mt-4" variant="outline" onClick={handleSearchSubmit}>送出</Button> */}
         {/* 可以用下拉選單的方式去找尋品牌 */}
         {/* 可以使用類別去搜尋產品 */}
         {/* 有一個搜尋框可以用關鍵字搜尋到營養品 */}
       </div>
       <div>
-        <p>查詢結果</p>
+        {/* <p>查詢結果</p> */}
         <Table>
           <TableHeader>
             <TableRow>
@@ -64,8 +64,6 @@ export default function ProductSearchSection() {
             ))}
           </TableBody>
         </Table>
-        {/* 顯示品名、品牌、劑型 */}
-        {/* 有一個按鈕，點擊之後可以加入到下方的 card 來計算 */}
         {/* 顯示成分（做成 dialog？怕 table 太長） */}
         {/* 有連結可以讓他連到衛福部的該頁面查詢 */}
         {/* 顯示 tag，包括此產品的類別、特殊疾病配方？ */}

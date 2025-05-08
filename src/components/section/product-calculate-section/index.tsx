@@ -10,6 +10,7 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table"
+import { Separator } from "@/components/ui/separator"
 import { useProduct } from "@/contexts/ProductContext"
 import { useEffect, useState } from "react";
 import productsData from '@/data/products.json';
@@ -101,7 +102,7 @@ export default function Index() {
       }))
 
       // ingredientsData
-      setIngredientsData((prevData) => {        
+      setIngredientsData(() => {        
         const result = listData.reduce((acc, item) => {
           const { ingredients } = item
           let quantity = item.quantity > 0 ? item.quantity : 0
@@ -138,31 +139,32 @@ export default function Index() {
   }
 
   return (
-    <CardContent>
-      <p>計算區塊</p>
-      
-      <p>已加入的營養品區塊</p>
-      <Table>
-        <TableBody>
-          {listData.length > 0 && listData.map((item) => (
-            <TableRow key={item.id}>
-              <TableCell>
-                <Checkbox />
-              </TableCell>
-              <TableCell>{item.name}</TableCell>
-              <TableCell>
-                <Input id={item.id} type="number" placeholder="數量" value={item.quantity} onChange={handleInputChange} />
-              </TableCell>
-              <TableCell>
-                <Button variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-      {/* 可以勾選，是否加入計算 */}
+    <div className="flex">
+      <CardContent className="w-[520px]">        
+        <Table>
+          <TableBody>
+            {listData.length > 0 && listData.map((item) => (
+              <TableRow key={item.id}>
+                <TableCell>
+                  <Checkbox />
+                </TableCell>
+                <TableCell>{item.name}</TableCell>
+                <TableCell>
+                  <Input id={item.id} type="number" placeholder="數量" value={item.quantity} onChange={handleInputChange} />
+                </TableCell>
+                <TableCell>
+                  <Button variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+        {/* 可以勾選，是否加入計算 */}
+        {/* 全選勾選 */}
+      </CardContent>
+      <Separator orientation="vertical" className="mx-2" />
 
       <ChartSection ingredientsData={ingredientsData} />
-    </CardContent>
+    </div>
   )
 }
