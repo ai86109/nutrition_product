@@ -1,0 +1,34 @@
+[
+  {
+    "id": "1139005268",
+    "name": "亞培葡勝納穩康粉狀糖尿病營養品(香草口味)",
+    "brand": "亞培",
+    "type": "粉劑",
+    "ingredients": {
+      "calories": 226,
+      "carbohydrate": 3.2,
+      "protein": 10.2,
+      "fat": 8.7,
+      "phosphorus": 0,
+      "kalium": 0,
+      "sodium": 0,
+      "fiber": 0
+    }
+  },
+  {
+    "id": "1076036767",
+    "name": "亞培葡勝納SR原味+纖維糖尿病營養品",
+    "brand": "亞培",
+    "type": "液劑",
+    "ingredients": {
+      "calories": 192,
+      "carbohydrate": 24.5,
+      "protein": 9.3,
+      "fat": 6.8,
+      "phosphorus": 150,
+      "kalium": 312,
+      "sodium": 178,
+      "fiber": 2.4
+    }
+  }
+]
