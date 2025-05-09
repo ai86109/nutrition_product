@@ -12,6 +12,8 @@ import {
 } from "@/components/ui/table"
 import { useProduct } from "@/contexts/ProductContext"
 import productsData from '@/data/products.json';
+import Link from "next/link"
+import { getLinkPath } from "@/utils/link"
 
 export default function ProductSearchSection() {
   const { productList, setProductList } = useProduct()
@@ -54,7 +56,9 @@ export default function ProductSearchSection() {
           <TableBody>
             {data.map((item) => (
               <TableRow key={item.id}>
-                <TableCell>{item.name}</TableCell>
+                <TableCell>
+                  <Link href={getLinkPath(item.id)} target="_blank">{item.name}</Link>
+                </TableCell>
                 <TableCell>{item.brand}</TableCell>
                 <TableCell>{item.type}</TableCell>
                 <TableCell>
