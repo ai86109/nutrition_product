@@ -120,7 +120,7 @@ export default function Index() {
   }
 
   return (
-    <div className="flex">
+    <div className="flex flex-col">
       <CardContent className="w-[520px]">        
         <Table>
           <TableBody>
@@ -142,10 +142,9 @@ export default function Index() {
             ))}
           </TableBody>
         </Table>
-        {/* 可以勾選，是否加入計算 */}
         {/* 全選勾選 */}
       </CardContent>
-      <Separator orientation="vertical" className="mx-2" />
+      <Separator className="my-4" />
 
       <ChartSection ingredientsData={ingredientsData} />
     </div>

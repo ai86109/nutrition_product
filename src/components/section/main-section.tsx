@@ -14,36 +14,37 @@ import { ProductProvider } from "@/contexts/ProductContext";
 export default function MainSection() {
   return (
     <ProductProvider>
-      <div className="flex gap-4">
-        <Card className="w-[845px] my-[20px] ml-[20px]">
-          <div className="flex">
-            <div>
-              <CardHeader>
-                <CardTitle>營養計算機</CardTitle>
-                {/* <CardDescription>請輸入您的身高、體重、年齡及性別</CardDescription> */}
-              </CardHeader>
-              <BioInfoSection />
+      <div className="flex m-[20px] gap-4">
+        <div className="flex flex-col w-[845px] gap-4">
+          <Card>
+            <div className="flex">
+              <div>
+                <CardHeader>
+                  <CardTitle>營養計算機</CardTitle>
+                  {/* <CardDescription>請輸入您的身高、體重、年齡及性別</CardDescription> */}
+                </CardHeader>
+                <BioInfoSection />
+              </div>
+              <Separator orientation="vertical" />
+              <BioResultSection />
             </div>
-            <Separator orientation="vertical" />
-            {/* <div className="w-0.5 h-[90%] bg-[var(--sidebar-border)] mx-auto opacity-50"></div> */}
-            <BioResultSection />
-          </div>
-        </Card>
+          </Card>
 
-        <Card className="w-[calc(100vw-905px)] my-[20px] mr-[20px]">
+          <Card>
+            <CardHeader>
+              <CardTitle>營養品成分計算</CardTitle>
+            </CardHeader>
+            <ProductCalculateSection />
+          </Card>
+        </div>
+
+        <Card className="w-[calc(100vw-905px)]">
           <CardHeader>
             <CardTitle>營養品查詢</CardTitle>
           </CardHeader>
           <ProductSearchSection />
         </Card>
       </div>
-
-      <Card className="mx-[20px] mb-[20px]">
-        <CardHeader>
-          <CardTitle>營養品成分計算</CardTitle>
-        </CardHeader>
-        <ProductCalculateSection />
-      </Card>
     </ProductProvider>
   )
 }
