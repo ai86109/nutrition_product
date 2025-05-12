@@ -40,5 +40,10 @@ export function useNutritionCalculations() {
     return { minValue, maxValue }
   }
 
-  return { calculateBMI, calculateIdealWeight, calculateTDEE, calculateProtein }
+  const rounding = (value: number) => {
+    if (value === 0) return 0
+    return Math.round(value * 100) / 100
+  }
+
+  return { calculateBMI, calculateIdealWeight, calculateTDEE, calculateProtein, rounding }
 }

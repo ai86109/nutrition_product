@@ -1,17 +1,17 @@
 [
   {
-    "id": "1139005268",
-    "name": "亞培葡勝納穩康粉狀糖尿病營養品(香草口味)",
+    "id": "1076039413",
+    "name": "益沛佳慢性阻塞性肺病專用特殊營養品",
     "brand": "亞培",
-    "type": "粉劑",
+    "type": "液劑",
     "ingredients": {
-      "calories": 226,
-      "carbohydrate": 3.2,
-      "protein": 10.2,
-      "fat": 8.7,
-      "phosphorus": 0,
-      "kalium": 0,
-      "sodium": 0,
+      "calories": 357,
+      "carbohydrate": 25,
+      "protein": 14.8,
+      "fat": 22.1,
+      "phosphorus": 250,
+      "kalium": 465,
+      "sodium": 310,
       "fiber": 0
     }
   },
@@ -29,6 +29,38 @@
       "kalium": 312,
       "sodium": 178,
       "fiber": 2.4
+    }
+  },
+  {
+    "id": "1129037878",
+    "name": "葡勝納3重強護粉狀配方(香草口味)",
+    "brand": "亞培",
+    "type": "粉劑",
+    "ingredients": {
+      "calories": 231,
+      "carbohydrate": 30.4,
+      "protein": 10.2,
+      "fat": 8.3,
+      "phosphorus": 168,
+      "kalium": 370,
+      "sodium": 211,
+      "fiber": 3.2
+    }
+  },
+  {
+    "id": "1139005268",
+    "name": "亞培葡勝納穩康粉狀糖尿病營養品(香草口味)",
+    "brand": "亞培",
+    "type": "液劑",
+    "ingredients": {
+      "calories": 226,
+      "carbohydrate": 30,
+      "protein": 10.2,
+      "fat": 8.7,
+      "phosphorus": 168,
+      "kalium": 370,
+      "sodium": 264,
+      "fiber": 3.9
     }
   }
 ]
