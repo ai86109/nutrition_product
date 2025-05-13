@@ -14,7 +14,7 @@ export default function BioResultSection() {
     const { id, value } = e.target
     setTdeeFactors((prevData) => ({
       ...prevData,
-      [id]: Number(value),
+      [id]: value,
     }))
   }
 
@@ -22,7 +22,7 @@ export default function BioResultSection() {
     const { id, value } = e.target
     setProteinFactors((prevData) => ({
       ...prevData,
-      [id]: Number(value),
+      [id]: value,
     }))
   }
 
@@ -47,11 +47,11 @@ export default function BioResultSection() {
         <div className="flex items-center space-x-2">
           <div className="flex">
             <Label htmlFor="activityFactor" className="mr-2">活動因子</Label>
-            <Input className="w-[50px]" id="activityFactor" type="number" placeholder="活動因子" value={tdeeFactors.activityFactor} onChange={handleFactorChange} />
+            <Input className="w-[70px]" id="activityFactor" type="number" step={0.1} placeholder="活動因子" value={tdeeFactors.activityFactor} onChange={handleFactorChange} />
           </div>
           <div className="flex">
             <Label htmlFor="stressFactor" className="mr-2">壓力因子</Label>
-            <Input className="w-[50px]" id="stressFactor" type="number" placeholder="壓力因子" value={tdeeFactors.stressFactor} onChange={handleFactorChange} />
+            <Input className="w-[70px]" id="stressFactor" type="number" step={0.1} placeholder="壓力因子" value={tdeeFactors.stressFactor} onChange={handleFactorChange} />
           </div>
         </div>
       </div>
@@ -62,9 +62,9 @@ export default function BioResultSection() {
           <p>{calculateProtein().minValue}g - {calculateProtein().maxValue}g</p>
         </div>
         <div className="flex items-center w-[150px] space-x-2 ml-4">
-          <Input className="w-[70px]" id="min" type="number" placeholder="0.8" value={proteinFactors.min} onChange={handleProteinFactorChange} />
+          <Input className="w-[70px]" id="min" type="number" step={0.1} placeholder="0.8" value={proteinFactors.min} onChange={handleProteinFactorChange} />
           <p>-</p>
-          <Input className="w-[70px]" id="max" type="number" placeholder="1" value={proteinFactors.max} onChange={handleProteinFactorChange} />
+          <Input className="w-[70px]" id="max" type="number" step={0.1} placeholder="1" value={proteinFactors.max} onChange={handleProteinFactorChange} />
         </div>
       </div>
     </CardContent>

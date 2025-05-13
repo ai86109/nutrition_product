@@ -65,10 +65,13 @@ export default function Index() {
         return {
           id: product.id,
           name: product.name,
+          engName: product.engName,
           brand: product.brand,
           type: product.type,
+          defaultAmount: product.defaultAmount,
           quantity,
           checked: true,
+          spec: product.spec,
           ingredients: {
             calories: product.ingredients.calories,
             carbohydrate: product.ingredients.carbohydrate,
@@ -121,7 +124,7 @@ export default function Index() {
 
   return (
     <div className="flex flex-col">
-      <CardContent className="w-[520px]">        
+      <CardContent>        
         <Table>
           <TableBody>
             {listData.length > 0 && listData.map((item) => (
@@ -129,17 +132,63 @@ export default function Index() {
                 <TableCell>
                   <Checkbox id={`check-${item.id}`} checked={item.checked} onCheckedChange={(checked) => handleCheck(item.id, !!checked)} />
                 </TableCell>
-                <TableCell>
-                  <Link href={getLinkPath(item.id)} target="_blank">{item.name}</Link>
+                <TableCell className="max-w-[200px]" style={{ textWrap: 'wrap'}}>
+                  <Link href={getLinkPath(item.id)} target="_blank">
+                    <p>{item.name}</p>
+                    {item.engName && <p className="text-xs">{item.engName}</p>}
+                  </Link>
                 </TableCell>
                 <TableCell>
-                  <Input id={item.id} type="number" placeholder="數量" value={item.quantity} onChange={handleInputChange} />
+                  <Input id={item.id} className="w-[70px]" type="number" placeholder="數量" value={item.quantity} onChange={handleInputChange} />
                 </TableCell>
                 <TableCell>
                   <Button variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
                 </TableCell>
               </TableRow>
             ))}
+            <TableRow>
+              <TableCell>
+                <Checkbox />
+              </TableCell>
+              <TableCell>
+                亞培葡勝納SR原味+纖維糖尿病營養品
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center space-x-2">
+                  <Input type="number" placeholder="數量" value={1} className="w-[70px]" />
+                  {/* 做成dropdown */}
+                  <span>包</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                1 包 = 52.1g
+              </TableCell>
+              <TableCell>
+                <Button variant="outline">移除</Button>
+              </TableCell>
+            </TableRow>
+            <TableRow>
+              <TableCell>
+                <Checkbox />
+              </TableCell>
+              <TableCell>
+                <p>亞培葡勝納SR原味+纖維糖尿病營養品</p>
+                <p>GLUCERNA TRIPLE CARE VANILLA POWDER</p>
+              </TableCell>
+              <TableCell>
+                <div className="flex items-center space-x-2">
+                  <Input type="number" placeholder="數量" value={1} className="w-[70px]" />
+                  {/* 做成dropdown */}
+                  <span>匙</span>
+                </div>
+              </TableCell>
+              <TableCell>
+                5 匙 = 52.1g
+              </TableCell>
+              <TableCell>
+                <Button variant="outline">移除</Button>
+              </TableCell>
+            </TableRow>
           </TableBody>
         </Table>
         {/* 全選勾選 */}

@@ -56,8 +56,11 @@ export default function ProductSearchSection() {
           <TableBody>
             {data.map((item) => (
               <TableRow key={item.id}>
-                <TableCell>
-                  <Link href={getLinkPath(item.id)} target="_blank">{item.name}</Link>
+                <TableCell className="max-w-[200px]" style={{ textWrap: 'wrap'}}>
+                  <Link href={getLinkPath(item.id)} target="_blank">
+                    <p>{item.name}</p>
+                    {item.engName && <p className="text-xs">{item.engName}</p>}
+                  </Link>
                 </TableCell>
                 <TableCell>{item.brand}</TableCell>
                 <TableCell>{item.type}</TableCell>
@@ -69,7 +72,6 @@ export default function ProductSearchSection() {
           </TableBody>
         </Table>
         {/* 顯示成分（做成 dialog？怕 table 太長） */}
-        {/* 有連結可以讓他連到衛福部的該頁面查詢 */}
         {/* 顯示 tag，包括此產品的類別、特殊疾病配方？ */}
       </div>
     </CardContent>

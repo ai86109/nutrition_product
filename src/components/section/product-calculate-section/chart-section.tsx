@@ -83,13 +83,6 @@ export default function ChartSection({ ingredientsData }) {
 
   return(
     <CardContent className="flex">
-      {/* 該病人一日所需熱量/蛋白質的地方，這樣選擇營養品之後，可以讓我知道
-      熱量（大卡、大卡/公斤體重）
-      蛋白質（克、克/公斤體重）
-      -三大營養素百分比
-      -礦物質毫克（磷、鉀、鈉）
-      -纖維 */}
-
       <div className="min-w-[250px] max-w-[400px]">
         <Table>
           <TableBody>

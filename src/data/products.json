@@ -2,8 +2,16 @@
   {
     "id": "1076039413",
     "name": "益沛佳慢性阻塞性肺病專用特殊營養品",
+    "engName": "PULMOCARE SPECIALIZED NUTRITION WITH EXCELLENT FAT COMBINATION FOR PULMONARY PATIENTS",
     "brand": "亞培",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 237
+    }],
     "type": "液劑",
+    "defaultAmount": 237,
     "ingredients": {
       "calories": 357,
       "carbohydrate": 25,
@@ -18,8 +26,16 @@
   {
     "id": "1076036767",
     "name": "亞培葡勝納SR原味+纖維糖尿病營養品",
+    "engName": "GLUCERNA SR NO ADDED SUGAR ORIGINAL",
     "brand": "亞培",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 200
+    }],
     "type": "液劑",
+    "defaultAmount": 200,
     "ingredients": {
       "calories": 192,
       "carbohydrate": 24.5,
@@ -34,8 +50,24 @@
   {
     "id": "1129037878",
     "name": "葡勝納3重強護粉狀配方(香草口味)",
+    "engName": "GLUCERNA TRIPLE CARE VANILLA POWDER",
     "brand": "亞培",
+    "spec": [
+      {
+      "type": "粉劑",
+      "unit": "包",
+      "defaultAmount": 1,
+      "volume": 52.1
+      },
+      {
+        "type": "粉劑",
+        "unit": "匙",
+        "defaultAmount": 5,
+        "volume": 10.42
+      }
+    ],
     "type": "粉劑",
+    "defaultAmount": 52.1,
     "ingredients": {
       "calories": 231,
       "carbohydrate": 30.4,
@@ -50,8 +82,24 @@
   {
     "id": "1139005268",
     "name": "亞培葡勝納穩康粉狀糖尿病營養品(香草口味)",
+    "engName": "GLUCERNA GLADIATOR POWDER",
     "brand": "亞培",
-    "type": "液劑",
+    "spec": [
+      {
+      "type": "粉劑",
+      "unit": "包",
+      "defaultAmount": 1,
+      "volume": 52.1
+      },
+      {
+        "type": "粉劑",
+        "unit": "匙",
+        "defaultAmount": 5,
+        "volume": 10.42
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 52.1,
     "ingredients": {
       "calories": 226,
       "carbohydrate": 30,
@@ -61,6 +109,62 @@
       "kalium": 370,
       "sodium": 264,
       "fiber": 3.9
+    }
+  },
+  {
+    "id": "1139091114",
+    "name": "補體素康健HN營養均衡完整配方食品",
+    "engName": "",
+    "brand": "思耐得",
+    "spec": [
+      {
+      "type": "粉劑",
+      "unit": "包",
+      "defaultAmount": 1,
+      "volume": 22
+      },
+      {
+      "type": "粉劑",
+      "unit": "包",
+      "defaultAmount": 1,
+      "volume": 33
+      },
+      {
+      "type": "粉劑",
+      "unit": "包",
+      "defaultAmount": 1,
+      "volume": 44
+      },
+      {
+      "type": "粉劑",
+      "unit": "包",
+      "defaultAmount": 1,
+      "volume": 55
+      },
+      {
+      "type": "粉劑",
+      "unit": "包",
+      "defaultAmount": 1,
+      "volume": 66
+      },
+      {
+        "type": "粉劑",
+        "unit": "匙",
+        "defaultAmount": 2,
+        "volume": 27.5
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 55,
+    "ingredients": {
+      "calories": 251,
+      "carbohydrate": 31.6,
+      "protein": 10.1,
+      "fat": 9.4,
+      "phosphorus": 165,
+      "kalium": 259,
+      "sodium": 220,
+      "fiber": 0
     }
   }
 ]

@@ -2,7 +2,6 @@ import BioInfoSection from "./bio-info-section";
 import BioResultSection from "./bio-result-section";
 import {
   Card,
-  // CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -18,10 +17,9 @@ export default function MainSection() {
         <div className="flex flex-col w-[845px] gap-4">
           <Card>
             <div className="flex">
-              <div>
+              <div className="w-[300px]">
                 <CardHeader>
                   <CardTitle>營養計算機</CardTitle>
-                  {/* <CardDescription>請輸入您的身高、體重、年齡及性別</CardDescription> */}
                 </CardHeader>
                 <BioInfoSection />
               </div>

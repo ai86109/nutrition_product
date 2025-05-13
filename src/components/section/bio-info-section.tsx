@@ -60,7 +60,6 @@ export default function BioInfoSection() {
         </RadioGroup>
         <Button className="mt-4" variant="outline" onClick={handleSubmit}>送出</Button>
       </div>
-
     </CardContent>
   )
 }
