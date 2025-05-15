@@ -70,9 +70,9 @@ export default function ChartSection({ ingredientsData }) {
     const proteinPercentage = ((protein * 4) / totalCalories) * 100
     const fatPercentage = ((fat * 9) / totalCalories) * 100
     return [
-      { macronutrients: "carbohydrate", percentage: carbohydratePercentage, fill: "red" },
-      { macronutrients: "protein", percentage: proteinPercentage, fill: "blue" },
-      { macronutrients: "fat", percentage: fatPercentage, fill: "green" },
+      { macronutrients: "carbohydrate", percentage: carbohydratePercentage, fill: "#765337" },
+      { macronutrients: "protein", percentage: proteinPercentage, fill: "#8f633d" },
+      { macronutrients: "fat", percentage: fatPercentage, fill: "#ad7c48" },
     ]
   }
 
@@ -88,7 +88,7 @@ export default function ChartSection({ ingredientsData }) {
           <TableBody>
             <TableRow>
               <TableCell>熱量</TableCell>
-              <TableCell>{ingredientsData.calories} Kcal</TableCell>
+              <TableCell>{rounding(ingredientsData.calories)} Kcal</TableCell>
             </TableRow>
             {ingredientsData.calories > 0 && (
               <>
@@ -107,31 +107,31 @@ export default function ChartSection({ ingredientsData }) {
               </>)}
             <TableRow>
               <TableCell>蛋白質</TableCell>
-              <TableCell>{ingredientsData.protein}g</TableCell>
+              <TableCell>{rounding(ingredientsData.protein)} g</TableCell>
             </TableRow>
             <TableRow>
               <TableCell>碳水化合物</TableCell>
-              <TableCell>{rounding(ingredientsData.carbohydrate)}g</TableCell>
+              <TableCell>{rounding(ingredientsData.carbohydrate)} g</TableCell>
             </TableRow>
             <TableRow>
               <TableCell>脂肪</TableCell>
-              <TableCell>{rounding(ingredientsData.fat)}g</TableCell>
+              <TableCell>{rounding(ingredientsData.fat)} g</TableCell>
             </TableRow>
             <TableRow>
               <TableCell>磷</TableCell>
-              <TableCell>{rounding(micronutrients().phosphorus)}mg</TableCell>
+              <TableCell>{rounding(micronutrients().phosphorus)} mg</TableCell>
             </TableRow>
             <TableRow>
               <TableCell>鉀</TableCell>
-              <TableCell>{rounding(micronutrients().kalium)}mg</TableCell>
+              <TableCell>{rounding(micronutrients().kalium)} mg</TableCell>
             </TableRow>
             <TableRow>
               <TableCell>鈉</TableCell>
-              <TableCell>{rounding(micronutrients().sodium)}mg</TableCell>
+              <TableCell>{rounding(micronutrients().sodium)} mg</TableCell>
             </TableRow>
             <TableRow>
               <TableCell>纖維</TableCell>
-              <TableCell>{rounding(micronutrients().fiber)}g</TableCell>
+              <TableCell>{rounding(micronutrients().fiber)} g</TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -142,7 +142,7 @@ export default function ChartSection({ ingredientsData }) {
           <div className="w-full">
             <Alert>
               <AlertDescription>
-                以下數據為 <p><b>『營養品熱量 / TDEE』之比例</b> ({ingredientsData.calories} / {calculateTDEE()})</p>以及 <p><b>『營養品蛋白質 / 最低蛋白質需求』之比例</b> ({ingredientsData.protein} / {calculateProtein().minValue})</p>
+                以下數據為 <p><b>『營養品熱量 / TDEE』之比例</b> ({rounding(ingredientsData.calories)} / {rounding(calculateTDEE())})</p>以及 <p><b>『營養品蛋白質 / 最低蛋白質需求』之比例</b> ({rounding(ingredientsData.protein)} / {rounding(calculateProtein().minValue)})</p>
               </AlertDescription>
             </Alert>
             <ChartContainer config={barChartConfig} className="h-[120px]">
@@ -156,12 +156,12 @@ export default function ChartSection({ ingredientsData }) {
                   axisLine={false}
                   tickFormatter={(value) => value.slice(0, 3)}
                 />
-                <Bar dataKey="current" fill="red" radius={4}>
+                <Bar dataKey="current" fill="#ad7c48" radius={4}>
                   <LabelList
                     dataKey="label"
                     position="insideRight"
                     offset={8}
-                    fill="var(--color-mobile)"
+                    fill="white"
                     fontSize={12}
                   />
                 </Bar>

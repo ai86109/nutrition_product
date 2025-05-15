@@ -54,10 +54,10 @@
     "brand": "亞培",
     "spec": [
       {
-      "type": "粉劑",
-      "unit": "包",
-      "defaultAmount": 1,
-      "volume": 52.1
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 52.1
       },
       {
         "type": "粉劑",
@@ -86,10 +86,10 @@
     "brand": "亞培",
     "spec": [
       {
-      "type": "粉劑",
-      "unit": "包",
-      "defaultAmount": 1,
-      "volume": 52.1
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 52.1
       },
       {
         "type": "粉劑",
@@ -118,34 +118,34 @@
     "brand": "思耐得",
     "spec": [
       {
-      "type": "粉劑",
-      "unit": "包",
-      "defaultAmount": 1,
-      "volume": 22
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 22
       },
       {
-      "type": "粉劑",
-      "unit": "包",
-      "defaultAmount": 1,
-      "volume": 33
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 33
       },
       {
-      "type": "粉劑",
-      "unit": "包",
-      "defaultAmount": 1,
-      "volume": 44
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 44
       },
       {
-      "type": "粉劑",
-      "unit": "包",
-      "defaultAmount": 1,
-      "volume": 55
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 55
       },
       {
-      "type": "粉劑",
-      "unit": "包",
-      "defaultAmount": 1,
-      "volume": 66
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 66
       },
       {
         "type": "粉劑",

@@ -10,6 +10,15 @@ import {
   TableCell,
   TableRow,
 } from "@/components/ui/table"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+  SelectLabel,
+} from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { useProduct } from "@/contexts/ProductContext"
 import { useCallback, useEffect, useState } from "react";
@@ -17,32 +26,100 @@ import productsData from '@/data/products.json';
 import ChartSection from "@/components/section/product-calculate-section/chart-section"
 import Link from "next/link"
 import { getLinkPath } from "@/utils/link"
+import { unitMapping, calcUnitMapping } from "@/utils/mappings"
+
+const isSelectBlock = (selectOptions) => {
+  const hasMultiUnitOptions = selectOptions.length > 1
+  if (hasMultiUnitOptions) return true
+
+  const hasMultiProductsOptions = selectOptions[0].products.length > 1
+  return hasMultiProductsOptions
+}
+
+function GetProductTypeBlock({ selectData, handleValueChange, productId }) {
+  const { selectOptions } = selectData
+  if (isSelectBlock(selectOptions)) return <GetSelectBlock selectData={selectData} handleValueChange={handleValueChange} productId={productId} />
+  else return <GetSingleTypeBlock selectData={selectData} />
+}
+
+function GetSelectBlock({ selectData, handleValueChange, productId }) {
+  const { selectedId, selectOptions } = selectData
+  return (
+    <Select value={selectedId} onValueChange={(value) => handleValueChange(value, productId)}>
+      <SelectTrigger className="w-[130px]">
+        <SelectValue />
+      </SelectTrigger>
+      {selectOptions && (
+        <SelectContent>
+          {selectOptions.map((unit) => {
+            const hasMultiUnitOptions = selectOptions.length > 1
+            if (hasMultiUnitOptions) {
+              return (
+                <SelectGroup key={unit.unit}>
+                  <SelectLabel>{unit.unit}</SelectLabel>
+                  {unit.products.map((product) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.defaultAmount}{unit.unit} = {product.defaultAmount * product.volume}{calcUnitMapping[unit.unit]}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              )
+            }
+            
+            return unit.products.map((product) => (
+              <SelectItem key={product.id} value={product.id}>
+                {product.defaultAmount}{unit.unit} = {product.defaultAmount * product.volume}{calcUnitMapping[unit.unit]}
+              </SelectItem>
+            ))
+          })}
+        </SelectContent>
+      )}
+    </Select>
+  )
+}
+
+function GetSingleTypeBlock({ selectData }) {
+  const { selectOptions } = selectData
+  const { unit, products } = selectOptions[0]
+  const { defaultAmount, volume } = products[0]
+  return (
+    <p>{defaultAmount}{unit} = {defaultAmount * volume}{calcUnitMapping[unit]}</p>
+  )
+}
 
 export default function Index() {
   const { productList, setProductList } = useProduct()
   const [listData, setListData] = useState([])
   const [ingredientsData, setIngredientsData] = useState([])
-
+  
   const calculateIngredients = useCallback((data, rewriteId = null, rewriteQuantity = null) => {
     return data.reduce((acc, item) => {
       if (!item.checked) return acc;
-
+      
       const { ingredients, id } = item
       let quantity = item.quantity > 0 ? item.quantity : 0
-
+      
       if (rewriteId && rewriteQuantity && id === rewriteId) {
         quantity = rewriteQuantity > 0 ? rewriteQuantity : 0
       }
 
+      // calculate ratio
+      const { selectedId, selectOptions } = item.select
+      const currentAmount = selectOptions.map((type) => {
+        const { products } = type
+        return products.find((product) => selectedId === product.id)?.volume || null
+      }).filter((item) => item !== null)
+      const ratio = currentAmount[0] / item.defaultAmount
+      
       return {
-        calories: acc.calories + (quantity * ingredients.calories),
-        carbohydrate: acc.carbohydrate + (quantity * ingredients.carbohydrate),
-        protein: acc.protein + (quantity * ingredients.protein),
-        fat: acc.fat + (quantity * ingredients.fat),
-        phosphorus: acc.phosphorus + (quantity * ingredients.phosphorus),
-        kalium: acc.kalium + (quantity * ingredients.kalium),
-        sodium: acc.sodium + (quantity * ingredients.sodium),
-        fiber: acc.fiber + (quantity * ingredients.fiber),
+        calories: acc.calories + (quantity * ratio * ingredients.calories),
+        carbohydrate: acc.carbohydrate + (quantity * ratio * ingredients.carbohydrate),
+        protein: acc.protein + (quantity * ratio * ingredients.protein),
+        fat: acc.fat + (quantity * ratio * ingredients.fat),
+        phosphorus: acc.phosphorus + (quantity * ratio * ingredients.phosphorus),
+        kalium: acc.kalium + (quantity * ratio * ingredients.kalium),
+        sodium: acc.sodium + (quantity * ratio * ingredients.sodium),
+        fiber: acc.fiber + (quantity * ratio * ingredients.fiber),
       }
     }, {
       calories: 0,
@@ -55,23 +132,75 @@ export default function Index() {
       fiber: 0,
     })
   }, [listData])
-
+  
   useEffect(() => {
     const selectedProducts = productList.map((productId) => {
       const product = productsData.find((product) => product.id === productId)
-      if (product) {
-        const rawQuantity = listData.find((list) => list.id === productId)?.quantity || 1;
-        const quantity = rawQuantity > 0 ? rawQuantity : 0;
+      if (product) {        
+        let selectOptions = []
+        const isMultiOptions = product.spec.length > 1
+        if (isMultiOptions) {
+          // 轉成 selectOptions 格式
+          let tempList = {}
+          product.spec.forEach((option) => {
+            // 看 option.unit 有沒有在 tempList 裡
+            const { unit, defaultAmount, volume } = option
+            const isListed = unit in tempList
+            // 有的話 加入 products
+            if (isListed) {
+              const list = tempList[unit].products
+              list.push({
+                id: `${unitMapping[unit]}-${list.length + 1}`,
+                defaultAmount,
+                volume
+              })
+            } else {
+              // 沒有的話 新建一個
+              tempList[unit] = {
+                unit,
+                products: [{
+                  id: `${unitMapping[unit]}-${1}`,
+                  defaultAmount,
+                  volume
+                }]
+              }
+            }
+            
+            // add to selectOptions
+            selectOptions = Object.values(tempList)
+          })
+        } else {
+          const { unit, defaultAmount, volume } = product.spec[0]
+          selectOptions = [{
+            unit: unit,
+            products: [{
+              id: `${unitMapping[unit]}-${1}`,
+              defaultAmount,
+              volume
+            }]
+          }]
+        }
+
+        let quantity = 0
+        const hasQuantity = !!listData.find((list) => list.id === productId)
+        if (hasQuantity) {
+          quantity = listData.find((list) => list.id === productId).quantity
+        } else {
+          quantity = selectOptions[0].products[0].defaultAmount
+        }
+        
         return {
           id: product.id,
           name: product.name,
           engName: product.engName,
           brand: product.brand,
-          type: product.type,
           defaultAmount: product.defaultAmount,
           quantity,
           checked: true,
-          spec: product.spec,
+          select: {
+            selectedId: selectOptions[0].products[0].id,
+            selectOptions,
+          },
           ingredients: {
             calories: product.ingredients.calories,
             carbohydrate: product.ingredients.carbohydrate,
@@ -84,31 +213,55 @@ export default function Index() {
           }
         }
       }
-
+      
       return null
     }).filter((item) => item !== null)
-
+    
     setListData(selectedProducts)
   }, [productList])
-
+  
   useEffect(() => {
     setIngredientsData(calculateIngredients(listData))
   }, [listData, calculateIngredients])
-
-
+  
+  
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
     const product = listData.find((item) => item.id === id)
-    if (product) {
-      const quantity = Number(value) > 0 ? Number(value) : 0
-
+    if (product) {      
       setListData((prevData) => prevData.map((item) => {
-        if (item.id === id) return { ...item, quantity }
+        if (item.id === id) return { ...item, quantity: value }
         return item
       }))
-
+      
       setIngredientsData(calculateIngredients(listData, id, value))
     }
+  }
+
+  const handleValueChange = (value, productId) => {
+    const product = listData.find(item => item.id === productId);
+    if (!product) return;
+
+    setListData((prevData) => prevData.map((item) => {
+      if (item.id === productId) {
+        const selectedId = value
+        const selectedQuantity = item.select.selectOptions.map((type) => {
+          const { products } = type
+          return products.find((product) => selectedId === product.id)?.defaultAmount || null
+        }).filter((item) => item !== null)
+        
+        return { 
+          ...item,
+          select: {
+            ...item.select,
+            selectedId: value,
+          },
+          quantity: selectedQuantity[0] || item.quantity,
+        }
+      }
+
+      return item
+    }))
   }
 
   const handleRemoveProduct = (productId: string) => {
@@ -120,6 +273,16 @@ export default function Index() {
       if (item.id === id) return { ...item, checked }
       return item;
     }))
+  }
+
+  const getProductUnit = ({ selectedId, selectOptions }) => {
+    const result = selectOptions.map((type) => {
+      const { unit, products } = type
+      if (products.find((product) => selectedId === product.id)) return unit
+      return null
+    }).filter((item) => item !== null)
+
+    return result[0]
   }
 
   return (
@@ -139,56 +302,19 @@ export default function Index() {
                   </Link>
                 </TableCell>
                 <TableCell>
-                  <Input id={item.id} className="w-[70px]" type="number" placeholder="數量" value={item.quantity} onChange={handleInputChange} />
+                  <div className="flex items-center space-x-2">
+                    <Input id={item.id} className="w-[70px]" type="number" placeholder="數量" value={item.quantity} onChange={handleInputChange} />
+                    <span>{getProductUnit(item.select)}</span>
+                  </div>
+                </TableCell>
+                <TableCell>
+                  <GetProductTypeBlock selectData={item.select} handleValueChange={handleValueChange} productId={item.id} />
                 </TableCell>
                 <TableCell>
                   <Button variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
                 </TableCell>
               </TableRow>
             ))}
-            <TableRow>
-              <TableCell>
-                <Checkbox />
-              </TableCell>
-              <TableCell>
-                亞培葡勝納SR原味+纖維糖尿病營養品
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center space-x-2">
-                  <Input type="number" placeholder="數量" value={1} className="w-[70px]" />
-                  {/* 做成dropdown */}
-                  <span>包</span>
-                </div>
-              </TableCell>
-              <TableCell>
-                1 包 = 52.1g
-              </TableCell>
-              <TableCell>
-                <Button variant="outline">移除</Button>
-              </TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell>
-                <Checkbox />
-              </TableCell>
-              <TableCell>
-                <p>亞培葡勝納SR原味+纖維糖尿病營養品</p>
-                <p>GLUCERNA TRIPLE CARE VANILLA POWDER</p>
-              </TableCell>
-              <TableCell>
-                <div className="flex items-center space-x-2">
-                  <Input type="number" placeholder="數量" value={1} className="w-[70px]" />
-                  {/* 做成dropdown */}
-                  <span>匙</span>
-                </div>
-              </TableCell>
-              <TableCell>
-                5 匙 = 52.1g
-              </TableCell>
-              <TableCell>
-                <Button variant="outline">移除</Button>
-              </TableCell>
-            </TableRow>
           </TableBody>
         </Table>
         {/* 全選勾選 */}
