@@ -1,5 +1,53 @@
 [
   {
+    "id": "1139093028",
+    "name": "健力體1.2熱量濃縮含纖維質及果寡醣均衡營養配方",
+    "engName": "Jevity Plus 1.2",
+    "brand": "亞培",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 237
+    }],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 289,
+      "carbohydrate": 40.9,
+      "protein": 13.2,
+      "fat": 9.3,
+      "phosphorus": 190,
+      "kalium": 438,
+      "sodium": 299,
+      "fiber": 5.2
+    }
+  },
+  {
+    "id": "1086002740",
+    "name": "亞培安素沛力優蛋白配方(香草口味-減甜)",
+    "engName": "ENSURE HIGH QUALITY PROTEIN VANILLA",
+    "brand": "亞培",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 237
+    }],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 230,
+      "carbohydrate": 32,
+      "protein": 12,
+      "fat": 6,
+      "phosphorus": 260,
+      "kalium": 450,
+      "sodium": 260,
+      "fiber": 0.5
+    }
+  },
+  {
     "id": "1076039413",
     "name": "益沛佳慢性阻塞性肺病專用特殊營養品",
     "engName": "PULMOCARE SPECIALIZED NUTRITION WITH EXCELLENT FAT COMBINATION FOR PULMONARY PATIENTS",
@@ -45,6 +93,78 @@
       "kalium": 312,
       "sodium": 178,
       "fiber": 2.4
+    }
+  },
+  {
+    "id": "1076034099",
+    "name": "亞培安素液體營養品香草口味-減甜",
+    "engName": "ENSURE VANILLA LIQUID",
+    "brand": "亞培",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 237
+    }],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 250,
+      "carbohydrate": 41.5,
+      "protein": 9,
+      "fat": 6,
+      "phosphorus": 280,
+      "kalium": 380,
+      "sodium": 200,
+      "fiber": 3
+    }
+  },
+  {
+    "id": "1076019743",
+    "name": "亞培安素雙卡濃縮雙倍特殊液體營養品",
+    "engName": "ENSURE TWOCAL VANILLA",
+    "brand": "亞培",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 237
+    }],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 478,
+      "carbohydrate": 53.1,
+      "protein": 19.9,
+      "fat": 21.1,
+      "phosphorus": 251,
+      "kalium": 581,
+      "sodium": 346,
+      "fiber": 2
+    }
+  },
+  {
+    "id": "1129016861",
+    "name": "亞培原味安素均衡營養升級即飲配方",
+    "engName": "Ensure Original Upgraded RPB",
+    "brand": "亞培",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 220
+    }],
+    "type": "液劑",
+    "defaultAmount": 220,
+    "ingredients": {
+      "calories": 270,
+      "carbohydrate": 37,
+      "protein": 11,
+      "fat": 9,
+      "phosphorus": 321,
+      "kalium": 550,
+      "sodium": 198,
+      "fiber": 2.5
     }
   },
   {
@@ -112,6 +232,354 @@
     }
   },
   {
+    "id": "1129068013",
+    "name": "小安素PEPTIGRO均衡完整營養即飲配方(香草口味)",
+    "engName": "Pediasure Peptigro Vanilla Liquid",
+    "brand": "亞培",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 220
+    }],
+    "type": "液劑",
+    "defaultAmount": 220,
+    "ingredients": {
+      "calories": 222,
+      "carbohydrate": 30.8,
+      "protein": 6.6,
+      "fat": 8.5,
+      "phosphorus": 198,
+      "kalium": 308,
+      "sodium": 88,
+      "fiber": 2
+    }
+  },
+  {
+    "id": "1139059573",
+    "name": "益富益力壯腫瘤配方",
+    "engName": "LivStrong Cancer Liquid Formula",
+    "brand": "益富",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 237
+    }],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 355,
+      "carbohydrate": 32.4,
+      "protein": 22.6,
+      "fat": 15.6,
+      "phosphorus": 293,
+      "kalium": 367,
+      "sodium": 173,
+      "fiber": 2.7
+    }
+  },
+  {
+    "id": "1139041397",
+    "name": "益富千卡達高營養密度均衡完整配方",
+    "engName": "NU-KCAL High Nutrient Density",
+    "brand": "益富",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 25
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 62
+      },
+      {
+        "type": "粉劑",
+        "unit": "匙",
+        "defaultAmount": 7,
+        "volume": 8.86
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 62,
+    "ingredients": {
+      "calories": 250,
+      "carbohydrate": 34.3,
+      "protein": 15.2,
+      "fat": 6.6,
+      "phosphorus": 201,
+      "kalium": 347,
+      "sodium": 342,
+      "fiber": 3.8
+    }
+  },
+  {
+    "id": "1139034640",
+    "name": "益富千卡達低渣高營養密度均衡完整配方",
+    "engName": "",
+    "brand": "益富",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 24
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 60
+      },
+      {
+        "type": "粉劑",
+        "unit": "匙",
+        "defaultAmount": 7,
+        "volume": 8.57
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 60,
+    "ingredients": {
+      "calories": 250,
+      "carbohydrate": 32.5,
+      "protein": 15.2,
+      "fat": 6.6,
+      "phosphorus": 200,
+      "kalium": 329,
+      "sodium": 338,
+      "fiber": 0
+    }
+  },
+  {
+    "id": "1139032573",
+    "name": "益富易能充慢性腎臟病配方 紅茶口味",
+    "engName": "Nu-Lopo black tea flavor",
+    "brand": "益富",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 45
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 45,
+    "ingredients": {
+      "calories": 200,
+      "carbohydrate": 31.8,
+      "protein": 0.8,
+      "fat": 8.2,
+      "phosphorus": 42,
+      "kalium": 108,
+      "sodium": 113,
+      "fiber": 1.9
+    }
+  },
+  {
+    "id": "1139032570",
+    "name": "益富易能充慢性腎臟病配方 咖啡口味",
+    "engName": "Nu-Lopo coffee flavor",
+    "brand": "益富",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 45
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 45,
+    "ingredients": {
+      "calories": 200,
+      "carbohydrate": 31.8,
+      "protein": 0.8,
+      "fat": 8.2,
+      "phosphorus": 42,
+      "kalium": 108,
+      "sodium": 113,
+      "fiber": 1.9
+    }
+  },
+  {
+    "id": "1139032569",
+    "name": "益富元氣強透析適用配方 紅茶口味",
+    "engName": "Nu-Reno blacktea flavor",
+    "brand": "益富",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 24
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 24,
+    "ingredients": {
+      "calories": 104,
+      "carbohydrate": 10.2,
+      "protein": 8.4,
+      "fat": 3.5,
+      "phosphorus": 86,
+      "kalium": 40.8,
+      "sodium": 107,
+      "fiber": 1.2
+    }
+  },
+  {
+    "id": "1139032571",
+    "name": "益富元氣強透析適用配方 麥芽口味",
+    "engName": "Nu-Reno malt flavor",
+    "brand": "益富",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 24
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 24,
+    "ingredients": {
+      "calories": 104,
+      "carbohydrate": 10.2,
+      "protein": 8.4,
+      "fat": 3.5,
+      "phosphorus": 86,
+      "kalium": 40.8,
+      "sodium": 107,
+      "fiber": 1.2
+    }
+  },
+  {
+    "id": "0930412255",
+    "name": "益富勉益增營養調整完整配方",
+    "engName": "NU-IMMU",
+    "brand": "益富",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 24
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 59
+      },
+      {
+        "type": "粉劑",
+        "unit": "匙",
+        "defaultAmount": 6,
+        "volume": 9.5
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 59,
+    "ingredients": {
+      "calories": 249,
+      "carbohydrate": 32.4,
+      "protein": 13.7,
+      "fat": 7.2,
+      "phosphorus": 133,
+      "kalium": 215,
+      "sodium": 186,
+      "fiber": 0
+    }
+  },
+  {
+    "id": "0930412258",
+    "name": "益富新普派預解配方",
+    "engName": "NU-PEP HN",
+    "brand": "益富",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 25
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 63
+      },
+      {
+        "type": "粉劑",
+        "unit": "匙",
+        "defaultAmount": 7,
+        "volume": 9.29
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 63,
+    "ingredients": {
+      "calories": 252,
+      "carbohydrate": 40.7,
+      "protein": 12.6,
+      "fat": 4.3,
+      "phosphorus": 154,
+      "kalium": 284,
+      "sodium": 290,
+      "fiber": 0
+    }
+  },
+  {
+    "id": "1139002199",
+    "name": "益富益力康營養均衡配方",
+    "engName": "NUTRI-AID",
+    "brand": "益富",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 22
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 56
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 67
+      },
+      {
+        "type": "粉劑",
+        "unit": "匙",
+        "defaultAmount": 7,
+        "volume": 8.09
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 56,
+    "ingredients": {
+      "calories": 252,
+      "carbohydrate": 33.2,
+      "protein": 8.8,
+      "fat": 9.5,
+      "phosphorus": 134,
+      "kalium": 268,
+      "sodium": 202,
+      "fiber": 0.9
+    }
+  },
+  {
     "id": "1139091114",
     "name": "補體素康健HN營養均衡完整配方食品",
     "engName": "",
@@ -165,6 +633,302 @@
       "kalium": 259,
       "sodium": 220,
       "fiber": 0
+    }
+  },
+  {
+    "id": "1139091112",
+    "name": "補體素康健HN含纖營養均衡完整配方食品",
+    "engName": "",
+    "brand": "思耐得",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 23
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 34
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 46
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 57
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 68
+      },
+      {
+        "type": "粉劑",
+        "unit": "匙",
+        "defaultAmount": 2,
+        "volume": 28.5
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 57,
+    "ingredients": {
+      "calories": 252,
+      "carbohydrate": 35.4,
+      "protein": 10.7,
+      "fat": 8.4,
+      "phosphorus": 171,
+      "kalium": 285,
+      "sodium": 234,
+      "fiber": 4
+    }
+  },
+  {
+    "id": "1139091479",
+    "name": "補體素優纖A+營養均衡完整即飲配方食品(清甜)",
+    "engName": "",
+    "brand": "思耐得",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 237
+    }],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 252,
+      "carbohydrate": 34.6,
+      "protein": 10.7,
+      "fat": 8.8,
+      "phosphorus": 199,
+      "kalium": 210,
+      "sodium": 180,
+      "fiber": 4
+    }
+  },
+  {
+    "id": "1139091480",
+    "name": "金補體素優纖A+營養均衡完整即飲配方食品(清甜)",
+    "engName": "",
+    "brand": "思耐得",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 237
+    }],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 252,
+      "carbohydrate": 34.6,
+      "protein": 10.7,
+      "fat": 8.8,
+      "phosphorus": 199,
+      "kalium": 210,
+      "sodium": 180,
+      "fiber": 4
+    }
+  },
+  {
+    "id": "1086000890",
+    "name": "金補體素倍力腫瘤適用即飲配方食品",
+    "engName": "",
+    "brand": "思耐得",
+    "spec": [
+      {
+        "type": "液劑",
+        "unit": "罐",
+        "defaultAmount": 1,
+        "volume": 237
+      },
+      {
+        "type": "液劑",
+        "unit": "罐",
+        "defaultAmount": 1,
+        "volume": 185
+      }
+    ],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 372,
+      "carbohydrate": 49.5,
+      "protein": 21.6,
+      "fat": 10.4,
+      "phosphorus": 258,
+      "kalium": 351,
+      "sodium": 244,
+      "fiber": 3.1
+    }
+  },
+  {
+    "id": "1086000889",
+    "name": "補體素倍力腫瘤適用即飲配方食品",
+    "engName": "",
+    "brand": "思耐得",
+    "spec": [
+      {
+        "type": "液劑",
+        "unit": "罐",
+        "defaultAmount": 1,
+        "volume": 237
+      },
+      {
+        "type": "液劑",
+        "unit": "罐",
+        "defaultAmount": 1,
+        "volume": 185
+      }
+    ],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 372,
+      "carbohydrate": 49.5,
+      "protein": 21.6,
+      "fat": 10.4,
+      "phosphorus": 258,
+      "kalium": 351,
+      "sodium": 244,
+      "fiber": 3.1
+    }
+  },
+  {
+    "id": "1139020611",
+    "name": "補體素優纖A+營養均衡完整即飲配方食品",
+    "engName": "",
+    "brand": "思耐得",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 237
+    }],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 252,
+      "carbohydrate": 34.6,
+      "protein": 10.7,
+      "fat": 8.8,
+      "phosphorus": 199,
+      "kalium": 210,
+      "sodium": 180,
+      "fiber": 4
+    }
+  },
+  {
+    "id": "1139020617",
+    "name": "補體素康健HN含纖營養均衡完整即飲配方食品",
+    "engName": "",
+    "brand": "思耐得",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 237
+    }],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 252,
+      "carbohydrate": 34.6,
+      "protein": 10.7,
+      "fat": 8.8,
+      "phosphorus": 199,
+      "kalium": 210,
+      "sodium": 180,
+      "fiber": 4
+    }
+  },
+  {
+    "id": "1139020613",
+    "name": "金補體素優纖A+營養均衡完整即飲配方食品",
+    "engName": "",
+    "brand": "思耐得",
+    "spec": [{
+      "type": "液劑",
+      "unit": "罐",
+      "defaultAmount": 1,
+      "volume": 237
+    }],
+    "type": "液劑",
+    "defaultAmount": 237,
+    "ingredients": {
+      "calories": 252,
+      "carbohydrate": 34.6,
+      "protein": 10.7,
+      "fat": 8.8,
+      "phosphorus": 199,
+      "kalium": 210,
+      "sodium": 180,
+      "fiber": 4
+    }
+  },
+  {
+    "id": "1139009649",
+    "name": "補體素康健HN低渣營養均衡完整配方",
+    "engName": "",
+    "brand": "思耐得",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 23
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 34
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 45
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 57
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": 1,
+        "volume": 68
+      },
+      {
+        "type": "粉劑",
+        "unit": "匙",
+        "defaultAmount": 7,
+        "volume": 8.14
+      }
+    ],
+    "type": "粉劑",
+    "defaultAmount": 57,
+    "ingredients": {
+      "calories": 254,
+      "carbohydrate": 32,
+      "protein": 10.1,
+      "fat": 9.6,
+      "phosphorus": 171,
+      "kalium": 268,
+      "sodium": 171,
+      "fiber": 0.6
     }
   }
 ]

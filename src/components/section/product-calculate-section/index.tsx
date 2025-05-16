@@ -27,6 +27,8 @@ import ChartSection from "@/components/section/product-calculate-section/chart-s
 import Link from "next/link"
 import { getLinkPath } from "@/utils/link"
 import { unitMapping, calcUnitMapping } from "@/utils/mappings"
+import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
+
 
 const isSelectBlock = (selectOptions) => {
   const hasMultiUnitOptions = selectOptions.length > 1
@@ -43,6 +45,7 @@ function GetProductTypeBlock({ selectData, handleValueChange, productId }) {
 }
 
 function GetSelectBlock({ selectData, handleValueChange, productId }) {
+  const { rounding } = useNutritionCalculations()
   const { selectedId, selectOptions } = selectData
   return (
     <Select value={selectedId} onValueChange={(value) => handleValueChange(value, productId)}>
@@ -59,7 +62,7 @@ function GetSelectBlock({ selectData, handleValueChange, productId }) {
                   <SelectLabel>{unit.unit}</SelectLabel>
                   {unit.products.map((product) => (
                     <SelectItem key={product.id} value={product.id}>
-                      {product.defaultAmount}{unit.unit} = {product.defaultAmount * product.volume}{calcUnitMapping[unit.unit]}
+                      {product.defaultAmount}{unit.unit} = {rounding(product.defaultAmount * product.volume)}{calcUnitMapping[unit.unit]}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -68,7 +71,7 @@ function GetSelectBlock({ selectData, handleValueChange, productId }) {
             
             return unit.products.map((product) => (
               <SelectItem key={product.id} value={product.id}>
-                {product.defaultAmount}{unit.unit} = {product.defaultAmount * product.volume}{calcUnitMapping[unit.unit]}
+                {product.defaultAmount}{unit.unit} = {rounding(product.defaultAmount * product.volume)}{calcUnitMapping[unit.unit]}
               </SelectItem>
             ))
           })}
@@ -79,11 +82,12 @@ function GetSelectBlock({ selectData, handleValueChange, productId }) {
 }
 
 function GetSingleTypeBlock({ selectData }) {
+  const { rounding } = useNutritionCalculations()
   const { selectOptions } = selectData
   const { unit, products } = selectOptions[0]
   const { defaultAmount, volume } = products[0]
   return (
-    <p>{defaultAmount}{unit} = {defaultAmount * volume}{calcUnitMapping[unit]}</p>
+    <p>{defaultAmount}{unit} = {rounding(defaultAmount * volume)}{calcUnitMapping[unit]}</p>
   )
 }
 
