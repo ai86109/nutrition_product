@@ -29,6 +29,36 @@ import { getLinkPath } from "@/utils/link"
 import { unitMapping, calcUnitMapping } from "@/utils/mappings"
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
 
+type listDataType = {
+  id: string
+  name: string
+  engName: string
+  brand: string
+  defaultAmount: number
+  quantity: number
+  checked: boolean
+  select: {
+    selectedId: string
+    selectOptions: {
+      unit: string
+      products: {
+        id: string
+        defaultAmount: number
+        volume: number
+      }[]
+    }[]
+  }
+  ingredients: {
+    calories: number
+    carbohydrate: number
+    protein: number
+    fat: number
+    phosphorus: number
+    kalium: number
+    sodium: number
+    fiber: number
+  }
+}
 
 const isSelectBlock = (selectOptions) => {
   const hasMultiUnitOptions = selectOptions.length > 1
@@ -145,7 +175,7 @@ export default function Index() {
         const isMultiOptions = product.spec.length > 1
         if (isMultiOptions) {
           // 轉成 selectOptions 格式
-          let tempList = {}
+          const tempList = {}
           product.spec.forEach((option) => {
             // 看 option.unit 有沒有在 tempList 裡
             const { unit, defaultAmount, volume } = option
@@ -269,11 +299,11 @@ export default function Index() {
   }
 
   const handleRemoveProduct = (productId: string) => {
-    setProductList((prevData) => prevData.filter((item) => item !== productId))
+    setProductList((prevData: string[]) => prevData.filter((item) => item !== productId))
   }
 
   const handleCheck = (id: string, checked: boolean) => {
-    setListData((prevData) => prevData.map((item) => {
+    setListData((prevData: listDataType) => prevData.map((item) => {
       if (item.id === id) return { ...item, checked }
       return item;
     }))

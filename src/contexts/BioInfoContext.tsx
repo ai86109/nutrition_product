@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react'
 
-type FormData = {
+export type FormData = {
   height: string | number
   weight: string | number
   age: string | number
@@ -15,12 +15,12 @@ type SubmittedValues = {
   gender: string
 }
 
-type TDEEFactors = {
+export type TDEEFactors = {
   activityFactor: number
   stressFactor: number
 }
 
-type ProteinFactors = {
+export type ProteinFactors = {
   min: number
   max: number
 }

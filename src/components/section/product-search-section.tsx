@@ -95,7 +95,7 @@ export default function ProductSearchSection() {
     const existingProduct = productList.includes(productId)
     if (existingProduct) return
 
-    setProductList((prevData) => [...prevData, productId])
+    setProductList((prevData: string[]) => [...prevData, productId])
   }
 
   const getCurrentPageData = () => {

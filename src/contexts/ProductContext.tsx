@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode } from 'react'
 
-type ProductContextType = {
+export type ProductContextType = {
   productList: string[]
   setProductList: (list: string[]) => void
 }

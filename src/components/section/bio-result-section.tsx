@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useBioInfo } from "@/contexts/BioInfoContext"
+import { useBioInfo, TDEEFactors, ProteinFactors } from "@/contexts/BioInfoContext"
 import { CardContent } from "@/components/ui/card"
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
 
@@ -12,7 +12,7 @@ export default function BioResultSection() {
 
   const handleFactorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
-    setTdeeFactors((prevData) => ({
+    setTdeeFactors((prevData: TDEEFactors) => ({
       ...prevData,
       [id]: value,
     }))
@@ -20,7 +20,7 @@ export default function BioResultSection() {
 
   const handleProteinFactorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
-    setProteinFactors((prevData) => ({
+    setProteinFactors((prevData: ProteinFactors) => ({
       ...prevData,
       [id]: value,
     }))
