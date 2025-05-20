@@ -25,9 +25,19 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { brandOptions, typeOptions } from "@/utils/mappings"
 
 export default function ProductSearchSection() {
   const { productList, setProductList } = useProduct()
+  const [selectedBrand, setSelectedBrand] = useState<string>("")
+  const [selectedType, setSelectedType] = useState<string>("")
   const [searchValue, setSearchValue] = useState<string>("")
   const [data, setData] = useState([])
 
@@ -45,17 +55,37 @@ export default function ProductSearchSection() {
     setSearchValue(value)
   }
 
-  const handleSearchSubmit = () => {
-    console.log("查詢資料", searchValue)
+  const handleSelectBrandChange = (value) => {
+    setSelectedBrand(value)
+  }
 
+  const handleSelectTypeChange = (value) => {
+    setSelectedType(value)
+  }
+
+  const handleSearchSubmit = () => {
     const filteredData = productsData.filter((item) => {
-      const nameMatch = item.name.toLowerCase().includes(searchValue.toLowerCase())
-      const engNameMatch = item.engName && item.engName.toLowerCase().includes(searchValue.toLowerCase())
-      const brandMatch = item.brand.toLowerCase().includes(searchValue.toLowerCase())
-      const typeMatch = item.type.toLowerCase().includes(searchValue.toLowerCase())
-      return nameMatch || engNameMatch || brandMatch || typeMatch
+      const textInput = searchValue.toLowerCase();
+      const nameMatches = item.name.toLowerCase().includes(textInput) || 
+                        (item.engName && item.engName.toLowerCase().includes(textInput));
+      
+      const brandMatches = !selectedBrand || item.brand === selectedBrand;
+      const typeMatches = !selectedType || item.type === selectedType;
+      
+      if (selectedBrand && selectedType) return brandMatches && typeMatches && nameMatches;
+      
+      if (!selectedBrand && !selectedType && searchValue) {
+        return nameMatches || 
+              item.brand.toLowerCase().includes(textInput) || 
+              item.type.toLowerCase().includes(textInput);
+      }
+      
+      // 只有品牌或類型：相應條件必須匹配，且其他欄位可搜尋
+      return brandMatches && typeMatches && 
+            (!searchValue || nameMatches);
     })
-    console.log("查詢結果", filteredData)
+    console.log("filteredData", filteredData)
+
     setData(filteredData)
     setCurrentPage(1) // Reset to the first page after search
   }
@@ -94,9 +124,35 @@ export default function ProductSearchSection() {
   return (
     <CardContent>
       <div className="flex items-center justify-between space-x-2">
-        <Input className="w-[300px]" placeholder="關鍵字搜尋" onChange={handleInputChange} />
+        <Input className="w-[250px]" placeholder="關鍵字搜尋" onChange={handleInputChange} />
+
+        <Select onValueChange={(value) => handleSelectBrandChange(value)}>
+          <SelectTrigger className="w-[100px]">
+            <SelectValue placeholder="選擇品牌" />
+          </SelectTrigger>
+          <SelectContent>
+            {brandOptions.map((option) => (
+              <SelectItem key={option.id} value={option.id}>
+                {option.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        <Select onValueChange={(value) => handleSelectTypeChange(value)}>
+          <SelectTrigger className="w-[100px]">
+            <SelectValue placeholder="選擇劑型" />
+          </SelectTrigger>
+          <SelectContent>
+            {typeOptions.map((option) => (
+              <SelectItem key={option.id} value={option.id}>
+                {option.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
         <Button variant="outline" onClick={handleSearchSubmit}>送出</Button>
-        {/* 可以用下拉選單的方式去找尋品牌 */}
         {/* 可以使用類別去搜尋產品 */}
       </div>
 
@@ -124,7 +180,9 @@ export default function ProductSearchSection() {
                     <TableCell>{item.brand}</TableCell>
                     <TableCell>{item.type}</TableCell>
                     <TableCell>
-                      <Button variant="outline" onClick={() => handleAddToCalculate(item.id)}>加入</Button>
+                      <Button variant="outline" onClick={() => handleAddToCalculate(item.id)}>
+                        {productList.includes(item.id) ? '已加入' : '加入'}
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -134,7 +192,6 @@ export default function ProductSearchSection() {
             {totalPages > 1 && (
               <Pagination>
                 <PaginationContent>
-
                   {currentPage > 1 && (
                     <PaginationItem>
                       <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
