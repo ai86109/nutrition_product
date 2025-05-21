@@ -40,11 +40,26 @@ export default function ProductSearchSection() {
   const [selectedType, setSelectedType] = useState<string>("")
   const [searchValue, setSearchValue] = useState<string>("")
   const [data, setData] = useState([])
+  const [windowWidth, setWindowWidth] = useState(0);
 
   // pagination
   const [currentPage, setCurrentPage] = useState(1)
-  const itemsPerPage = 10
+  const itemsPerPage = windowWidth <= 1024 ? 5 : 10
   const totalPages = Math.ceil(data.length / itemsPerPage)
+
+  useEffect(() => {
+    setWindowWidth(window.innerWidth);
+    
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+    
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     setData(productsData)
@@ -84,7 +99,7 @@ export default function ProductSearchSection() {
       return brandMatches && typeMatches && 
             (!searchValue || nameMatches);
     })
-    console.log("filteredData", filteredData)
+    // console.log("filteredData", filteredData)
 
     setData(filteredData)
     setCurrentPage(1) // Reset to the first page after search
@@ -123,7 +138,7 @@ export default function ProductSearchSection() {
 
   return (
     <CardContent>
-      <div className="flex items-center justify-between space-x-2">
+      <div className="flex items-center justify-between space-x-2 gap-2 flex-wrap lg:flex-nowrap lg:gap-0">
         <Input className="w-[250px]" placeholder="關鍵字搜尋" onChange={handleInputChange} />
 
         <Select onValueChange={(value) => handleSelectBrandChange(value)}>
@@ -154,6 +169,7 @@ export default function ProductSearchSection() {
 
         <Button variant="outline" onClick={handleSearchSubmit}>送出</Button>
         {/* 可以使用類別去搜尋產品 */}
+        {/* 可以清除所有條件 */}
       </div>
 
       <div>

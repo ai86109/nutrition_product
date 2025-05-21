@@ -329,10 +329,10 @@ export default function Index() {
                 <TableCell>
                   <Checkbox id={`check-${item.id}`} checked={item.checked} onCheckedChange={(checked) => handleCheck(item.id, !!checked)} />
                 </TableCell>
-                <TableCell className="max-w-[200px]" style={{ textWrap: 'wrap'}}>
+                <TableCell className="text-wrap lg:text-nowrap">
                   <Link href={getLinkPath(item.id)} target="_blank">
-                    <p>{item.name}</p>
-                    {item.engName && <p className="text-xs">{item.engName}</p>}
+                    <p className="text-wrap w-[200px] lg:w-auto">{item.name}</p>
+                    {item.engName && <p className="text-xs text-wrap w-[200px] lg:w-auto">{item.engName}</p>}
                   </Link>
                 </TableCell>
                 <TableCell>

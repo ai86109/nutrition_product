@@ -82,8 +82,8 @@ export default function ChartSection({ ingredientsData }) {
   }
 
   return(
-    <CardContent className="flex">
-      <div className="min-w-[250px] max-w-[400px]">
+    <CardContent className="flex flex-col lg:flex-row">
+      <div className="min-w-[250px] max-w-full lg:max-w-[400px]">
         <Table>
           <TableBody>
             <TableRow>
@@ -137,7 +137,7 @@ export default function ChartSection({ ingredientsData }) {
         </Table>
       </div>
 
-      <div className="flex flex-col items-start justify-center w-full ml-4">
+      <div className="flex flex-col items-start justify-center w-full mt-4 lg:mt-0 lg:ml-4">
         {chartData().length > 0 && 
           <div className="w-full">
             <Alert>
@@ -171,7 +171,7 @@ export default function ChartSection({ ingredientsData }) {
         }
 
         {pieChartData().length > 0 &&
-        <div className="w-full">
+        <div className="w-full flex flex-col">
           <Alert>
             <AlertDescription>以下為目前選取的<b>『營養品三大營養素』之比例</b></AlertDescription>
           </Alert>

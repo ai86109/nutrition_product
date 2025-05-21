@@ -9,11 +9,60 @@ import { Separator } from "@/components/ui/separator"
 import ProductSearchSection from "./product-search-section";
 import ProductCalculateSection from "./product-calculate-section";
 import { ProductProvider } from "@/contexts/ProductContext";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/components/ui/tabs"
 
 export default function MainSection() {
   return (
     <ProductProvider>
-      <div className="flex m-[20px] gap-4">
+      {/* mobile */}
+      <div className="lg:hidden">
+        <Accordion type="single" defaultValue="item-1" collapsible className="mx-2">
+          <AccordionItem value="item-1">
+            <AccordionTrigger>
+              <div className="flex items-center">
+                <span className="text-lg font-bold">計算機 & 搜尋</span>
+                <span className="ml-2 text-[10px]">(點擊可以收起)</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent>
+              <Tabs defaultValue="bioInfo" className="mx-2">
+                <TabsList className="grid grid-cols-2" style={{ width: "unset" }}>
+                  <TabsTrigger value="bioInfo">營養計算機</TabsTrigger>
+                  <TabsTrigger value="search">營養品搜尋</TabsTrigger>
+                </TabsList>
+                <TabsContent value="bioInfo">
+                  <Card>
+                    <BioInfoSection />
+                    <Separator />
+                    <BioResultSection />
+                  </Card>
+                </TabsContent>
+                <TabsContent value="search">
+                  <Card>
+                    <ProductSearchSection />
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+        <Separator />
+        <ProductCalculateSection />
+      </div>
+
+      {/* desktop */}
+      <div className="hidden lg:flex m-[20px] gap-4">
         <div className="flex flex-col w-[845px] gap-4">
           <Card>
             <div className="flex">
@@ -36,7 +85,7 @@ export default function MainSection() {
           </Card>
         </div>
 
-        <Card className="w-[calc(100vw-905px)]">
+        <Card className="w-[calc(100vw-905px)] min-w-[400px]">
           <CardHeader>
             <CardTitle>營養品查詢</CardTitle>
           </CardHeader>

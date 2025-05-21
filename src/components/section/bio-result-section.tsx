@@ -44,7 +44,7 @@ export default function BioResultSection() {
           <span className="mr-4">{calculateTDEE()}</span>
         </div>
 
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2 flex-wrap lg:flex-nowrap">
           <div className="flex">
             <Label htmlFor="activityFactor" className="mr-2">活動因子</Label>
             <Input className="w-[70px]" id="activityFactor" type="number" step={0.1} placeholder="活動因子" value={tdeeFactors.activityFactor} onChange={handleFactorChange} />
@@ -56,12 +56,12 @@ export default function BioResultSection() {
         </div>
       </div>
 
-      <div className="mt-2 flex justify-between items-center space-x-1">
+      <div className="mt-2 flex justify-between items-center space-x-1 flex-wrap lg:flex-nowrap">
         <div>
           <p className="font-bold">蛋白質需求：</p>
           <p>{calculateProtein().minValue}g - {calculateProtein().maxValue}g</p>
         </div>
-        <div className="flex items-center w-[150px] space-x-2 ml-4">
+        <div className="flex items-center w-[150px] space-x-2 mt-2 lg:ml-4 lg:mt-0">
           <Input className="w-[70px]" id="min" type="number" step={0.1} placeholder="0.8" value={proteinFactors.min} onChange={handleProteinFactorChange} />
           <p>-</p>
           <Input className="w-[70px]" id="max" type="number" step={0.1} placeholder="1" value={proteinFactors.max} onChange={handleProteinFactorChange} />
