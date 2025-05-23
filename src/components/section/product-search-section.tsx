@@ -46,6 +46,7 @@ export default function ProductSearchSection() {
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = windowWidth <= 1024 ? 5 : 10
   const totalPages = Math.ceil(data.length / itemsPerPage)
+  const truncateLength = 5
 
   useEffect(() => {
     setWindowWidth(window.innerWidth);
@@ -71,11 +72,18 @@ export default function ProductSearchSection() {
   }
 
   const handleSelectBrandChange = (value) => {
+    console.log("value", value)
     setSelectedBrand(value)
   }
 
   const handleSelectTypeChange = (value) => {
     setSelectedType(value)
+  }
+
+  const handleReset = () => {
+    setSelectedBrand("")
+    setSelectedType("")
+    setSearchValue("")
   }
 
   const handleSearchSubmit = () => {
@@ -125,7 +133,7 @@ export default function ProductSearchSection() {
 
   const renderPaginationItems = () => {
     let pages = []
-    if (totalPages <= 5) pages = Array.from({ length: totalPages }, (_, index) => index + 1)
+    if (totalPages <= truncateLength) pages = Array.from({ length: totalPages }, (_, index) => index + 1)
     else if (currentPage <= 2) pages = [1, 2, 3, "...", totalPages]
     else if (currentPage >= totalPages - 1) pages = [1, "...", totalPages - 2, totalPages - 1, totalPages]
     else if (currentPage === 3) pages = [2, 3, 4, "...", totalPages]
@@ -151,9 +159,9 @@ export default function ProductSearchSection() {
   return (
     <CardContent>
       <div className="flex items-center justify-between space-x-2 gap-2 flex-wrap lg:flex-nowrap lg:gap-0">
-        <Input className="w-[250px]" placeholder="關鍵字搜尋" onChange={handleInputChange} />
+        <Input className="w-[250px]" placeholder="關鍵字搜尋" value={searchValue} onChange={handleInputChange} />
 
-        <Select onValueChange={(value) => handleSelectBrandChange(value)}>
+        <Select value={selectedBrand} onValueChange={(value) => handleSelectBrandChange(value)}>
           <SelectTrigger className="w-[100px]">
             <SelectValue placeholder="選擇品牌" />
           </SelectTrigger>
@@ -166,7 +174,7 @@ export default function ProductSearchSection() {
           </SelectContent>
         </Select>
 
-        <Select onValueChange={(value) => handleSelectTypeChange(value)}>
+        <Select value={selectedType} onValueChange={(value) => handleSelectTypeChange(value)}>
           <SelectTrigger className="w-[100px]">
             <SelectValue placeholder="選擇劑型" />
           </SelectTrigger>
@@ -181,8 +189,8 @@ export default function ProductSearchSection() {
 
         <Button variant="outline" onClick={handleSearchSubmit}>送出</Button>
         {/* 可以使用類別去搜尋產品 */}
-        {/* 可以清除所有條件 */}
       </div>
+      <Button variant="outline" onClick={handleReset} className="mt-2">重置</Button>
 
       <div>
         {getCurrentPageData().length > 0 && (
