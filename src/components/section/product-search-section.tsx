@@ -19,7 +19,7 @@ import { useState, useEffect } from "react";
 import {
   Pagination,
   PaginationContent,
-  // PaginationEllipsis,
+  PaginationEllipsis,
   PaginationItem,
   PaginationLink,
   PaginationNext,
@@ -124,16 +124,28 @@ export default function ProductSearchSection() {
   }
 
   const renderPaginationItems = () => {
-    // 頁數太多食藥加上省略符號
-    // console.log("totalPages", totalPages)
+    let pages = []
+    if (totalPages <= 5) pages = Array.from({ length: totalPages }, (_, index) => index + 1)
+    else if (currentPage <= 2) pages = [1, 2, 3, "...", totalPages]
+    else if (currentPage >= totalPages - 1) pages = [1, "...", totalPages - 2, totalPages - 1, totalPages]
+    else if (currentPage === 3) pages = [2, 3, 4, "...", totalPages]
+    else if (currentPage === totalPages - 2) pages = [1, "...", totalPages - 3, totalPages - 2, totalPages - 1]
+    else pages = [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages]
 
-    // 將 totalPages 做成一個從 1 開始的陣列
-    const pages = Array.from({ length: totalPages }, (_, index) => index + 1)
-    return pages.map((page) => (
-      <PaginationItem key={page} onClick={() => handlePageChange(page)}>
-        <PaginationLink isActive={currentPage === page}>{page}</PaginationLink>
-      </PaginationItem>
-    ))
+    return pages.map((page, index) => {
+      if (typeof page !== "number") {
+        return (
+          <PaginationItem key={`ellipsis-${index}`}>
+            <PaginationEllipsis />
+          </PaginationItem>
+        )
+      }
+      return (
+        <PaginationItem key={page} onClick={() => handlePageChange(page)}>
+          <PaginationLink isActive={currentPage === page}>{page}</PaginationLink>
+        </PaginationItem>
+      )
+    })
   }
 
   return (
@@ -208,17 +220,23 @@ export default function ProductSearchSection() {
             {totalPages > 1 && (
               <Pagination>
                 <PaginationContent>
-                  {currentPage > 1 && (
-                    <PaginationItem>
-                      <PaginationPrevious onClick={() => handlePageChange(currentPage - 1)} />
-                    </PaginationItem>
-                  )}
+                  <PaginationItem>
+                    <PaginationPrevious 
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      aria-disabled={currentPage <= 1}
+                      tabIndex={currentPage <= 1 ? -1 : undefined}
+                      className={currentPage <= 1 ? "pointer-events-none opacity-50" : undefined}
+                    />
+                  </PaginationItem>
                   {renderPaginationItems()}
-                  {currentPage < totalPages && (
-                    <PaginationItem>
-                      <PaginationNext onClick={() => handlePageChange(currentPage + 1)} />
-                    </PaginationItem>
-                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      aria-disabled={currentPage >= totalPages}
+                      tabIndex={currentPage >= totalPages ? -1 : undefined}
+                      className={currentPage >= totalPages ? "pointer-events-none opacity-50" : undefined}
+                    />
+                  </PaginationItem>
                 </PaginationContent>
               </Pagination>
             )}
