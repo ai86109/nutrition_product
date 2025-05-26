@@ -20,3 +20,19 @@ export const typeOptions = [
   { id: "粉劑", name: "粉劑" },
   { id: "液劑", name: "液劑" },
 ]
+
+export const categoryOptions = [
+  { id: "均衡配方", name: "均衡配方" },
+  { id: "低蛋白配方", name: "低蛋白配方" },
+  { id: "洗腎配方", name: "洗腎配方" },
+  { id: "癌症配方", name: "癌症配方" },
+  { id: "濃縮配方", name: "濃縮配方" },
+  { id: "糖尿病配方", name: "糖尿病配方" },
+  { id: "元素配方", name: "元素配方" },
+  { id: "單素配方", name: "單素配方" },
+]
+
+export const operatorOptions = [
+  { id: "or", name: "或" },
+  { id: "and", name: "和" },
+]

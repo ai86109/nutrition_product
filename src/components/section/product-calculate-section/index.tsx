@@ -28,6 +28,7 @@ import Link from "next/link"
 import { getLinkPath } from "@/utils/link"
 import { unitMapping, calcUnitMapping } from "@/utils/mappings"
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
+import { Badge } from "@/components/ui/badge"
 
 type listDataType = {
   id: string
@@ -58,6 +59,7 @@ type listDataType = {
     sodium: number
     fiber: number
   }
+  categories: string[]
 }
 
 const isSelectBlock = (selectOptions) => {
@@ -244,7 +246,8 @@ export default function Index() {
             kalium: product.ingredients.kalium,
             sodium: product.ingredients.sodium,
             fiber: product.ingredients.fiber,
-          }
+          },
+          categories: product.categories || [],
         }
       }
       
@@ -333,6 +336,11 @@ export default function Index() {
                   <Link href={getLinkPath(item.id)} target="_blank">
                     <p className="text-wrap w-[200px] lg:w-auto">{item.name}</p>
                     {item.engName && <p className="text-xs text-wrap w-[200px] lg:w-auto">{item.engName}</p>}
+                    {item.categories && item.categories.length > 0 && item.categories.map((category) => (
+                      <Badge key={category} className="mt-1 mr-1" variant="secondary">
+                        {category}
+                      </Badge>
+                    ))}
                   </Link>
                 </TableCell>
                 <TableCell>

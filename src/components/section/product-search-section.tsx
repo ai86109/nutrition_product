@@ -32,13 +32,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { brandOptions, typeOptions } from "@/utils/mappings"
+import { brandOptions, typeOptions, categoryOptions, operatorOptions } from "@/utils/mappings"
+import { Badge } from "@/components/ui/badge"
 
 export default function ProductSearchSection() {
   const { productList, setProductList } = useProduct()
   const [selectedBrand, setSelectedBrand] = useState<string>("")
   const [selectedType, setSelectedType] = useState<string>("")
   const [searchValue, setSearchValue] = useState<string>("")
+  const [selectedCate, setSelectedCate] = useState(["", "", ""])
   const [data, setData] = useState([])
   const [windowWidth, setWindowWidth] = useState(0);
 
@@ -72,7 +74,6 @@ export default function ProductSearchSection() {
   }
 
   const handleSelectBrandChange = (value) => {
-    console.log("value", value)
     setSelectedBrand(value)
   }
 
@@ -84,6 +85,7 @@ export default function ProductSearchSection() {
     setSelectedBrand("")
     setSelectedType("")
     setSearchValue("")
+    setSelectedCate(["", "", ""])
   }
 
   const handleSearchSubmit = () => {
@@ -95,19 +97,16 @@ export default function ProductSearchSection() {
       const brandMatches = !selectedBrand || item.brand === selectedBrand;
       const typeMatches = !selectedType || item.type === selectedType;
       
-      if (selectedBrand && selectedType) return brandMatches && typeMatches && nameMatches;
-      
-      if (!selectedBrand && !selectedType && searchValue) {
-        return nameMatches || 
-              item.brand.toLowerCase().includes(textInput) || 
-              item.type.toLowerCase().includes(textInput);
-      }
-      
-      // 只有品牌或類型：相應條件必須匹配，且其他欄位可搜尋
-      return brandMatches && typeMatches && 
+      const hasCategory = !!(selectedCate[0] || selectedCate[2])
+      const isOrOperator = (selectedCate[1] || "或") === "或"
+      const categoryMatches = !hasCategory ||
+        (isOrOperator ?
+          (item.categories && (item.categories.includes(selectedCate[0]) || item.categories.includes(selectedCate[2]))) :
+          (item.categories && item.categories.includes(selectedCate[0]) && item.categories.includes(selectedCate[2])))
+
+      return brandMatches && typeMatches && categoryMatches &&
             (!searchValue || nameMatches);
     })
-    // console.log("filteredData", filteredData)
 
     setData(filteredData)
     setCurrentPage(1) // Reset to the first page after search
@@ -156,9 +155,19 @@ export default function ProductSearchSection() {
     })
   }
 
+  const handleSelectCateChange = (value, index) => {
+    setSelectedCate((prevCate) => {
+      if (index < 0 || index >= prevCate.length) return prevCate;
+
+      const newCate = [...prevCate]
+      newCate[index] = value
+      return newCate
+    })
+  }
+
   return (
     <CardContent>
-      <div className="flex items-center justify-between space-x-2 gap-2 flex-wrap lg:flex-nowrap lg:gap-0">
+      <div className="flex items-center justify-between space-x-2 space-y-2 gap-2 flex-wrap lg:gap-0">
         <Input className="w-[250px]" placeholder="關鍵字搜尋" value={searchValue} onChange={handleInputChange} />
 
         <Select value={selectedBrand} onValueChange={(value) => handleSelectBrandChange(value)}>
@@ -187,8 +196,48 @@ export default function ProductSearchSection() {
           </SelectContent>
         </Select>
 
+        <div className="flex space-x-2">
+          <Select value={selectedCate[0]} onValueChange={(value) => handleSelectCateChange(value, 0)}>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="選擇類別" />
+            </SelectTrigger>
+            <SelectContent>
+              {categoryOptions.map((option) => (
+                <SelectItem key={option.id} value={option.id}>
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={selectedCate[1]} onValueChange={(value) => handleSelectCateChange(value, 1)}>
+            <SelectTrigger className="w-[70px]">
+              <SelectValue placeholder="或" />
+            </SelectTrigger>
+            <SelectContent>
+              {operatorOptions.map((option) => (
+                <SelectItem key={option.id} value={option.id}>
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          <Select value={selectedCate[2]} onValueChange={(value) => handleSelectCateChange(value, 2)}>
+            <SelectTrigger className="w-[100px]">
+              <SelectValue placeholder="選擇類別" />
+            </SelectTrigger>
+            <SelectContent>
+              {categoryOptions.map((option) => (
+                <SelectItem key={option.id} value={option.id}>
+                  {option.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <Button variant="outline" onClick={handleSearchSubmit}>送出</Button>
-        {/* 可以使用類別去搜尋產品 */}
       </div>
       <Button variant="outline" onClick={handleReset} className="mt-2">重置</Button>
 
@@ -211,6 +260,11 @@ export default function ProductSearchSection() {
                       <Link href={getLinkPath(item.id)} target="_blank">
                         <p>{item.name}</p>
                         {item.engName && <p className="text-xs">{item.engName}</p>}
+                        {item.categories && item.categories.length > 0 && item.categories.map((category) => (
+                          <Badge key={category} className="mt-1 mr-1" variant="secondary">
+                            {category}
+                          </Badge>
+                        ))}
                       </Link>
                     </TableCell>
                     <TableCell>{item.brand}</TableCell>
