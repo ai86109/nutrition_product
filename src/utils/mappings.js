@@ -24,7 +24,7 @@ export const typeOptions = [
 export const categoryOptions = [
   { id: "均衡配方", name: "均衡配方" },
   { id: "低蛋白配方", name: "低蛋白配方" },
-  { id: "洗腎配方", name: "洗腎配方" },
+  { id: "腎臟病配方", name: "腎臟病配方" },
   { id: "癌症配方", name: "癌症配方" },
   { id: "濃縮配方", name: "濃縮配方" },
   { id: "糖尿病配方", name: "糖尿病配方" },
