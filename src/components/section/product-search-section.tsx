@@ -11,7 +11,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useProduct } from "@/contexts/ProductContext"
-import productsData from '@/data/products.json';
+// import productsData from '@/data/products.json';
 import Link from "next/link"
 import { getLinkPath } from "@/utils/link"
 import { Input } from "@/components/ui/input";
@@ -36,7 +36,7 @@ import { brandOptions, typeOptions, categoryOptions, operatorOptions } from "@/u
 import { Badge } from "@/components/ui/badge"
 
 export default function ProductSearchSection() {
-  const { productList, setProductList } = useProduct()
+  const { productList, setProductList, allProducts } = useProduct()
   const [selectedBrand, setSelectedBrand] = useState<string>("")
   const [selectedType, setSelectedType] = useState<string>("")
   const [searchValue, setSearchValue] = useState<string>("")
@@ -51,6 +51,13 @@ export default function ProductSearchSection() {
   const truncateLength = 5
 
   useEffect(() => {
+    if (allProducts.length > 0) {
+      setData(allProducts)
+      console.log("allProducts", allProducts)
+    }
+  }, [allProducts])
+
+  useEffect(() => {
     setWindowWidth(window.innerWidth);
     
     const handleResize = () => {
@@ -63,10 +70,6 @@ export default function ProductSearchSection() {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
-
-  useEffect(() => {
-    setData(productsData)
-  }, [])
 
   const handleInputChange = (e) => {
     const { value } = e.target
@@ -89,7 +92,7 @@ export default function ProductSearchSection() {
   }
 
   const handleSearchSubmit = () => {
-    const filteredData = productsData.filter((item) => {
+    const filteredData = allProducts.filter((item) => {
       const textInput = searchValue.toLowerCase();
       const nameMatches = item.name.toLowerCase().includes(textInput) || 
                         (item.engName && item.engName.toLowerCase().includes(textInput));
@@ -98,6 +101,7 @@ export default function ProductSearchSection() {
       const typeMatches = !selectedType || item.type === selectedType;
       
       const hasCategory = !!(selectedCate[0] || selectedCate[2])
+      // if selectedCate[0] and selectedCate[2] are both selected, isOrOperator 才會是『或』以外的值
       const isOrOperator = (selectedCate[1] || "或") === "或"
       const categoryMatches = !hasCategory ||
         (isOrOperator ?

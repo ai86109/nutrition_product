@@ -22,7 +22,7 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { useProduct } from "@/contexts/ProductContext"
 import { useCallback, useEffect, useState } from "react";
-import productsData from '@/data/products.json';
+// import productsData from '@/data/products.json';
 import ChartSection from "@/components/section/product-calculate-section/chart-section"
 import Link from "next/link"
 import { getLinkPath } from "@/utils/link"
@@ -124,7 +124,7 @@ function GetSingleTypeBlock({ selectData }) {
 }
 
 export default function Index() {
-  const { productList, setProductList } = useProduct()
+  const { productList, setProductList, allProducts } = useProduct()
   const [listData, setListData] = useState([])
   const [ingredientsData, setIngredientsData] = useState([])
   
@@ -171,7 +171,7 @@ export default function Index() {
   
   useEffect(() => {
     const selectedProducts = productList.map((productId) => {
-      const product = productsData.find((product) => product.id === productId)
+      const product = allProducts.find((product) => product.id === productId)
       if (product) {        
         let selectOptions = []
         const isMultiOptions = product.spec.length > 1

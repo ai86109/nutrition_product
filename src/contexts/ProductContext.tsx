@@ -1,8 +1,10 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
 
 export type ProductContextType = {
+  allProducts: any[]
+  setAllProducts: (products: any[]) => void
   productList: string[]
   setProductList: (list: string[]) => void
 }
@@ -10,10 +12,31 @@ export type ProductContextType = {
 const ProductContext = createContext<ProductContextType | undefined>(undefined)
 
 export function ProductProvider({ children }: { children: ReactNode }) {
+  const [allProducts, setAllProducts] = useState([])
   const [productList, setProductList] = useState([])
+
+  const fetchProductsData = async () => {
+    try {
+      const response = await fetch('/api/products')
+      if (!response.ok) {
+        throw new Error('Failed to fetch products data')
+      }
+
+      const result = await response.json() || []
+      setAllProducts(result)
+    } catch (error) {
+      console.error('Error fetching products data:', error)
+      setAllProducts([])
+    }
+  }
+
+  useEffect(() => {
+    fetchProductsData()
+  }, [])
 
   return (
     <ProductContext.Provider value={{
+      allProducts,
       productList,
       setProductList,
     }}>
