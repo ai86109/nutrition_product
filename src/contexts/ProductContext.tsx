@@ -2,9 +2,36 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
 
+type ProductData = {
+  id: string
+  name: string
+  engName: string
+  brand: string
+  type: string
+  defaultAmount: string
+  reviewStatus: string
+  categories: string[]
+  spec: {
+    defaultAmount: string
+    volume: string
+    type: string
+    unit: string
+  }[]
+  ingredients: {
+    calories: number
+    carbohydrate: number
+    protein: number
+    fat: number
+    phosphorus: number
+    kalium: number
+    sodium: number
+    fiber: number
+  }
+}
+
 export type ProductContextType = {
-  allProducts: any[]
-  setAllProducts: (products: any[]) => void
+  allProducts: ProductData[]
+  setAllProducts: (products: ProductData[]) => void
   productList: string[]
   setProductList: (list: string[]) => void
 }
