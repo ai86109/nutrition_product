@@ -32,11 +32,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { brandOptions, typeOptions, categoryOptions, operatorOptions } from "@/utils/mappings"
+import { typeOptions, categoryOptions, operatorOptions } from "@/utils/mappings"
 import { Badge } from "@/components/ui/badge"
 
 export default function ProductSearchSection() {
-  const { productList, setProductList, allProducts } = useProduct()
+  const { productList, setProductList, allProducts, brandOptions } = useProduct()
   const [selectedBrand, setSelectedBrand] = useState<string>("")
   const [selectedType, setSelectedType] = useState<string>("")
   const [searchValue, setSearchValue] = useState<string>("")
