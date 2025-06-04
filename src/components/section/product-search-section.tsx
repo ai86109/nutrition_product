@@ -102,7 +102,7 @@ export default function ProductSearchSection() {
       
       const hasCategory = !!(selectedCate[0] || selectedCate[2])
       // if selectedCate[0] and selectedCate[2] are both selected, isOrOperator 才會是『或』以外的值
-      const isOrOperator = (selectedCate[1] || "或") === "或"
+      const isOrOperator = (selectedCate[1] || "or") === "or"
       const categoryMatches = !hasCategory ||
         (isOrOperator ?
           (item.categories && (item.categories.includes(selectedCate[0]) || item.categories.includes(selectedCate[2]))) :
