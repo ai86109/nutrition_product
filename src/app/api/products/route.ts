@@ -132,11 +132,10 @@ function combineSheetData(infoData, specData, ingredientsData) {
       const value = row[index] || ''
 
       if (mappedField === 'categories') {
-        if (!value) product[mappedField] = []
-        else if (product[mappedField]) product[mappedField].push(value)
-        else product[mappedField] = [value]
+        product[mappedField] = product[mappedField] || [];
+        if (value) product[mappedField].push(value);
       } else {
-        product[mappedField] = value
+        product[mappedField] = value;
       }
     })
     
