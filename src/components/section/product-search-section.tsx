@@ -11,7 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useProduct } from "@/contexts/ProductContext"
-// import productsData from '@/data/products.json';
 import Link from "next/link"
 import { getLinkPath } from "@/utils/link"
 import { Input } from "@/components/ui/input";

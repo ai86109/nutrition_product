@@ -22,7 +22,6 @@ import {
 import { Separator } from "@/components/ui/separator"
 import { useProduct } from "@/contexts/ProductContext"
 import { useCallback, useEffect, useState } from "react";
-// import productsData from '@/data/products.json';
 import ChartSection from "@/components/section/product-calculate-section/chart-section"
 import Link from "next/link"
 import { getLinkPath } from "@/utils/link"
