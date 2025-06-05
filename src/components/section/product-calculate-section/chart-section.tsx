@@ -12,18 +12,23 @@ import {
 } from "@/components/ui/table"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
+import type { IngredientsData } from "@/types/nutrition"
 
-export default function ChartSection({ ingredientsData }) {
+interface ChartSectionProps {
+  ingredientsData: IngredientsData
+}
+
+export default function ChartSection({ ingredientsData }: ChartSectionProps): React.ReactElement {
   const { submittedValues, tdeeFactors } = useBioInfo()
   const { calculateTDEE, calculateProtein, calculateIdealWeight, rounding } = useNutritionCalculations()
 
   // bar chart
-  const barChartConfig = {
+  const barChartConfig: ChartConfig = {
     current: {
       label: "Current",
       color: "hsl(var(#1e1e1e))",
     },
-  } satisfies ChartConfig
+  }
 
   
   const chartData = () => {
@@ -46,7 +51,7 @@ export default function ChartSection({ ingredientsData }) {
     ]
   }
 
-  const pieChartConfig = {
+  const pieChartConfig: ChartConfig = {
     carbohydrate: {
       label: "Carbs",
       color: "red",
@@ -59,7 +64,7 @@ export default function ChartSection({ ingredientsData }) {
       label: "Fat",
       color: "green",
     },
-  } satisfies ChartConfig
+  }
 
   const pieChartData = () => {
     const { carbohydrate, protein, fat } = ingredientsData

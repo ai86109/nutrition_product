@@ -28,40 +28,9 @@ import { getLinkPath } from "@/utils/link"
 import { unitMapping, calcUnitMapping } from "@/utils/mappings"
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
 import { Badge } from "@/components/ui/badge"
+import type { SelectOption, SelectData, IngredientsData, ProductData } from "@/types/nutrition"
 
-type listDataType = {
-  id: string
-  name: string
-  engName: string
-  brand: string
-  defaultAmount: number
-  quantity: number
-  checked: boolean
-  select: {
-    selectedId: string
-    selectOptions: {
-      unit: string
-      products: {
-        id: string
-        defaultAmount: number
-        volume: number
-      }[]
-    }[]
-  }
-  ingredients: {
-    calories: number
-    carbohydrate: number
-    protein: number
-    fat: number
-    phosphorus: number
-    kalium: number
-    sodium: number
-    fiber: number
-  }
-  categories: string[]
-}
-
-const isSelectBlock = (selectOptions) => {
+const isSelectBlock = (selectOptions: SelectOption[]): boolean => {
   const hasMultiUnitOptions = selectOptions.length > 1
   if (hasMultiUnitOptions) return true
 
@@ -69,17 +38,23 @@ const isSelectBlock = (selectOptions) => {
   return hasMultiProductsOptions
 }
 
-function GetProductTypeBlock({ selectData, handleValueChange, productId }) {
+interface GetProductTypeBlockProps {
+  selectData: SelectData
+  handleValueChange: (value: string, productId: string) => void
+  productId: string
+}
+
+function GetProductTypeBlock({ selectData, handleValueChange, productId }: GetProductTypeBlockProps): React.ReactElement {
   const { selectOptions } = selectData
   if (isSelectBlock(selectOptions)) return <GetSelectBlock selectData={selectData} handleValueChange={handleValueChange} productId={productId} />
   else return <GetSingleTypeBlock selectData={selectData} />
 }
 
-function GetSelectBlock({ selectData, handleValueChange, productId }) {
+function GetSelectBlock({ selectData, handleValueChange, productId }: GetProductTypeBlockProps): React.ReactElement {
   const { rounding } = useNutritionCalculations()
   const { selectedId, selectOptions } = selectData
   return (
-    <Select value={selectedId} onValueChange={(value) => handleValueChange(value, productId)}>
+    <Select value={selectedId} onValueChange={(value: string) => handleValueChange(value, productId)}>
       <SelectTrigger className="w-[130px]">
         <SelectValue />
       </SelectTrigger>
@@ -112,7 +87,11 @@ function GetSelectBlock({ selectData, handleValueChange, productId }) {
   )
 }
 
-function GetSingleTypeBlock({ selectData }) {
+interface GetSingleTypeBlockProps {
+  selectData: SelectData
+}
+
+function GetSingleTypeBlock({ selectData }: GetSingleTypeBlockProps): React.ReactElement {
   const { rounding } = useNutritionCalculations()
   const { selectOptions } = selectData
   const { unit, products } = selectOptions[0]
@@ -124,11 +103,24 @@ function GetSingleTypeBlock({ selectData }) {
 
 export default function Index() {
   const { productList, setProductList, allProducts } = useProduct()
-  const [listData, setListData] = useState([])
-  const [ingredientsData, setIngredientsData] = useState([])
+  const [listData, setListData] = useState<ProductData[]>([])
+  const [ingredientsData, setIngredientsData] = useState<IngredientsData>({
+    calories: 0,
+    carbohydrate: 0,
+    protein: 0,
+    fat: 0,
+    phosphorus: 0,
+    kalium: 0,
+    sodium: 0,
+    fiber: 0,
+  })
   
-  const calculateIngredients = useCallback((data, rewriteId = null, rewriteQuantity = null) => {
-    return data.reduce((acc, item) => {
+  const calculateIngredients = useCallback((
+    data: ProductData[],
+    rewriteId: string | null = null,
+    rewriteQuantity: number | null = null
+  ): IngredientsData => {
+    return data.reduce((acc: IngredientsData, item: ProductData) => {
       if (!item.checked) return acc;
       
       const { ingredients, id } = item
@@ -145,6 +137,11 @@ export default function Index() {
         return products.find((product) => selectedId === product.id)?.volume || null
       }).filter((item) => item !== null)
       const ratio = currentAmount[0] / item.defaultAmount
+
+      if (!isFinite(ratio) || isNaN(ratio)) {
+        console.warn(`Invalid ratio for product ${item.name} (ID: ${id}):`, ratio)
+        return acc
+      }
       
       return {
         calories: acc.calories + (quantity * ratio * ingredients.calories),
@@ -166,26 +163,26 @@ export default function Index() {
       sodium: 0,
       fiber: 0,
     })
-  }, [listData])
+  }, [])
   
   useEffect(() => {
-    setListData(prevListData => {
+    setListData((prevListData: ProductData[]) => {
       const existingMap = new Map(prevListData.map(item => [item.id, item]))
 
       const newListData = productList.map(productId => {
         if (existingMap.has(productId)) {
-          return existingMap.get(productId)
+          return existingMap.get(productId)!
         }
 
         const product = allProducts.find(product => product.id === productId)
         if (!product) return null
 
-        let selectOptions = []
+        let selectOptions: SelectOption[] = []
         const isMultiOptions = product.spec.length > 1
 
         if (isMultiOptions) {
           // 轉成 selectOptions 格式
-          const tempList = {}
+          const tempList: Record<string, SelectOption> = {}
           product.spec.forEach((option) => {
             // 看 option.unit 有沒有在 tempList 裡
             const { unit, defaultAmount, volume } = option
@@ -195,8 +192,8 @@ export default function Index() {
               const list = tempList[unit].products
               list.push({
                 id: `${unitMapping[unit]}-${list.length + 1}`,
-                defaultAmount,
-                volume
+                defaultAmount: Number(defaultAmount),
+                volume: Number(volume)
               })
             } else {
               // 沒有的話 新建一個
@@ -204,8 +201,8 @@ export default function Index() {
                 unit,
                 products: [{
                   id: `${unitMapping[unit]}-${1}`,
-                  defaultAmount,
-                  volume
+                  defaultAmount: Number(defaultAmount),
+                  volume: Number(volume)
                 }]
               }
             }
@@ -219,8 +216,8 @@ export default function Index() {
             unit: unit,
             products: [{
               id: `${unitMapping[unit]}-${1}`,
-              defaultAmount,
-              volume
+              defaultAmount: Number(defaultAmount),
+              volume: Number(volume)
             }]
           }]
         }
@@ -249,11 +246,11 @@ export default function Index() {
           },
           categories: product.categories || [],
         }
-      }).filter((item) => item !== null)
+      }).filter((item) => item !== null) as ProductData[]
 
       return newListData
     })
-  }, [productList])
+  }, [productList, allProducts])
   
   useEffect(() => {
     setIngredientsData(calculateIngredients(listData))
@@ -264,16 +261,16 @@ export default function Index() {
     const { id, value } = e.target
     const product = listData.find((item) => item.id === id)
     if (product) {      
-      setListData((prevData) => prevData.map((item) => {
-        if (item.id === id) return { ...item, quantity: value }
+      setListData((prevData: ProductData[]): ProductData[] => prevData.map((item: ProductData) => {
+        if (item.id === id) return { ...item, quantity: Number(value) }
         return item
       }))
       
-      setIngredientsData(calculateIngredients(listData, id, value))
+      setIngredientsData(calculateIngredients(listData, id, Number(value)))
     }
   }
 
-  const handleValueChange = (value, productId) => {
+  const handleValueChange = (value: string, productId: string): void => {
     const product = listData.find(item => item.id === productId);
     if (!product) return;
 
@@ -299,18 +296,18 @@ export default function Index() {
     }))
   }
 
-  const handleRemoveProduct = (productId: string) => {
+  const handleRemoveProduct = (productId: string): void => {
     setProductList((prevData: string[]) => prevData.filter((item) => item !== productId))
   }
 
-  const handleCheck = (id: string, checked: boolean) => {
-    setListData((prevData: listDataType) => prevData.map((item) => {
+  const handleCheck = (id: string, checked: boolean): void => {
+    setListData((prevData: ProductData[]) => prevData.map((item) => {
       if (item.id === id) return { ...item, checked }
       return item;
     }))
   }
 
-  const getProductUnit = ({ selectedId, selectOptions }) => {
+  const getProductUnit = ({ selectedId, selectOptions }: SelectData) => {
     const result = selectOptions.map((type) => {
       const { unit, products } = type
       if (products.find((product) => selectedId === product.id)) return unit

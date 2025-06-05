@@ -2,7 +2,7 @@
 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useBioInfo, TDEEFactors, ProteinFactors } from "@/contexts/BioInfoContext"
+import { useBioInfo, type TDEEFactors, type ProteinFactors } from "@/contexts/BioInfoContext"
 import { CardContent } from "@/components/ui/card"
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
 
@@ -10,7 +10,7 @@ export default function BioResultSection() {
   const { tdeeFactors, setTdeeFactors, proteinFactors, setProteinFactors } = useBioInfo()
   const { calculateBMI, calculateIdealWeight, calculateTDEE, calculateProtein } = useNutritionCalculations()
 
-  const handleFactorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFactorChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { id, value } = e.target
     setTdeeFactors((prevData: TDEEFactors) => ({
       ...prevData,
@@ -18,7 +18,7 @@ export default function BioResultSection() {
     }))
   }
 
-  const handleProteinFactorChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleProteinFactorChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { id, value } = e.target
     setProteinFactors((prevData: ProteinFactors) => ({
       ...prevData,

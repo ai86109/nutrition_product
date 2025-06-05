@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react'
 
-type ProductData = {
+export type ProductData = {
   id: string
   name: string
   engName: string
@@ -29,30 +29,35 @@ type ProductData = {
   }
 }
 
+type BrandOption = {
+  id: string
+  name: string
+}
+
 export type ProductContextType = {
   allProducts: ProductData[]
   setAllProducts: (products: ProductData[]) => void
   productList: string[]
-  setProductList: (list: string[]) => void
-  brandOptions: { id: string; name: string }[]
-  setBrandOptions: (options: { id: string; name: string }[]) => void
+  setProductList: React.Dispatch<React.SetStateAction<string[]>> 
+  brandOptions: BrandOption[]
+  setBrandOptions: (options: BrandOption[]) => void
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined)
 
 export function ProductProvider({ children }: { children: ReactNode }) {
-  const [allProducts, setAllProducts] = useState([])
-  const [productList, setProductList] = useState([])
-  const [brandOptions, setBrandOptions] = useState([])
+  const [allProducts, setAllProducts] = useState<ProductData[]>([])
+  const [productList, setProductList] = useState<string[]>([])
+  const [brandOptions, setBrandOptions] = useState<BrandOption[]>([])
 
-  const fetchProductsData = async () => {
+  const fetchProductsData = async (): Promise<void> => {
     try {
       const response = await fetch('/api/products')
       if (!response.ok) {
         throw new Error('Failed to fetch products data')
       }
 
-      const result = await response.json() || []
+      const result: ProductData[] = await response.json() || []
       setAllProducts(result)
       // set brand
       const brands = new Map<string, number>()
@@ -65,7 +70,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
           }
         }
       })
-      const sortedBrands = Array.from(brands.entries())
+      const sortedBrands: BrandOption[] = Array.from(brands.entries())
         .sort((a, b) => b[1] - a[1])
         .map(([brand]) => ({ id: brand, name: brand }))
       
@@ -73,6 +78,10 @@ export function ProductProvider({ children }: { children: ReactNode }) {
       
     } catch (error) {
       console.error('Error fetching products data:', error)
+      if (error instanceof Error) {
+        console.error('Error message:', error.message)
+      }
+
       setAllProducts([])
     }
   }
@@ -84,16 +93,18 @@ export function ProductProvider({ children }: { children: ReactNode }) {
   return (
     <ProductContext.Provider value={{
       allProducts,
+      setAllProducts,
       productList,
       setProductList,
       brandOptions,
+      setBrandOptions
     }}>
       {children}
     </ProductContext.Provider>
   )
 }
 
-export function useProduct() {
+export function useProduct(): ProductContextType {
   const context = useContext(ProductContext)
   if (context === undefined) {
     throw new Error('useNutrition must be used within a ProductContext')

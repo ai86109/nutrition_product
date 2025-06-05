@@ -1,6 +1,6 @@
 "use client"
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import React, { createContext, useContext, useState, ReactNode } from 'react'
 
 export type FormData = {
   height: string | number
@@ -8,11 +8,13 @@ export type FormData = {
   age: string | number
 }
 
+export type Gender = "man" | "woman"
+
 type SubmittedValues = {
   height: number
   weight: number
   age: number
-  gender: string
+  gender: Gender
 }
 
 export type TDEEFactors = {
@@ -27,37 +29,37 @@ export type ProteinFactors = {
 
 type BioInfoContextType = {
   formData: FormData
-  gender: string
+  gender: Gender
   submittedValues: SubmittedValues
   tdeeFactors: TDEEFactors
   proteinFactors: ProteinFactors
-  setFormData: (data: FormData) => void
-  setGender: (gender: string) => void
-  setSubmittedValues: (values: SubmittedValues) => void
-  setTdeeFactors: (factors: TDEEFactors) => void
-  setProteinFactors: (factors: ProteinFactors) => void
+  setFormData: React.Dispatch<React.SetStateAction<FormData>>
+  setGender: React.Dispatch<React.SetStateAction<Gender>>
+  setSubmittedValues: React.Dispatch<React.SetStateAction<SubmittedValues>>
+  setTdeeFactors: React.Dispatch<React.SetStateAction<TDEEFactors>>
+  setProteinFactors: React.Dispatch<React.SetStateAction<ProteinFactors>>
 }
 
 const BioInfoContext = createContext<BioInfoContextType | undefined>(undefined)
 
 export function BioInfoProvider({ children }: { children: ReactNode }) {
-  const [formData, setFormData] = useState({
-    height: "",
-    weight: "",
-    age: "",
+  const [formData, setFormData] = useState<FormData>({
+    height: "" as string,
+    weight: "" as string,
+    age: "" as string,
   })
-  const [gender, setGender] = useState("man")
-  const [submittedValues, setSubmittedValues] = useState({
+  const [gender, setGender] = useState<Gender>("man")
+  const [submittedValues, setSubmittedValues] = useState<SubmittedValues>({
     height: 0,
     weight: 0,
     age: 0,
     gender: "man",
   })
-  const [tdeeFactors, setTdeeFactors] = useState({
+  const [tdeeFactors, setTdeeFactors] = useState<TDEEFactors>({
     activityFactor: 1,
     stressFactor: 1,
   })
-  const [proteinFactors, setProteinFactors] = useState({
+  const [proteinFactors, setProteinFactors] = useState<ProteinFactors>({
     min: 0.8,
     max: 1,
   })

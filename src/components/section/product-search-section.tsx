@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useProduct } from "@/contexts/ProductContext"
+import { useProduct, type ProductData } from "@/contexts/ProductContext"
 import Link from "next/link"
 import { getLinkPath } from "@/utils/link"
 import { Input } from "@/components/ui/input";
@@ -39,12 +39,12 @@ export default function ProductSearchSection() {
   const [selectedBrand, setSelectedBrand] = useState<string>("")
   const [selectedType, setSelectedType] = useState<string>("")
   const [searchValue, setSearchValue] = useState<string>("")
-  const [selectedCate, setSelectedCate] = useState(["", "", ""])
-  const [data, setData] = useState([])
-  const [windowWidth, setWindowWidth] = useState(0);
+  const [selectedCate, setSelectedCate] = useState<string[]>(["", "", ""])
+  const [data, setData] = useState<ProductData[]>([])
+  const [windowWidth, setWindowWidth] = useState<number>(0);
 
   // pagination
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState<number>(1)
   const itemsPerPage = windowWidth <= 1024 ? 5 : 10
   const totalPages = Math.ceil(data.length / itemsPerPage)
   const truncateLength = 5
@@ -70,28 +70,28 @@ export default function ProductSearchSection() {
     };
   }, []);
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target
     setSearchValue(value)
   }
 
-  const handleSelectBrandChange = (value) => {
+  const handleSelectBrandChange = (value: string) => {
     setSelectedBrand(value)
   }
 
-  const handleSelectTypeChange = (value) => {
+  const handleSelectTypeChange = (value: string) => {
     setSelectedType(value)
   }
 
-  const handleReset = () => {
+  const handleReset = (): void => {
     setSelectedBrand("")
     setSelectedType("")
     setSearchValue("")
     setSelectedCate(["", "", ""])
   }
 
-  const handleSearchSubmit = () => {
-    const filteredData = allProducts.filter((item) => {
+  const handleSearchSubmit = (): void => {
+    const filteredData = allProducts.filter((item: ProductData) => {
       const textInput = searchValue.toLowerCase();
       const nameMatches = item.name.toLowerCase().includes(textInput) || 
                         (item.engName && item.engName.toLowerCase().includes(textInput));
@@ -115,25 +115,24 @@ export default function ProductSearchSection() {
     setCurrentPage(1) // Reset to the first page after search
   }
 
-  const handleAddToCalculate = (productId: string) => {
-
+  const handleAddToCalculate = (productId: string): void => {
     const existingProduct = productList.includes(productId)
     if (existingProduct) return
 
     setProductList((prevData: string[]) => [...prevData, productId])
   }
 
-  const getCurrentPageData = () => {
+  const getCurrentPageData = (): ProductData[] => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
     return data.slice(startIndex, endIndex)
   }
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = (page: number): void => {
     setCurrentPage(page)
   }
 
-  const renderPaginationItems = () => {
+  const renderPaginationItems = (): React.ReactElement[] => {
     let pages = []
     if (totalPages <= truncateLength) pages = Array.from({ length: totalPages }, (_, index) => index + 1)
     else if (currentPage <= 2) pages = [1, 2, 3, "...", totalPages]
@@ -158,8 +157,8 @@ export default function ProductSearchSection() {
     })
   }
 
-  const handleSelectCateChange = (value, index) => {
-    setSelectedCate((prevCate) => {
+  const handleSelectCateChange = (value: string, index: number): void => {
+    setSelectedCate((prevCate: string[]) => {
       if (index < 0 || index >= prevCate.length) return prevCate;
 
       const newCate = [...prevCate]
@@ -257,13 +256,13 @@ export default function ProductSearchSection() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {getCurrentPageData().map((item) => (
+                {getCurrentPageData().map((item: ProductData) => (
                   <TableRow key={item.id}>
                     <TableCell className="max-w-[200px]" style={{ textWrap: 'wrap'}}>
                       <Link href={getLinkPath(item.id)} target="_blank">
                         <p>{item.name}</p>
                         {item.engName && <p className="text-xs">{item.engName}</p>}
-                        {item.categories && item.categories.length > 0 && item.categories.map((category) => (
+                        {item.categories && item.categories.length > 0 && item.categories.map((category: string) => (
                           <Badge key={category} className="mt-1 mr-1" variant="secondary">
                             {category}
                           </Badge>

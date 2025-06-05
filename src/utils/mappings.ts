@@ -1,10 +1,18 @@
-export const unitMapping = {
+type UnitMapping = {
+  [key: string]: string;
+};
+
+export const unitMapping: UnitMapping = {
   "匙": "spoon",
   "包": "pack",
   "罐": "can"
 }
 
-export const calcUnitMapping = {
+type calcUnitMapping = {
+  [key: string]: string;
+};
+
+export const calcUnitMapping: calcUnitMapping = {
   "匙": "g",
   "包": "g",
   "罐": "ml",
