@@ -170,11 +170,20 @@ export default function Index() {
   }, [listData])
   
   useEffect(() => {
-    const selectedProducts = productList.map((productId) => {
-      const product = allProducts.find((product) => product.id === productId)
-      if (product) {        
+    setListData(prevListData => {
+      const existingMap = new Map(prevListData.map(item => [item.id, item]))
+
+      const newListData = productList.map(productId => {
+        if (existingMap.has(productId)) {
+          return existingMap.get(productId)
+        }
+
+        const product = allProducts.find(product => product.id === productId)
+        if (!product) return null
+
         let selectOptions = []
         const isMultiOptions = product.spec.length > 1
+
         if (isMultiOptions) {
           // 轉成 selectOptions 格式
           const tempList = {}
@@ -216,14 +225,6 @@ export default function Index() {
             }]
           }]
         }
-
-        let quantity = 0
-        const hasQuantity = !!listData.find((list) => list.id === productId)
-        if (hasQuantity) {
-          quantity = listData.find((list) => list.id === productId).quantity
-        } else {
-          quantity = selectOptions[0].products[0].defaultAmount
-        }
         
         return {
           id: product.id,
@@ -231,7 +232,7 @@ export default function Index() {
           engName: product.engName,
           brand: product.brand,
           defaultAmount: product.defaultAmount,
-          quantity,
+          quantity: selectOptions[0].products[0].defaultAmount,
           checked: true,
           select: {
             selectedId: selectOptions[0].products[0].id,
@@ -249,12 +250,10 @@ export default function Index() {
           },
           categories: product.categories || [],
         }
-      }
-      
-      return null
-    }).filter((item) => item !== null)
-    
-    setListData(selectedProducts)
+      }).filter((item) => item !== null)
+
+      return newListData
+    })
   }, [productList])
   
   useEffect(() => {
