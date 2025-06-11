@@ -101,6 +101,66 @@ function GetSingleTypeBlock({ selectData }: GetSingleTypeBlockProps): React.Reac
   )
 }
 
+const getProductUnit = ({ selectedId, selectOptions }: SelectData) => {
+  const result = selectOptions.map((type) => {
+    const { unit, products } = type
+    if (products.find((product) => selectedId === product.id)) return unit
+    return null
+  }).filter((item) => item !== null)
+
+  return result[0]
+}
+
+function ProteinRangeBlock({ proteinPerMeal, mealsPerDay }) {
+  const { rounding, calculateProtein } = useNutritionCalculations()
+  const { minValue, maxValue } = calculateProtein()
+  if (minValue <= 0 && maxValue <= 0) return null
+
+  const totalProtein = proteinPerMeal * mealsPerDay
+  const isProteinInRange: boolean = totalProtein >= minValue && totalProtein <= maxValue
+  let proteinRangeText = ''
+  if (!isProteinInRange) {
+    if (totalProtein < minValue) proteinRangeText = `低於設定區間 (${rounding(minValue / mealsPerDay)}g - ${rounding(maxValue / mealsPerDay)}g)`
+    else if (totalProtein > maxValue) proteinRangeText = `高於設定區間 (${rounding(minValue / mealsPerDay)}g - ${rounding(maxValue / mealsPerDay)}g)`
+  }
+
+  return (
+    <p>蛋白質：{rounding(proteinPerMeal)}g <span className="text-xs text-red-700">{proteinRangeText}</span></p>
+  )
+}
+
+function CalculateDailyServingsPerMeal({ mealsPerDay, item }): React.ReactElement {
+  const { rounding, calculateTDEE, calculateProtein } = useNutritionCalculations()
+  const tdee = calculateTDEE()
+  const { minValue, maxValue } = calculateProtein()
+  console.log('tdee', tdee)
+  console.log('protein', 'minValue:', minValue, 'maxValue:', maxValue)
+  console.log('mealsPerDay', mealsPerDay)
+  console.log('CalculateDailyServingsPerMeal', item)
+
+  // get current ratio
+  const { select, defaultAmount, ingredients } = item
+  const { selectedId, selectOptions } = select
+  const currentAmount = selectOptions.map((type) => {
+    const { products } = type
+    return products.find((product) => selectedId === product.id)?.volume || null
+  }).filter((item) => item !== null)
+
+  const ratio = currentAmount[0] / defaultAmount
+
+  // calculate servings per meal
+  const servingsPerMeal = (tdee / mealsPerDay) / (ingredients.calories * ratio)
+  const unit = getProductUnit(select)
+  const proteinPerMeal = (ingredients.protein * ratio) * servingsPerMeal
+
+  return (
+    <>
+      <p>每餐需要 {rounding(servingsPerMeal)} {unit} = {rounding(currentAmount * servingsPerMeal)}{calcUnitMapping[unit]}</p>
+      <ProteinRangeBlock proteinPerMeal={proteinPerMeal} mealsPerDay={mealsPerDay} />
+    </>
+  )
+}
+
 export default function Index() {
   const { productList, setProductList, allProducts } = useProduct()
   const [listData, setListData] = useState<ProductData[]>([])
@@ -307,22 +367,17 @@ export default function Index() {
     }))
   }
 
-  const getProductUnit = ({ selectedId, selectOptions }: SelectData) => {
-    const result = selectOptions.map((type) => {
-      const { unit, products } = type
-      if (products.find((product) => selectedId === product.id)) return unit
-      return null
-    }).filter((item) => item !== null)
-
-    return result[0]
-  }
-
   return (
     <div className="flex flex-col">
-      <CardContent>        
+      <CardContent>
+        <div className="flex items-center space-x-2 mb-4">
+          <Checkbox id={`check`} checked={true} onCheckedChange={(checked) => handleCheck('check', !!checked)} />計算每日所需份量，每日
+          <Input id={'id'} className="w-[70px]" type="number" placeholder="數量" value={3} onChange={handleInputChange} />餐
+        </div>
         <Table>
           <TableBody>
             {listData.length > 0 && listData.map((item) => (
+              <>
               <TableRow key={item.id}>
                 <TableCell>
                   <Checkbox id={`check-${item.id}`} checked={item.checked} onCheckedChange={(checked) => handleCheck(item.id, !!checked)} />
@@ -351,6 +406,18 @@ export default function Index() {
                   <Button variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
                 </TableCell>
               </TableRow>
+
+              {/* 需要有一天幾餐的值
+              需要勾選顯示
+              需要有TDEE
+              選配：如果蛋白質那邊設定為 0，則不顯示蛋白質相關資訊 */}
+              <TableRow key={`${item.id}-meals`}>
+                <TableCell></TableCell>
+                <TableCell>
+                  <CalculateDailyServingsPerMeal mealsPerDay="3" item={item} />
+                </TableCell>
+              </TableRow>
+              </>
             ))}
           </TableBody>
         </Table>
