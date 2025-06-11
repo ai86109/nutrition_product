@@ -58,6 +58,10 @@ export default function MainSection() {
           </AccordionItem>
         </Accordion>
         <Separator />
+
+        <CardHeader className="my-2">
+          <CardTitle>營養品成分計算</CardTitle>
+        </CardHeader>
         <ProductCalculateSection />
       </div>
 

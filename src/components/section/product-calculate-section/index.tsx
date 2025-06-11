@@ -120,12 +120,18 @@ function ProteinRangeBlock({ proteinPerMeal, mealsPerDay }) {
   const isProteinInRange: boolean = totalProtein >= minValue && totalProtein <= maxValue
   let proteinRangeText = ''
   if (!isProteinInRange) {
-    if (totalProtein < minValue) proteinRangeText = `低於設定區間 (${rounding(minValue / mealsPerDay)}g - ${rounding(maxValue / mealsPerDay)}g)`
-    else if (totalProtein > maxValue) proteinRangeText = `高於設定區間 (${rounding(minValue / mealsPerDay)}g - ${rounding(maxValue / mealsPerDay)}g)`
+    if (totalProtein < minValue) proteinRangeText = `低於`
+    else if (totalProtein > maxValue) proteinRangeText = `高於`
   }
 
   return (
-    <p>蛋白質：{rounding(proteinPerMeal)}g <span className="text-xs text-red-700">{proteinRangeText}</span></p>
+    <p>
+      <span className="mr-1">含蛋白質：{rounding(proteinPerMeal)}g</span>
+      <span className={`text-xs ${proteinRangeText && 'text-red-700'}`}>
+        <span>{proteinRangeText}</span>
+        <span>設定區間({rounding(minValue / mealsPerDay)}g - {rounding(maxValue / mealsPerDay)}g)</span>
+      </span>
+    </p>
   )
 }
 
@@ -385,8 +391,8 @@ export default function Index() {
     <div className="flex flex-col">
       <CardContent>
         <div className="flex items-center space-x-2 mb-4">
-          <Checkbox id={`check`} checked={isCalculateServings} onCheckedChange={(checked) => handleMealsCheck(!!checked)} />計算每日所需份量，每日
-          <Input id={'meals-per-day'} className="w-[60px] mx-2" type="number" step={1} placeholder="數量" value={mealsPerDay} onChange={handleMealsInputChange} />餐
+          <Checkbox id={`check`} checked={isCalculateServings} onCheckedChange={(checked) => handleMealsCheck(!!checked)} />計算每餐所需份量，每日
+          <Input id={'meals-per-day'} className="w-[60px] h-[26px] mx-2" type="number" step={1} placeholder="數量" value={mealsPerDay} onChange={handleMealsInputChange} />餐
         </div>
         <Table>
           <TableBody>
