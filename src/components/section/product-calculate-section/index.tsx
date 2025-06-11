@@ -111,7 +111,12 @@ const getProductUnit = ({ selectedId, selectOptions }: SelectData) => {
   return result[0]
 }
 
-function ProteinRangeBlock({ proteinPerMeal, mealsPerDay }) {
+interface ProteinRangeBlockProps {
+  proteinPerMeal: number
+  mealsPerDay: number
+}
+
+function ProteinRangeBlock({ proteinPerMeal, mealsPerDay }: ProteinRangeBlockProps): React.ReactElement | null {
   const { rounding, calculateProtein } = useNutritionCalculations()
   const { minValue, maxValue } = calculateProtein()
   if (minValue <= 0 && maxValue <= 0) return null
@@ -135,19 +140,24 @@ function ProteinRangeBlock({ proteinPerMeal, mealsPerDay }) {
   )
 }
 
-function CalculateDailyServingsPerMeal({ mealsPerDay, item }): React.ReactElement {
+interface CalculateDailyServingsPerMealProps {
+  mealsPerDay: number
+  item: ProductData
+}
+
+function CalculateDailyServingsPerMeal({ mealsPerDay, item }: CalculateDailyServingsPerMealProps): React.ReactElement {
   const { rounding, calculateTDEE } = useNutritionCalculations()
   const tdee = calculateTDEE()
 
   // get current ratio
   const { select, defaultAmount, ingredients } = item
   const { selectedId, selectOptions } = select
-  const currentAmount = selectOptions.map((type) => {
+  const currentAmount: number = selectOptions.map((type) => {
     const { products } = type
     return products.find((product) => selectedId === product.id)?.volume || null
-  }).filter((item) => item !== null)
+  }).filter((item) => item !== null)[0] || 0
 
-  const ratio = currentAmount[0] / defaultAmount
+  const ratio = currentAmount / defaultAmount
 
   // calculate servings per meal
   const servingsPerMeal = (tdee / mealsPerDay) / (ingredients.calories * ratio)
@@ -375,7 +385,7 @@ export default function Index() {
     setIsCalculateServings(checked)
   }
 
-  const handleMealsInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMealsInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value
     const parsedValue = parseInt(value, 10)
     if (!isNaN(parsedValue) && parsedValue >= 0) {
