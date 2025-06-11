@@ -175,7 +175,7 @@ function CalculateDailyServingsPerMeal({ mealsPerDay, item }: CalculateDailyServ
 export default function Index() {
   const { calculateTDEE } = useNutritionCalculations()
   const { productList, setProductList, allProducts } = useProduct()
-  const [mealsPerDay, setMealsPerDay] = useState<number>(3) // default meals per day
+  const [mealsPerDay, setMealsPerDay] = useState<number | string>(3) // default meals per day
   const [listData, setListData] = useState<ProductData[]>([])
   const [isCalculateServings, setIsCalculateServings] = useState<boolean>(false)
   const [ingredientsData, setIngredientsData] = useState<IngredientsData>({
@@ -387,15 +387,15 @@ export default function Index() {
 
   const handleMealsInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value
+    if (value === '') setMealsPerDay(value)
+    if (isNaN(Number(value))) setMealsPerDay(0)
+
     const parsedValue = parseInt(value, 10)
-    if (!isNaN(parsedValue) && parsedValue >= 0) {
-      setMealsPerDay(parsedValue)
-    } else {
-      setMealsPerDay(0) // reset to default if invalid input
-    }
+    if (parsedValue <= 0) setMealsPerDay(0)
+    else setMealsPerDay(parsedValue)
   }
 
-  const isShowServings = isCalculateServings && mealsPerDay > 0 && calculateTDEE() > 0
+  const isShowServings = isCalculateServings && typeof mealsPerDay == 'number' && mealsPerDay > 0 && calculateTDEE() > 0
 
   return (
     <div className="flex flex-col">
