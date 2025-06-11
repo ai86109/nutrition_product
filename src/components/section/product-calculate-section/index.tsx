@@ -110,7 +110,7 @@ export default function Index() {
     protein: 0,
     fat: 0,
     phosphorus: 0,
-    kalium: 0,
+    potassium: 0,
     sodium: 0,
     fiber: 0,
   })
@@ -149,7 +149,7 @@ export default function Index() {
         protein: acc.protein + (quantity * ratio * ingredients.protein),
         fat: acc.fat + (quantity * ratio * ingredients.fat),
         phosphorus: acc.phosphorus + (quantity * ratio * ingredients.phosphorus),
-        kalium: acc.kalium + (quantity * ratio * ingredients.kalium),
+        potassium: acc.potassium + (quantity * ratio * ingredients.potassium),
         sodium: acc.sodium + (quantity * ratio * ingredients.sodium),
         fiber: acc.fiber + (quantity * ratio * ingredients.fiber),
       }
@@ -159,7 +159,7 @@ export default function Index() {
       protein: 0,
       fat: 0,
       phosphorus: 0,
-      kalium: 0,
+      potassium: 0,
       sodium: 0,
       fiber: 0,
     })
@@ -240,7 +240,7 @@ export default function Index() {
             protein: product.ingredients.protein,
             fat: product.ingredients.fat,
             phosphorus: product.ingredients.phosphorus,
-            kalium: product.ingredients.kalium,
+            potassium: product.ingredients.potassium,
             sodium: product.ingredients.sodium,
             fiber: product.ingredients.fiber,
           },

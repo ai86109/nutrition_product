@@ -82,8 +82,8 @@ export default function ChartSection({ ingredientsData }: ChartSectionProps): Re
   }
 
   const micronutrients = () => {
-    const { phosphorus, kalium, sodium, fiber } = ingredientsData
-    return { phosphorus, kalium, sodium, fiber }
+    const { phosphorus, potassium, sodium, fiber } = ingredientsData
+    return { phosphorus, potassium, sodium, fiber }
   }
 
   return(
@@ -128,7 +128,7 @@ export default function ChartSection({ ingredientsData }: ChartSectionProps): Re
             </TableRow>
             <TableRow>
               <TableCell>鉀</TableCell>
-              <TableCell>{rounding(micronutrients().kalium)} mg</TableCell>
+              <TableCell>{rounding(micronutrients().potassium)} mg</TableCell>
             </TableRow>
             <TableRow>
               <TableCell>鈉</TableCell>

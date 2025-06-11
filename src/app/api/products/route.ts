@@ -1,3 +1,43 @@
+import type { 
+  FieldMappings,
+  ApiProductData,
+  ProcessedSpec,
+  ProcessedSpecData,
+  IngredientsData
+} from '@/types/api'
+
+const FIELD_MAPPINGS: FieldMappings = {
+  info: {
+    '審核狀態': 'reviewStatus',
+    '許可證字號': 'id',
+    '中文品名': 'name',
+    '英文品名': 'engName',
+    '申請商名稱': 'brand',
+    '劑型': 'type',
+    '類別': 'categories',
+    // '更新時間': 'updatedAt',
+  },
+  spec: {
+    '許可證字號': 'id',
+    '中文品名': 'name',
+    '預設份量': 'defaultAmount',
+    'type': 'type',
+    'unit': 'unit',
+    'defaultAmount': 'defaultAmount',
+    'volume': 'volume',
+  },
+  ingredients: {
+    'calories': 'calories',
+    'carbohydrate': 'carbohydrate',
+    'protein': 'protein',
+    'fat': 'fat',
+    'phosphorus': 'phosphorus',
+    'potassium': 'potassium',
+    'sodium': 'sodium',
+    'fiber': 'fiber'
+  }
+}
+
 export async function GET() {
   const SHEET_ID = process.env.GOOGLE_SHEET_ID
   const API_KEY = process.env.GOOGLE_SHEET_API_KEY
@@ -33,39 +73,11 @@ export async function GET() {
   }
 }
 
-const FIELD_MAPPINGS = {
-    info: {
-      '審核狀態': 'reviewStatus',
-      '許可證字號': 'id',
-      '中文品名': 'name',
-      '英文品名': 'engName',
-      '申請商名稱': 'brand',
-      '劑型': 'type',
-      '類別': 'categories',
-      // '更新時間': 'updatedAt',
-    },
-    spec: {
-      '許可證字號': 'id',
-      '中文品名': 'name',
-      '預設份量': 'defaultAmount',
-      'type': 'type',
-      'unit': 'unit',
-      'defaultAmount': 'defaultAmount',
-      'volume': 'volume',
-    },
-    ingredients: {
-      'calories': 'calories',
-      'carbohydrate': 'carbohydrate',
-      'protein': 'protein',
-      'fat': 'fat',
-      'phosphorus': 'phosphorus',
-      'kalium': 'kalium',
-      'sodium': 'sodium',
-      'fiber': 'fiber'
-    }
-  }
-
-function combineSheetData(infoData, specData, ingredientsData) {
+function combineSheetData(
+  infoData: string[][],
+  specData: string[][],
+  ingredientsData: string[][]
+): ApiProductData[] {
   if (!infoData || !specData || !ingredientsData) {
     throw new Error('Missing one or more sheet data')
   }
@@ -75,16 +87,17 @@ function combineSheetData(infoData, specData, ingredientsData) {
   const [ingredientsHeaders, ...ingredientsRows] = ingredientsData
 
   // 建立索引
-  const specMap = new Map()
-  const ingredientsMap = new Map()
-  specRows.forEach(row => {
+  const specMap = new Map<string, ProcessedSpecData[]>()
+  const ingredientsMap = new Map<string, IngredientsData[]>()
+  specRows.forEach((row: string[]) => {
     const id = row[0]
+    if (!id) return
     if (!specMap.has(id)) {
       specMap.set(id, [])
     }
 
-    const specs = []
-    let currentSpec = null
+    const specs: ProcessedSpec[] = []
+    let currentSpec: ProcessedSpec | null = null
     specHeaders.forEach((header, index) => {
       const mappedField = FIELD_MAPPINGS.spec[header] || header
       
@@ -100,67 +113,75 @@ function combineSheetData(infoData, specData, ingredientsData) {
         currentSpec = { type: value }
         specs.push(currentSpec)
       } else {
-        currentSpec[mappedField] = value
+        currentSpec[mappedField as keyof ProcessedSpec] = value
       }
     })
-    specMap.get(id).push({
+
+    const specData: ProcessedSpecData = {
       id: row[0],
       name: row[1],
       defaultAmount: row[2],
       spec: specs
-    })
+    }
+    specMap.get(id)!.push(specData)
   })
-  ingredientsRows.forEach(row => {
+  
+  ingredientsRows.forEach((row: string[]) => {
     const id = row[0]
+    if (!id) return
     if (!ingredientsMap.has(id)) {
       ingredientsMap.set(id, [])
     }
-    const ingredientsObj = {}
-    ingredientsHeaders.forEach((header, index) => {
+    const ingredientsObj: IngredientsData = {}
+    ingredientsHeaders.forEach((header: string, index: number) => {
       ingredientsObj[header] = row[index] || ''
     })
-    ingredientsMap.get(id).push(ingredientsObj)
+    ingredientsMap.get(id)!.push(ingredientsObj)
   })
 
   // 合併資料
-  const combinedData = infoRows.filter(row => row[1]).map(row => {
-    const product = {}
-    
-    // info
-    infoHeaders.forEach((header, index) => {
-      const mappedField = FIELD_MAPPINGS.info[header] || header
-      const value = row[index] || ''
-
-      if (mappedField === 'categories') {
-        product[mappedField] = product[mappedField] || [];
-        if (value) product[mappedField].push(value);
-      } else {
-        product[mappedField] = value;
+  const combinedData: ApiProductData[] = infoRows
+    .filter((row: string[]) => row[1])
+    .map((row: string[]): ApiProductData => {
+      const product: Partial<ApiProductData> = {
+        categories: [],
       }
+      
+      // info
+      infoHeaders.forEach((header, index) => {
+        const mappedField = FIELD_MAPPINGS.info[header] || header
+        const value = row[index] || ''
+
+        if (mappedField === 'categories') {
+          product[mappedField] = product[mappedField] || [];
+          if (value) product[mappedField].push(value);
+        } else {
+          product[mappedField] = value;
+        }
+      })
+      
+      const productId = product.id!
+      // spec
+      const specResult = specMap.get(productId)
+      product.spec = specResult?.[0]?.spec || []
+      product.defaultAmount = specResult?.[0]?.defaultAmount || ''
+
+      // ingredients
+      const ingredientsResult = ingredientsMap.get(productId)
+      const { calories, carbohydrate, protein, fat, phosphorus, potassium, sodium, fiber } = ingredientsResult?.[0] || {}
+      product.ingredients = {
+        calories: Number(calories) || 0,
+        carbohydrate: Number(carbohydrate) || 0,
+        protein: Number(protein) || 0,
+        fat: Number(fat) || 0,
+        phosphorus: Number(phosphorus) || 0,
+        potassium: Number(potassium) || 0,
+        sodium: Number(sodium) || 0,
+        fiber: Number(fiber) || 0
+      }
+
+      return product as ApiProductData
     })
-    
-    const productId = product.id
-    // spec
-    const specResult = specMap.get(productId)
-    product.spec = specResult[0]?.spec || []
-    product.defaultAmount = specResult[0]?.defaultAmount || ''
-
-    // ingredients
-    const ingredientsResult = ingredientsMap.get(productId)
-    const { calories, carbohydrate, protein, fat, phosphorus, kalium, sodium, fiber } = ingredientsResult[0] || {}
-    product.ingredients = {
-      calories,
-      carbohydrate,
-      protein,
-      fat,
-      phosphorus,
-      kalium,
-      sodium,
-      fiber
-    }
-
-    return product
-  })
 
   // 過濾不完整的 data
   const filteredData = combinedData.filter(product => {

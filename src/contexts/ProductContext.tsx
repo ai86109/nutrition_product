@@ -23,7 +23,7 @@ export type ProductData = {
     protein: number
     fat: number
     phosphorus: number
-    kalium: number
+    potassium: number
     sodium: number
     fiber: number
   }

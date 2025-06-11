@@ -18,7 +18,7 @@ export type IngredientsData = {
   protein: number
   fat: number
   phosphorus: number
-  kalium: number
+  potassium: number
   sodium: number
   fiber: number
 }
