@@ -130,13 +130,8 @@ function ProteinRangeBlock({ proteinPerMeal, mealsPerDay }) {
 }
 
 function CalculateDailyServingsPerMeal({ mealsPerDay, item }): React.ReactElement {
-  const { rounding, calculateTDEE, calculateProtein } = useNutritionCalculations()
+  const { rounding, calculateTDEE } = useNutritionCalculations()
   const tdee = calculateTDEE()
-  const { minValue, maxValue } = calculateProtein()
-  console.log('tdee', tdee)
-  console.log('protein', 'minValue:', minValue, 'maxValue:', maxValue)
-  console.log('mealsPerDay', mealsPerDay)
-  console.log('CalculateDailyServingsPerMeal', item)
 
   // get current ratio
   const { select, defaultAmount, ingredients } = item
@@ -162,8 +157,11 @@ function CalculateDailyServingsPerMeal({ mealsPerDay, item }): React.ReactElemen
 }
 
 export default function Index() {
+  const { calculateTDEE } = useNutritionCalculations()
   const { productList, setProductList, allProducts } = useProduct()
+  const [mealsPerDay, setMealsPerDay] = useState<number>(3) // default meals per day
   const [listData, setListData] = useState<ProductData[]>([])
+  const [isCalculateServings, setIsCalculateServings] = useState<boolean>(false)
   const [ingredientsData, setIngredientsData] = useState<IngredientsData>({
     calories: 0,
     carbohydrate: 0,
@@ -367,56 +365,70 @@ export default function Index() {
     }))
   }
 
+  const handleMealsCheck = (checked: boolean): void => {
+    setIsCalculateServings(checked)
+  }
+
+  const handleMealsInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value
+    const parsedValue = parseInt(value, 10)
+    if (!isNaN(parsedValue) && parsedValue >= 0) {
+      setMealsPerDay(parsedValue)
+    } else {
+      setMealsPerDay(0) // reset to default if invalid input
+    }
+  }
+
+  const isShowServings = isCalculateServings && mealsPerDay > 0 && calculateTDEE() > 0
+
   return (
     <div className="flex flex-col">
       <CardContent>
         <div className="flex items-center space-x-2 mb-4">
-          <Checkbox id={`check`} checked={true} onCheckedChange={(checked) => handleCheck('check', !!checked)} />計算每日所需份量，每日
-          <Input id={'id'} className="w-[70px]" type="number" placeholder="數量" value={3} onChange={handleInputChange} />餐
+          <Checkbox id={`check`} checked={isCalculateServings} onCheckedChange={(checked) => handleMealsCheck(!!checked)} />計算每日所需份量，每日
+          <Input id={'meals-per-day'} className="w-[60px] mx-2" type="number" step={1} placeholder="數量" value={mealsPerDay} onChange={handleMealsInputChange} />餐
         </div>
         <Table>
           <TableBody>
             {listData.length > 0 && listData.map((item) => (
               <>
-              <TableRow key={item.id}>
-                <TableCell>
-                  <Checkbox id={`check-${item.id}`} checked={item.checked} onCheckedChange={(checked) => handleCheck(item.id, !!checked)} />
-                </TableCell>
-                <TableCell className="text-wrap lg:text-nowrap">
-                  <Link href={getLinkPath(item.id)} target="_blank">
-                    <p className="text-wrap w-[200px] lg:w-auto">{item.name}</p>
-                    {item.engName && <p className="text-xs text-wrap w-[200px] lg:w-auto">{item.engName}</p>}
-                    {item.categories && item.categories.length > 0 && item.categories.map((category) => (
-                      <Badge key={category} className="mt-1 mr-1" variant="secondary">
-                        {category}
-                      </Badge>
-                    ))}
-                  </Link>
-                </TableCell>
-                <TableCell>
-                  <div className="flex items-center space-x-2">
-                    <Input id={item.id} className="w-[70px]" type="number" placeholder="數量" value={item.quantity} onChange={handleInputChange} />
-                    <span>{getProductUnit(item.select)}</span>
-                  </div>
-                </TableCell>
-                <TableCell>
-                  <GetProductTypeBlock selectData={item.select} handleValueChange={handleValueChange} productId={item.id} />
-                </TableCell>
-                <TableCell>
-                  <Button variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
-                </TableCell>
-              </TableRow>
+                <TableRow key={item.id}>
+                  <TableCell>
+                    <Checkbox id={`check-${item.id}`} checked={item.checked} onCheckedChange={(checked) => handleCheck(item.id, !!checked)} />
+                  </TableCell>
+                  <TableCell className="text-wrap lg:text-nowrap">
+                    <Link href={getLinkPath(item.id)} target="_blank">
+                      <p className="text-wrap w-[200px] lg:w-auto">{item.name}</p>
+                      {item.engName && <p className="text-xs text-wrap w-[200px] lg:w-auto">{item.engName}</p>}
+                      {item.categories && item.categories.length > 0 && item.categories.map((category) => (
+                        <Badge key={category} className="mt-1 mr-1" variant="secondary">
+                          {category}
+                        </Badge>
+                      ))}
+                    </Link>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex items-center space-x-2">
+                      <Input id={item.id} className="w-[70px]" type="number" placeholder="數量" value={item.quantity} onChange={handleInputChange} />
+                      <span>{getProductUnit(item.select)}</span>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <GetProductTypeBlock selectData={item.select} handleValueChange={handleValueChange} productId={item.id} />
+                  </TableCell>
+                  <TableCell>
+                    <Button variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
+                  </TableCell>
+                </TableRow>
 
-              {/* 需要有一天幾餐的值
-              需要勾選顯示
-              需要有TDEE
-              選配：如果蛋白質那邊設定為 0，則不顯示蛋白質相關資訊 */}
-              <TableRow key={`${item.id}-meals`}>
-                <TableCell></TableCell>
-                <TableCell>
-                  <CalculateDailyServingsPerMeal mealsPerDay="3" item={item} />
-                </TableCell>
-              </TableRow>
+                {isShowServings && (
+                  <TableRow key={`${item.id}-meals`}>
+                    <TableCell></TableCell>
+                    <TableCell>
+                      <CalculateDailyServingsPerMeal mealsPerDay={mealsPerDay} item={item} />
+                    </TableCell>
+                  </TableRow>
+                )}
               </>
             ))}
           </TableBody>
