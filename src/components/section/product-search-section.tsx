@@ -169,11 +169,12 @@ export default function ProductSearchSection() {
 
   return (
     <CardContent>
-      <div className="flex items-center justify-between space-x-2 space-y-2 gap-2 flex-wrap lg:gap-0">
-        <Input className="w-[250px]" placeholder="關鍵字搜尋" value={searchValue} onChange={handleInputChange} />
+      <p className="text-sm mb-1">＊所有欄位皆為選填，請自由搭配</p>
+      <div className="flex items-start flex-col max-w-[300px] gap-1">
+        <Input className="w-full" placeholder="關鍵字搜尋" value={searchValue} onChange={handleInputChange} />
 
         <Select value={selectedBrand} onValueChange={(value) => handleSelectBrandChange(value)}>
-          <SelectTrigger className="w-[100px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="選擇品牌" />
           </SelectTrigger>
           <SelectContent>
@@ -186,7 +187,7 @@ export default function ProductSearchSection() {
         </Select>
 
         <Select value={selectedType} onValueChange={(value) => handleSelectTypeChange(value)}>
-          <SelectTrigger className="w-[100px]">
+          <SelectTrigger className="w-full">
             <SelectValue placeholder="選擇劑型" />
           </SelectTrigger>
           <SelectContent>
@@ -198,9 +199,9 @@ export default function ProductSearchSection() {
           </SelectContent>
         </Select>
 
-        <div className="flex space-x-2">
+        <div className="flex space-x-2 w-full justify-between">
           <Select value={selectedCate[0]} onValueChange={(value) => handleSelectCateChange(value, 0)}>
-            <SelectTrigger className="w-[100px]">
+            <SelectTrigger>
               <SelectValue placeholder="選擇類別" />
             </SelectTrigger>
             <SelectContent>
@@ -213,7 +214,7 @@ export default function ProductSearchSection() {
           </Select>
 
           <Select value={selectedCate[1]} onValueChange={(value) => handleSelectCateChange(value, 1)}>
-            <SelectTrigger className="w-[70px]">
+            <SelectTrigger>
               <SelectValue placeholder="或" />
             </SelectTrigger>
             <SelectContent>
@@ -226,7 +227,7 @@ export default function ProductSearchSection() {
           </Select>
 
           <Select value={selectedCate[2]} onValueChange={(value) => handleSelectCateChange(value, 2)}>
-            <SelectTrigger className="w-[100px]">
+            <SelectTrigger>
               <SelectValue placeholder="選擇類別" />
             </SelectTrigger>
             <SelectContent>
@@ -239,9 +240,11 @@ export default function ProductSearchSection() {
           </Select>
         </div>
 
-        <Button variant="outline" onClick={handleSearchSubmit}>送出</Button>
+        <div className="flex gap-2 w-full mt-1">
+          <Button className="flex-1 cursor-pointer" onClick={handleSearchSubmit}>搜尋</Button>
+          <Button className="w-[100px] cursor-pointer" variant="destructive" onClick={handleReset}>重置所有設定</Button>
+        </div>
       </div>
-      <Button variant="outline" onClick={handleReset} className="mt-2">重置</Button>
 
       <div>
         {getCurrentPageData().length > 0 && (
