@@ -8,67 +8,92 @@ type ProteinCalculationResult = {
 }
 
 type NutritionCalculationsReturn = {
-  calculateBMI: () => number | string
-  calculateIdealWeight: () => number
-  calculateTDEE: () => number
-  calculateProtein: () => ProteinCalculationResult
+  calculateBMI: () => number
+  calculatePBW: () => number
+  calculateIBW: () => number
+  calculateABW: () => number
+  calculateTDEE: (adjustedFactor: number) => number
+  calculateProtein: (proteinFactor: number) => number
   rounding: (value: number) => number
 }
 
 export function useNutritionCalculations(): NutritionCalculationsReturn {
-  const { submittedValues, tdeeFactors, proteinFactors } = useBioInfo()
+  const { submittedValues, proteinFactors } = useBioInfo()
 
-  const calculateBMI = (): number | string => {
+  const calculateBMI = (): number => {
     const { height, weight } = submittedValues
-    if (!height || !weight || height <= 0 || weight <= 0) return "--"
+    if (!height || !weight || height <= 0 || weight <= 0) return 0
 
     const bmi = weight / ((height / 100) ** 2)
 
-    if (!isFinite(bmi) || isNaN(bmi)) return "--"
-    return rounding(bmi)
+    if (!isFinite(bmi) || isNaN(bmi)) return 0
+    return rounding(bmi, 1)
   }
 
-  const calculateIdealWeight = (): number => {
+  const calculateIBW = (): number => {
     const { height } = submittedValues
     if (!height || height <= 0) return 0
 
     const idealWeight = (height / 100) ** 2 * 22
     if (!isFinite(idealWeight) || isNaN(idealWeight)) return 0
-    return rounding(idealWeight)
+    return rounding(idealWeight, 0)
   }
 
-  const calculateTDEE = (): number => {
+  const calculatePBW = (): number => {
+    const { weight } = submittedValues
+    if (!weight || weight <= 0) return 0
+
+    return rounding(weight, 0)
+  }
+
+  const calculateABW = (): number => {
+    const IBW = calculateIBW()
+    const PBW = calculatePBW()
+    if (IBW <= 0 || PBW <= 0) return 0
+
+    return rounding(IBW + 0.25 * (PBW - IBW), 0)
+  }
+
+  // 沒有體重感覺也可以算
+  const calculateTDEE = (adjustedFactor: number): number => {
+    if (!adjustedFactor || adjustedFactor <= 0) return 0
     const { height, weight, age, gender } = submittedValues
-    const { activityFactor, stressFactor } = tdeeFactors
     if (!height || !weight || !age || height <= 0 || weight <= 0 || age <= 0) return 0
 
-    const idealWeight = calculateIdealWeight()
-    if (typeof idealWeight !== "number" || idealWeight <= 0) return 0
+    const idealWeight = calculateIBW()
+    if (idealWeight <= 0) return 0
 
     const manBEE = 13.7 * idealWeight + 5 * height - 6.8 * age + 66
     const womanBEE = 9.6 * idealWeight + 1.8 * height - 4.7 * age + 655
     const BEE = gender === "man" ? manBEE : womanBEE
-    const TDEE = BEE * activityFactor * stressFactor
+    const TDEE = BEE * adjustedFactor
 
     if (!isFinite(TDEE) || isNaN(TDEE)) return 0
-    return rounding(TDEE)
+    return rounding(TDEE, 0)
   }
 
-  const calculateProtein = (): ProteinCalculationResult => {
-    const idealWeight = calculateIdealWeight()
-    const { min, max } = proteinFactors
-    if (typeof idealWeight !== "number" || idealWeight <= 0 || !min || !max || min <= 0 || max <= 0) return { minValue: 0, maxValue: 0 }
+  const calculateProtein = (proteinFactor: number): number => {
+    const idealWeight = calculateIBW()
+    if (idealWeight <= 0) return 0
 
-    const minValue = rounding(Math.min(min * idealWeight, max * idealWeight))
-    const maxValue = rounding(Math.max(min * idealWeight, max * idealWeight))
-
-    return { minValue, maxValue }
+    return rounding(proteinFactor * idealWeight, 1)
   }
 
-  const rounding = (value: number): number => {
+  const rounding = (value: number, digits: number = 2): number => {
     if (!isFinite(value) || isNaN(value)) return 0
-    return Math.round(value * 100) / 100
+
+    const validDigits = Math.max(0, Math.floor(digits))
+    const multiplier = Math.pow(10, validDigits)
+    return Math.round(value * multiplier) / multiplier
   }
 
-  return { calculateBMI, calculateIdealWeight, calculateTDEE, calculateProtein, rounding }
+  return { 
+    calculateBMI,
+    calculatePBW,
+    calculateIBW,
+    calculateABW,
+    calculateTDEE,
+    calculateProtein,
+    rounding
+  }
 }

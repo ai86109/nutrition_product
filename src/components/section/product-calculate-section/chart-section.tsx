@@ -20,7 +20,7 @@ interface ChartSectionProps {
 
 export default function ChartSection({ ingredientsData }: ChartSectionProps): React.ReactElement {
   const { submittedValues, tdeeFactors } = useBioInfo()
-  const { calculateTDEE, calculateProtein, calculateIdealWeight, rounding } = useNutritionCalculations()
+  const { calculateTDEE, calculateProtein, calculateIBW, rounding } = useNutritionCalculations()
 
   // bar chart
   const barChartConfig: ChartConfig = {
@@ -103,10 +103,10 @@ export default function ChartSection({ ingredientsData }: ChartSectionProps): Re
                     <TableCell>{rounding(ingredientsData.calories / submittedValues.weight)} kcal/kg PBW</TableCell>
                   </TableRow>
                 )}
-                {calculateIdealWeight() > 0 && (
+                {calculateIBW() > 0 && (
                   <TableRow>
                     <TableCell></TableCell>
-                    <TableCell>{rounding(ingredientsData.calories / calculateIdealWeight())} kcal/kg IBW</TableCell>
+                    <TableCell>{rounding(ingredientsData.calories / calculateIBW())} kcal/kg IBW</TableCell>
                   </TableRow>
                 )}
               </>)}
