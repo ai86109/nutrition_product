@@ -127,3 +127,31 @@
     @apply bg-background text-foreground;
   }
 }
+
+.bio-cards-container {
+  container-type: inline-size;
+}
+
+.bio-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@container (min-width: 1024px) {
+  .bio-cards-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@container (min-width: 640px) and (max-width: 1023px) {
+  .bio-cards-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@container (max-width: 639px) {
+  .bio-cards-grid {
+    grid-template-columns: 1fr;
+  }
+}

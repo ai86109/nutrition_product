@@ -28,7 +28,7 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-200`}
       >
         {children}
       </body>

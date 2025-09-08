@@ -17,11 +17,6 @@ type SubmittedValues = {
   gender: Gender
 }
 
-export type TDEEFactors = {
-  activityFactor: number
-  stressFactor: number
-}
-
 export type CalorieFactorList = {
   id: number
   value: number
@@ -46,11 +41,6 @@ export type ProteinList = {
   checked: boolean
 }
 
-export type ProteinFactors = {
-  min: number
-  max: number
-}
-
 export type ProteinRange = {
   min: number | string
   max: number | string
@@ -60,13 +50,9 @@ type BioInfoContextType = {
   formData: FormData
   gender: Gender
   submittedValues: SubmittedValues
-  tdeeFactors: TDEEFactors
-  proteinFactors: ProteinFactors
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   setGender: React.Dispatch<React.SetStateAction<Gender>>
   setSubmittedValues: React.Dispatch<React.SetStateAction<SubmittedValues>>
-  setTdeeFactors: React.Dispatch<React.SetStateAction<TDEEFactors>>
-  setProteinFactors: React.Dispatch<React.SetStateAction<ProteinFactors>>
   calorieFactorLists: CalorieFactorList[]
   setCalorieFactorLists: React.Dispatch<React.SetStateAction<CalorieFactorList[]>>
   calorieTypeLists: CalorieType[]
@@ -125,23 +111,15 @@ export function BioInfoProvider({ children }: { children: ReactNode }) {
     age: 0,
     gender: "man",
   })
-  const [tdeeFactors, setTdeeFactors] = useState<TDEEFactors>({
-    activityFactor: 1,
-    stressFactor: 1,
-  })
-  const [proteinFactors, setProteinFactors] = useState<ProteinFactors>({
-    min: 0.8,
-    max: 1,
-  })
 
   const [calorieFactorLists, setCalorieFactorLists] = useState<CalorieFactorList[]>(DEFAULT_CALORIE_SETTINGS)
   const [calorieTypeLists, setCalorieTypeLists] = useState<CalorieType[]>(DEFAULT_CALORIE_TYPE_SETTINGS)
   const [tdeeList, setTDEEList] = useState<TDEEList[]>(DEFAULT_TDEE_SETTINGS)
   const [proteinList, setProteinList] = useState<ProteinList[]>(DEFAULT_PROTEIN_SETTINGS)
-  const [tdee, setTdee] = useState<number | string>(0)
-  const [proteinRange, setProteinRange] = useState<ProteinFactors>({
-    min: 0,
-    max: 0,
+  const [tdee, setTdee] = useState<number | string>("")
+  const [proteinRange, setProteinRange] = useState<ProteinRange>({
+    min: "",
+    max: "",
   })
 
   return (
@@ -149,13 +127,9 @@ export function BioInfoProvider({ children }: { children: ReactNode }) {
       formData,
       gender,
       submittedValues,
-      tdeeFactors,
-      proteinFactors,
       setFormData,
       setGender,
       setSubmittedValues,
-      setTdeeFactors,
-      setProteinFactors,
       calorieFactorLists,
       setCalorieFactorLists,
       calorieTypeLists,

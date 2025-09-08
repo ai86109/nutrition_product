@@ -119,8 +119,11 @@ interface ProteinRangeBlockProps {
 }
 
 function ProteinRangeBlock({ proteinPerMeal, mealsPerDay }: ProteinRangeBlockProps): React.ReactElement | null {
-  const { rounding, calculateProtein } = useNutritionCalculations()
-  const { minValue, maxValue } = calculateProtein()
+  const { rounding } = useNutritionCalculations()
+  const { proteinRange } = useBioInfo();
+  const { min, max } = proteinRange
+  const minValue = Number(Math.min(Number(min), Number(max)))
+  const maxValue = Number(Math.max(Number(min), Number(max)))
   if (minValue <= 0 && maxValue <= 0) return null
 
   const totalProtein = proteinPerMeal * mealsPerDay
@@ -134,9 +137,8 @@ function ProteinRangeBlock({ proteinPerMeal, mealsPerDay }: ProteinRangeBlockPro
   return (
     <p>
       <span className="mr-1">含蛋白質：{rounding(proteinPerMeal)}g</span>
-      <span className={`text-xs ${proteinRangeText && 'text-red-700'}`}>
-        <span>{proteinRangeText}</span>
-        <span>設定區間({rounding(minValue / mealsPerDay)}g - {rounding(maxValue / mealsPerDay)}g)</span>
+      <span className={`text-xs ${proteinRangeText ? 'text-red-700' : 'text-green-700'}`}>
+        <span>({proteinRangeText}蛋白質設定範圍:{rounding(minValue / mealsPerDay)}g - {rounding(maxValue / mealsPerDay)}g / 餐)</span>
       </span>
     </p>
   )
@@ -148,7 +150,7 @@ interface CalculateDailyServingsPerMealProps {
 }
 
 function CalculateDailyServingsPerMeal({ mealsPerDay, item }: CalculateDailyServingsPerMealProps): React.ReactElement {
-  const { rounding, calculateTDEE } = useNutritionCalculations()
+  const { rounding } = useNutritionCalculations()
   const { tdee } = useBioInfo();
 
   // get current ratio
@@ -162,15 +164,18 @@ function CalculateDailyServingsPerMeal({ mealsPerDay, item }: CalculateDailyServ
   const ratio = currentAmount / defaultAmount
 
   // calculate servings per meal
-  const servingsPerMeal = (tdee / mealsPerDay) / (ingredients.calories * ratio)
+  const servingsPerMeal = ((Number(tdee)) / mealsPerDay) / (ingredients.calories * ratio)
   const unit = getProductUnit(select)
   const proteinPerMeal = (ingredients.protein * ratio) * servingsPerMeal
 
   return (
-    <>
-      <p>每餐需要 {rounding(servingsPerMeal)} {unit} = {rounding(currentAmount * servingsPerMeal)}{calcUnitMapping[unit]}</p>
+    <div className="bg-blue-50 p-2 rounded">
+      <p>
+        <span className="font-bold">每餐需要 {rounding(servingsPerMeal)} {unit} = {rounding(currentAmount * servingsPerMeal)}{calcUnitMapping[unit]}</span>
+        <span>（總共 {rounding(servingsPerMeal * mealsPerDay)} {unit} = {rounding(currentAmount * servingsPerMeal * mealsPerDay)}{calcUnitMapping[unit]}）</span>
+      </p>
       <ProteinRangeBlock proteinPerMeal={proteinPerMeal} mealsPerDay={mealsPerDay} />
-    </>
+    </div>
   )
 }
 
@@ -397,20 +402,25 @@ export default function Index() {
     else setMealsPerDay(parsedValue)
   }
 
-  const isShowServings = isCalculateServings && typeof mealsPerDay == 'number' && mealsPerDay > 0 && tdee > 0
+  const isServingsCanBeUsed = Number(tdee) > 0 && listData.filter((item) => item.checked).length === 1
+
+  const isShowServings = isCalculateServings && typeof mealsPerDay == 'number' && mealsPerDay > 0 && Number(tdee) > 0
 
   return (
-    <div className="flex flex-col mx-auto max-w-[800px]">
+    <div className="flex flex-col items-center mt-4 p-2">
       {listData.length > 0 ? (
-        <>
-          <CardContent>
+        <div>
+          <CardContent className="overflow-x-auto w-full">
             <BioSettings />
+            <div className={`mt-4 text-sm ${!isServingsCanBeUsed && 'opacity-50'}`}>
+              <div className="flex items-center space-x-2">
+                <Checkbox disabled={!isServingsCanBeUsed} id={`check`} checked={isCalculateServings} onCheckedChange={(checked) => handleMealsCheck(!!checked)} />計算每餐所需份量，每日
+                <Input disabled={!isServingsCanBeUsed} id={'meals-per-day'} className="w-[60px] h-[26px] mx-2" type="number" step={1} placeholder="數量" value={mealsPerDay} onChange={handleMealsInputChange} />餐
+              </div>
+              <span className="text-xs">＊此功能僅提供：當有輸入熱量時，以及選取單一營養品時使用</span>
+            </div>
             <Separator className="my-4" />
 
-            {/* <div className="flex items-center space-x-2 mb-4">
-              <Checkbox id={`check`} checked={isCalculateServings} onCheckedChange={(checked) => handleMealsCheck(!!checked)} />計算每餐所需份量，每日
-              <Input id={'meals-per-day'} className="w-[60px] h-[26px] mx-2" type="number" step={1} placeholder="數量" value={mealsPerDay} onChange={handleMealsInputChange} />餐
-            </div> */}
             <Table>
               <TableBody>
                 {listData.map((item) => (
@@ -444,7 +454,7 @@ export default function Index() {
                       </TableCell>
                     </TableRow>
 
-                    {isShowServings && (
+                    {isServingsCanBeUsed && isShowServings && item.checked && (
                       <TableRow key={`${item.id}-meals`}>
                         <TableCell></TableCell>
                         <TableCell>
@@ -456,14 +466,13 @@ export default function Index() {
                 ))}
               </TableBody>
             </Table>
-            {/* 全選勾選 */}
           </CardContent>
 
           <Separator className="my-4" />
 
           <ChartSection ingredientsData={ingredientsData} />
-        </>
-      ) : <p className="text-sm ml-4">請先到<span className="font-bold">「營養品搜尋」</span>頁面，選擇一樣營養品</p>}
+        </div>
+      ) : <p className="text-sm">請先至少<span className="font-bold">選擇一樣營養品</span>以得到其營養成分</p>}
     </div>
   )
 }

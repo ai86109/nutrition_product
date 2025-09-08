@@ -36,32 +36,34 @@ export default function BioInfoSection() {
   return (
     <CardContent>
       <div className="mb-2">
-        <Label htmlFor="height" className="mb-2">身高</Label>
+        <Label htmlFor="height" className="mb-2">身高(cm)</Label>
         <Input id="height" type="number" placeholder="身高" value={formData.height} min="0" onChange={handleInputChange} />
       </div>
       <div className="mb-2">
-        <Label htmlFor="weight" className="mb-2">體重</Label>
+        <Label htmlFor="weight" className="mb-2">體重(kg)</Label>
         <Input id="weight" type="number" placeholder="體重" value={formData.weight} min="0" onChange={handleInputChange} />
       </div>
       <div className="mb-2">
         <Label htmlFor="age" className="mb-2">年齡</Label>
         <Input id="age" type="number" placeholder="年齡" value={formData.age} min="0" onChange={handleInputChange} />
       </div>
-      <RadioGroup defaultValue="man" value={gender} onValueChange={handleGenderChange} className="w-[50%]">
-        <Label className="mb-0">性別</Label>
-        <div className="flex items-center space-x-2">
+      <div className="flex items-end space-x-4">
+        <RadioGroup defaultValue="man" value={gender} onValueChange={handleGenderChange} className="w-[50%]">
+          <Label className="mb-0">性別</Label>
           <div className="flex items-center space-x-2">
-            <RadioGroupItem value="man" id="r1" />
-            <Label htmlFor="r1">男</Label>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="man" id="r1" />
+              <Label htmlFor="r1">男</Label>
+            </div>
+            <div className="flex items-center space-x-2">
+              <RadioGroupItem value="woman" id="r2" />
+              <Label htmlFor="r2">女</Label>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="woman" id="r2" />
-            <Label htmlFor="r2">女</Label>
-          </div>
-        </div>
-      </RadioGroup>
+        </RadioGroup>
 
-      <Button className="mt-4" variant="outline" onClick={handleSubmit}>送出</Button>
+        <Button className="cursor-pointer" onClick={handleSubmit}>送出</Button>
+      </div>
     </CardContent>
   )
 }

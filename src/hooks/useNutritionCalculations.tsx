@@ -2,11 +2,6 @@
 
 import { useBioInfo } from "@/contexts/BioInfoContext"
 
-type ProteinCalculationResult = {
-  minValue: number
-  maxValue: number
-}
-
 type NutritionCalculationsReturn = {
   calculateBMI: () => number
   calculatePBW: () => number
@@ -18,7 +13,7 @@ type NutritionCalculationsReturn = {
 }
 
 export function useNutritionCalculations(): NutritionCalculationsReturn {
-  const { submittedValues, proteinFactors } = useBioInfo()
+  const { submittedValues } = useBioInfo()
 
   const calculateBMI = (): number => {
     const { height, weight } = submittedValues
@@ -60,11 +55,11 @@ export function useNutritionCalculations(): NutritionCalculationsReturn {
     const { height, weight, age, gender } = submittedValues
     if (!height || !weight || !age || height <= 0 || weight <= 0 || age <= 0) return 0
 
-    const idealWeight = calculateIBW()
-    if (idealWeight <= 0) return 0
+    const PBW = calculatePBW()
+    if (PBW <= 0) return 0
 
-    const manBEE = 13.7 * idealWeight + 5 * height - 6.8 * age + 66
-    const womanBEE = 9.6 * idealWeight + 1.8 * height - 4.7 * age + 655
+    const manBEE = 13.7 * PBW + 5 * height - 6.8 * age + 66
+    const womanBEE = 9.6 * PBW + 1.8 * height - 4.7 * age + 655
     const BEE = gender === "man" ? manBEE : womanBEE
     const TDEE = BEE * adjustedFactor
 
