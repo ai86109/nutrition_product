@@ -14,7 +14,7 @@ type NutritionCalculationsReturn = {
   calculateABW: () => number
   calculateTDEE: (adjustedFactor: number) => number
   calculateProtein: (proteinFactor: number) => number
-  rounding: (value: number) => number
+  rounding: (value: number, digits?: number) => number
 }
 
 export function useNutritionCalculations(): NutritionCalculationsReturn {

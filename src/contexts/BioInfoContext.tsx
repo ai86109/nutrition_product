@@ -51,6 +51,11 @@ export type ProteinFactors = {
   max: number
 }
 
+export type ProteinRange = {
+  min: number | string
+  max: number | string
+}
+
 type BioInfoContextType = {
   formData: FormData
   gender: Gender
@@ -70,6 +75,10 @@ type BioInfoContextType = {
   setTDEEList: React.Dispatch<React.SetStateAction<TDEEList[]>>
   proteinList: ProteinList[]
   setProteinList: React.Dispatch<React.SetStateAction<ProteinList[]>>
+  tdee: number | string
+  setTdee: React.Dispatch<React.SetStateAction<number | string>>
+  proteinRange: ProteinRange
+  setProteinRange: React.Dispatch<React.SetStateAction<ProteinRange>>
 }
 
 export const DEFAULT_TDEE_SETTINGS = [
@@ -129,6 +138,11 @@ export function BioInfoProvider({ children }: { children: ReactNode }) {
   const [calorieTypeLists, setCalorieTypeLists] = useState<CalorieType[]>(DEFAULT_CALORIE_TYPE_SETTINGS)
   const [tdeeList, setTDEEList] = useState<TDEEList[]>(DEFAULT_TDEE_SETTINGS)
   const [proteinList, setProteinList] = useState<ProteinList[]>(DEFAULT_PROTEIN_SETTINGS)
+  const [tdee, setTdee] = useState<number | string>(0)
+  const [proteinRange, setProteinRange] = useState<ProteinFactors>({
+    min: 0,
+    max: 0,
+  })
 
   return (
     <BioInfoContext.Provider value={{
@@ -150,6 +164,10 @@ export function BioInfoProvider({ children }: { children: ReactNode }) {
       setTDEEList,
       proteinList,
       setProteinList,
+      tdee,
+      setTdee,
+      proteinRange,
+      setProteinRange,
     }}>
       {children}
     </BioInfoContext.Provider>

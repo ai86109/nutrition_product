@@ -29,6 +29,8 @@ import { unitMapping, calcUnitMapping } from "@/utils/mappings"
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
 import { Badge } from "@/components/ui/badge"
 import type { SelectOption, SelectData, IngredientsData, ProductData } from "@/types/nutrition"
+import { useBioInfo } from "@/contexts/BioInfoContext"
+import BioSettings from "./bio-settings";
 
 const isSelectBlock = (selectOptions: SelectOption[]): boolean => {
   const hasMultiUnitOptions = selectOptions.length > 1
@@ -147,7 +149,7 @@ interface CalculateDailyServingsPerMealProps {
 
 function CalculateDailyServingsPerMeal({ mealsPerDay, item }: CalculateDailyServingsPerMealProps): React.ReactElement {
   const { rounding, calculateTDEE } = useNutritionCalculations()
-  const tdee = calculateTDEE()
+  const { tdee } = useBioInfo();
 
   // get current ratio
   const { select, defaultAmount, ingredients } = item
@@ -173,8 +175,8 @@ function CalculateDailyServingsPerMeal({ mealsPerDay, item }: CalculateDailyServ
 }
 
 export default function Index() {
-  const { calculateTDEE } = useNutritionCalculations()
   const { productList, setProductList, allProducts } = useProduct()
+  const { tdee } = useBioInfo();
   const [mealsPerDay, setMealsPerDay] = useState<number | string>(3) // default meals per day
   const [listData, setListData] = useState<ProductData[]>([])
   const [isCalculateServings, setIsCalculateServings] = useState<boolean>(false)
@@ -395,65 +397,73 @@ export default function Index() {
     else setMealsPerDay(parsedValue)
   }
 
-  const isShowServings = isCalculateServings && typeof mealsPerDay == 'number' && mealsPerDay > 0 && calculateTDEE() > 0
+  const isShowServings = isCalculateServings && typeof mealsPerDay == 'number' && mealsPerDay > 0 && tdee > 0
 
   return (
-    <div className="flex flex-col">
-      <CardContent>
-        <div className="flex items-center space-x-2 mb-4">
-          <Checkbox id={`check`} checked={isCalculateServings} onCheckedChange={(checked) => handleMealsCheck(!!checked)} />計算每餐所需份量，每日
-          <Input id={'meals-per-day'} className="w-[60px] h-[26px] mx-2" type="number" step={1} placeholder="數量" value={mealsPerDay} onChange={handleMealsInputChange} />餐
-        </div>
-        <Table>
-          <TableBody>
-            {listData.length > 0 && listData.map((item) => (
-              <>
-                <TableRow key={item.id}>
-                  <TableCell>
-                    <Checkbox id={`check-${item.id}`} checked={item.checked} onCheckedChange={(checked) => handleCheck(item.id, !!checked)} />
-                  </TableCell>
-                  <TableCell className="text-wrap lg:text-nowrap">
-                    <Link href={getLinkPath(item.id)} target="_blank">
-                      <p className="text-wrap w-[200px] lg:w-auto">{item.name}</p>
-                      {item.engName && <p className="text-xs text-wrap w-[200px] lg:w-auto">{item.engName}</p>}
-                      {item.categories && item.categories.length > 0 && item.categories.map((category) => (
-                        <Badge key={category} className="mt-1 mr-1" variant="secondary">
-                          {category}
-                        </Badge>
-                      ))}
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center space-x-2">
-                      <Input id={item.id} className="w-[70px]" type="number" placeholder="數量" value={item.quantity} onChange={handleInputChange} />
-                      <span>{getProductUnit(item.select)}</span>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <GetProductTypeBlock selectData={item.select} handleValueChange={handleValueChange} productId={item.id} />
-                  </TableCell>
-                  <TableCell>
-                    <Button variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
-                  </TableCell>
-                </TableRow>
+    <div className="flex flex-col mx-auto max-w-[800px]">
+      {listData.length > 0 ? (
+        <>
+          <CardContent>
+            <BioSettings />
+            <Separator className="my-4" />
 
-                {isShowServings && (
-                  <TableRow key={`${item.id}-meals`}>
-                    <TableCell></TableCell>
-                    <TableCell>
-                      <CalculateDailyServingsPerMeal mealsPerDay={mealsPerDay} item={item} />
-                    </TableCell>
-                  </TableRow>
-                )}
-              </>
-            ))}
-          </TableBody>
-        </Table>
-        {/* 全選勾選 */}
-      </CardContent>
-      <Separator className="my-4" />
+            {/* <div className="flex items-center space-x-2 mb-4">
+              <Checkbox id={`check`} checked={isCalculateServings} onCheckedChange={(checked) => handleMealsCheck(!!checked)} />計算每餐所需份量，每日
+              <Input id={'meals-per-day'} className="w-[60px] h-[26px] mx-2" type="number" step={1} placeholder="數量" value={mealsPerDay} onChange={handleMealsInputChange} />餐
+            </div> */}
+            <Table>
+              <TableBody>
+                {listData.map((item) => (
+                  <>
+                    <TableRow key={item.id}>
+                      <TableCell>
+                        <Checkbox id={`check-${item.id}`} checked={item.checked} onCheckedChange={(checked) => handleCheck(item.id, !!checked)} />
+                      </TableCell>
+                      <TableCell className="text-wrap lg:text-nowrap">
+                        <Link href={getLinkPath(item.id)} target="_blank">
+                          <p className="text-wrap w-[200px] lg:w-auto">{item.name}</p>
+                          {item.engName && <p className="text-xs text-wrap w-[200px] lg:w-auto">{item.engName}</p>}
+                          {item.categories && item.categories.length > 0 && item.categories.map((category) => (
+                            <Badge key={category} className="mt-1 mr-1" variant="secondary">
+                              {category}
+                            </Badge>
+                          ))}
+                        </Link>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center space-x-2">
+                          <Input id={item.id} className="w-[70px]" type="number" placeholder="數量" value={item.quantity} onChange={handleInputChange} />
+                          <span>{getProductUnit(item.select)}</span>
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <GetProductTypeBlock selectData={item.select} handleValueChange={handleValueChange} productId={item.id} />
+                      </TableCell>
+                      <TableCell>
+                        <Button variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
+                      </TableCell>
+                    </TableRow>
 
-      <ChartSection ingredientsData={ingredientsData} />
+                    {isShowServings && (
+                      <TableRow key={`${item.id}-meals`}>
+                        <TableCell></TableCell>
+                        <TableCell>
+                          <CalculateDailyServingsPerMeal mealsPerDay={mealsPerDay} item={item} />
+                        </TableCell>
+                      </TableRow>
+                    )}
+                  </>
+                ))}
+              </TableBody>
+            </Table>
+            {/* 全選勾選 */}
+          </CardContent>
+
+          <Separator className="my-4" />
+
+          <ChartSection ingredientsData={ingredientsData} />
+        </>
+      ) : <p className="text-sm ml-4">請先到<span className="font-bold">「營養品搜尋」</span>頁面，選擇一樣營養品</p>}
     </div>
   )
 }

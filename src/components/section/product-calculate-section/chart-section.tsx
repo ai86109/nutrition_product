@@ -19,35 +19,41 @@ interface ChartSectionProps {
 }
 
 export default function ChartSection({ ingredientsData }: ChartSectionProps): React.ReactElement {
-  const { submittedValues, tdeeFactors } = useBioInfo()
+  const { submittedValues, tdeeFactors, tdee, proteinRange } = useBioInfo()
   const { calculateTDEE, calculateProtein, calculateIBW, rounding } = useNutritionCalculations()
+  const isTdeeInvalid = isNaN(Number(tdee)) || Number(tdee) <= 0;
 
   // bar chart
   const barChartConfig: ChartConfig = {
-    current: {
-      label: "Current",
+    percentage: {
+      label: "percentage",
       color: "hsl(var(#1e1e1e))",
     },
   }
-
   
-  const chartData = () => {
-    const { calories, protein } = ingredientsData
-    const { height, weight, age } = submittedValues
-    const { activityFactor, stressFactor } = tdeeFactors
-
-    if (calories === 0 && protein === 0) return []
-    if (height === 0 || weight === 0 || age === 0) return []
-    if (activityFactor === 0 || stressFactor === 0) return []
-    const tdee = calculateTDEE()
-    const minProtein = calculateProtein().minValue
-
-    const currentCalories = ((calories / tdee) * 100).toFixed(2)
-    const currentProtein = ((protein / minProtein) * 100).toFixed(2)
-  
+  const caloriesChartData = () => {
+    const { calories } = ingredientsData
+    if (calories <= 0) return []
+    if (isTdeeInvalid) return []    
+    
+    const caloriePercentage = rounding((calories / Number(tdee)) * 100, 1)
+    const displayBarPercentage = caloriePercentage > 100 ? 100 : caloriePercentage
     return [
-      { macronutrients: "calories", current: currentCalories, label: `${currentCalories}%` },
-      { macronutrients: "protein", current: currentProtein, label: `${currentProtein}%` },
+      { label: "calories", percentage: displayBarPercentage, target: 100, text: `${caloriePercentage}%` },
+    ]
+  }
+
+  const proteinChartData = () => {
+    const { protein } = ingredientsData
+    if (protein <= 0) return []
+    const { min, max } = proteinRange
+    if (![min, max].every(val => Number(val) > 0)) return []
+    
+    const minProteinRequirement = Math.min(Number(min), Number(max))
+    const proteinPercentage = rounding((protein / minProteinRequirement) * 100, 1)
+    const displayBarPercentage = proteinPercentage > 100 ? 100 : proteinPercentage
+    return [
+      { label: "protein", percentage: displayBarPercentage, target: 100, text: `${proteinPercentage}%` },
     ]
   }
 
@@ -94,8 +100,33 @@ export default function ChartSection({ ingredientsData }: ChartSectionProps): Re
             <TableRow>
               <TableCell>熱量</TableCell>
               <TableCell>{rounding(ingredientsData.calories)} Kcal</TableCell>
+              <TableCell>
+                <ChartContainer config={barChartConfig} className="h-[80px]">
+                  <BarChart accessibilityLayer data={caloriesChartData()} layout="vertical">
+                    <XAxis type="number" dataKey="target" hide />
+                    <YAxis
+                      dataKey="label"
+                      type="category"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      tickFormatter={(value) => value.slice(0, 3)}
+                      hide
+                    />
+                    <Bar dataKey="percentage" fill="#ad7c48" radius={4}>
+                      <LabelList
+                        dataKey="text"
+                        position={caloriesChartData()[0]?.percentage < 37 ? "right" : "insideRight"}
+                        offset={8}
+                        fill={caloriesChartData()[0]?.percentage < 37 ? "black" : "white"}
+                        fontSize={12}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ChartContainer>
+              </TableCell>
             </TableRow>
-            {ingredientsData.calories > 0 && (
+            {/* {ingredientsData.calories > 0 && (
               <>
                 {submittedValues.weight > 0 && (
                   <TableRow>
@@ -109,10 +140,35 @@ export default function ChartSection({ ingredientsData }: ChartSectionProps): Re
                     <TableCell>{rounding(ingredientsData.calories / calculateIBW())} kcal/kg IBW</TableCell>
                   </TableRow>
                 )}
-              </>)}
+              </>)} */}
             <TableRow>
               <TableCell>蛋白質</TableCell>
               <TableCell>{rounding(ingredientsData.protein)} g</TableCell>
+              <TableCell>
+                <ChartContainer config={barChartConfig} className="h-[80px]">
+                  <BarChart accessibilityLayer data={proteinChartData()} layout="vertical">
+                    <XAxis type="number" dataKey="target" hide />
+                    <YAxis
+                      dataKey="label"
+                      type="category"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      tickFormatter={(value) => value.slice(0, 3)}
+                      hide
+                    />
+                    <Bar dataKey="percentage" fill="#ad7c48" radius={4}>
+                      <LabelList
+                        dataKey="text"
+                        position={proteinChartData()[0]?.percentage < 37 ? "right" : "insideRight"}
+                        offset={8}
+                        fill={proteinChartData()[0]?.percentage < 37 ? "black" : "white"}
+                        fontSize={12}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ChartContainer>
+              </TableCell>
             </TableRow>
             <TableRow>
               <TableCell>碳水化合物</TableCell>
@@ -142,61 +198,29 @@ export default function ChartSection({ ingredientsData }: ChartSectionProps): Re
         </Table>
       </div>
 
-      <div className="flex flex-col items-start justify-center w-full mt-4 lg:mt-0 lg:ml-4">
-        {chartData().length > 0 && 
-          <div className="w-full">
+      <div className="flex flex-col items-start justify-center w-full mt-4 lg:w-[250px] lg:mt-0 lg:ml-4">
+        {pieChartData().length > 0 &&
+          <div className="w-full flex flex-col">
             <Alert>
-              <AlertDescription>
-                以下數據為 <p><b>『營養品熱量 / TDEE』之比例</b> ({rounding(ingredientsData.calories)} / {rounding(calculateTDEE())})</p>以及 <p><b>『營養品蛋白質 / 最低蛋白質需求』之比例</b> ({rounding(ingredientsData.protein)} / {rounding(calculateProtein().minValue)})</p>
-              </AlertDescription>
+              <AlertDescription>以下為目前選取的營養品<b>『三大營養素』之比例</b></AlertDescription>
             </Alert>
-            <ChartContainer config={barChartConfig} className="h-[120px]">
-              <BarChart accessibilityLayer data={chartData()} layout="vertical">
-                <XAxis type="number" dataKey="current" />
-                <YAxis
-                  dataKey="macronutrients"
-                  type="category"
-                  tickLine={false}
-                  tickMargin={10}
-                  axisLine={false}
-                  tickFormatter={(value) => value.slice(0, 3)}
-                />
-                <Bar dataKey="current" fill="#ad7c48" radius={4}>
+            <ChartContainer config={pieChartConfig} className="h-[250px]">
+              <PieChart>
+                <Pie data={pieChartData()} dataKey="percentage" nameKey="macronutrients">
                   <LabelList
-                    dataKey="label"
-                    position="insideRight"
-                    offset={8}
-                    fill="white"
+                    dataKey="macronutrients"
+                    className="fill-background"
+                    stroke="none"
                     fontSize={12}
+                    formatter={(value: keyof typeof pieChartConfig) => {
+                      const percentage = pieChartData().find((item) => item.macronutrients === value)?.percentage
+                      return `${pieChartConfig[value]?.label} ${Math.round(Number(percentage))}%`
+                    }}
                   />
-                </Bar>
-              </BarChart>
+                </Pie>
+              </PieChart>
             </ChartContainer>
           </div>
-        }
-
-        {pieChartData().length > 0 &&
-        <div className="w-full flex flex-col">
-          <Alert>
-            <AlertDescription>以下為目前選取的<b>『營養品三大營養素』之比例</b></AlertDescription>
-          </Alert>
-          <ChartContainer config={pieChartConfig} className="h-[250px]">
-            <PieChart>
-              <Pie data={pieChartData()} dataKey="percentage" nameKey="macronutrients">
-                <LabelList
-                  dataKey="macronutrients"
-                  className="fill-background"
-                  stroke="none"
-                  fontSize={12}
-                  formatter={(value: keyof typeof pieChartConfig) => {
-                    const percentage = pieChartData().find((item) => item.macronutrients === value)?.percentage
-                    return `${pieChartConfig[value]?.label} ${Math.round(Number(percentage))}%`
-                  }}
-                />
-              </Pie>
-            </PieChart>
-          </ChartContainer>
-        </div>
         }
       </div>
     </CardContent>
