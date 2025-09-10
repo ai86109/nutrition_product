@@ -409,8 +409,8 @@ export default function Index() {
   return (
     <div className="flex flex-col items-center mt-4 p-2">
       {listData.length > 0 ? (
-        <div>
-          <CardContent className="overflow-x-auto w-full">
+        <div className="w-full">
+          <CardContent>
             <BioSettings />
             <div className={`mt-4 text-sm ${!isServingsCanBeUsed && 'opacity-50'}`}>
               <div className="flex items-center space-x-2">

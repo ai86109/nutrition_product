@@ -123,135 +123,133 @@ export default function ChartSection({ ingredientsData }: ChartSectionProps): Re
 
   return(
     <CardContent className="flex flex-col lg:flex-row">
-      <div className="min-w-[250px] max-w-full lg:max-w-[400px]">
-        <Table>
-          <TableBody>
-            <TableRow>
-              <TableCell className="font-bold">
-                <span>熱量</span>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <span className="material-icons cursor-pointer" style={{ fontSize: '14px', height: '14px' }}>info</span>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto">
-                    <p className="text-sm">圖表百分比 = 營養品熱量 / 輸入的熱量</p>
-                  </PopoverContent>
-                </Popover>
-              </TableCell>
-              <TableCell>{rounding(ingredientsData.calories)} Kcal</TableCell>
-              {caloriesChartData().length > 0 && (
-                <TableCell>
-                  <ChartContainer config={barChartConfig} className="w-[120px] h-[40px]">
-                    <BarChart accessibilityLayer data={caloriesChartData()} layout="vertical">
-                      <XAxis type="number" dataKey="target" hide />
-                      <YAxis
-                        dataKey="label"
-                        type="category"
-                        tickLine={false}
-                        tickMargin={10}
-                        axisLine={false}
-                        tickFormatter={(value) => value.slice(0, 3)}
-                        hide
-                      />
-                      <Bar dataKey="percentage" fill="#ad7c48" radius={4} className="font-bold">
-                        <LabelList
-                          dataKey="text"
-                          position={caloriesChartData()[0]?.percentage < 45 ? "right" : "insideRight"}
-                          offset={8}
-                          fill={caloriesChartData()[0]?.percentage < 45 ? "black" : "white"}
-                          fontSize={12}
-                        />
-                      </Bar>
-                    </BarChart>
-                  </ChartContainer>
-                </TableCell>
-              )}
-            </TableRow>
-            {ingredientsData.calories > 0 && PBW > 0 && (
-              <TableRow>
-                <TableCell></TableCell>
-                <TableCell>
-                  {PBW > 0 && <p>* {rounding(ingredientsData.calories / PBW)} kcal/kg PBW</p>}
-                  {IBW > 0 && <p>* {rounding(ingredientsData.calories / IBW)} kcal/kg IBW</p>}
-                  {ABW > 0 && <p>* {rounding(ingredientsData.calories / ABW)} kcal/kg ABW</p>}
-                </TableCell>
-              </TableRow>
-            )}
-
-            <TableRow>
-              <TableCell className="font-bold">
-                <span>蛋白質</span>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <span className="material-icons cursor-pointer" style={{ fontSize: '14px', height: '14px' }}>info</span>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto">
-                    <p className="text-sm">圖表百分比 = 營養品蛋白質 / 輸入的最小蛋白質</p>
-                  </PopoverContent>
-                </Popover>
-              </TableCell>
+      <Table className="min-w-[250px] max-w-[400px]">
+        <TableBody>
+          <TableRow>
+            <TableCell className="font-bold">
+              <span>熱量</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <span className="material-icons cursor-pointer" style={{ fontSize: '14px', height: '14px' }}>info</span>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto">
+                  <p className="text-sm">百分比 = 營養品熱量 / 輸入的熱量</p>
+                </PopoverContent>
+              </Popover>
+            </TableCell>
+            <TableCell>{rounding(ingredientsData.calories)} Kcal</TableCell>
+            {caloriesChartData().length > 0 && (
               <TableCell>
-                <p>{rounding(ingredientsData.protein)} g</p>
-                {isProteinRangeValid && ingredientsData.protein > 0 && (
-                  <ProteinRangeBlock protein={ingredientsData.protein} />
-                )}
-              </TableCell>
-              {proteinChartData().length > 0 && (
-                <TableCell>
-                  <ChartContainer config={barChartConfig} className="w-[120px] h-[40px]">
-                    <BarChart accessibilityLayer data={proteinChartData()} layout="vertical">
-                      <XAxis type="number" dataKey="target" hide />
-                      <YAxis
-                        dataKey="label"
-                        type="category"
-                        tickLine={false}
-                        tickMargin={10}
-                        axisLine={false}
-                        tickFormatter={(value) => value.slice(0, 3)}
-                        hide
+                <ChartContainer config={barChartConfig} className="w-[120px] h-[40px]">
+                  <BarChart accessibilityLayer data={caloriesChartData()} layout="vertical">
+                    <XAxis type="number" dataKey="target" hide />
+                    <YAxis
+                      dataKey="label"
+                      type="category"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      tickFormatter={(value) => value.slice(0, 3)}
+                      hide
+                    />
+                    <Bar dataKey="percentage" fill="#ad7c48" radius={4} className="font-bold">
+                      <LabelList
+                        dataKey="text"
+                        position={caloriesChartData()[0]?.percentage < 45 ? "right" : "insideRight"}
+                        offset={8}
+                        fill={caloriesChartData()[0]?.percentage < 45 ? "black" : "white"}
+                        fontSize={12}
                       />
-                      <Bar dataKey="percentage" fill="#ad7c48" radius={4} className="font-bold">
-                        <LabelList
-                          dataKey="text"
-                          position={proteinChartData()[0]?.percentage < 45 ? "right" : "insideRight"}
-                          offset={8}
-                          fill={proteinChartData()[0]?.percentage < 45 ? "black" : "white"}
-                          fontSize={12}
-                        />
-                      </Bar>
-                    </BarChart>
-                  </ChartContainer>
-                </TableCell>
-              )}
+                    </Bar>
+                  </BarChart>
+                </ChartContainer>
+              </TableCell>
+            )}
+          </TableRow>
+          {ingredientsData.calories > 0 && PBW > 0 && (
+            <TableRow>
+              <TableCell></TableCell>
+              <TableCell>
+                {PBW > 0 && <p>* {rounding(ingredientsData.calories / PBW)} kcal/kg PBW</p>}
+                {IBW > 0 && <p>* {rounding(ingredientsData.calories / IBW)} kcal/kg IBW</p>}
+                {ABW > 0 && <p>* {rounding(ingredientsData.calories / ABW)} kcal/kg ABW</p>}
+              </TableCell>
             </TableRow>
+          )}
 
-            <TableRow>
-              <TableCell className="font-bold">碳水化合物</TableCell>
-              <TableCell>{rounding(ingredientsData.carbohydrate)} g</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-bold">脂肪</TableCell>
-              <TableCell>{rounding(ingredientsData.fat)} g</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-bold">磷</TableCell>
-              <TableCell>{rounding(micronutrients().phosphorus)} mg</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-bold">鉀</TableCell>
-              <TableCell>{rounding(micronutrients().potassium)} mg</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-bold">鈉</TableCell>
-              <TableCell>{rounding(micronutrients().sodium)} mg</TableCell>
-            </TableRow>
-            <TableRow>
-              <TableCell className="font-bold">纖維</TableCell>
-              <TableCell>{rounding(micronutrients().fiber)} g</TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-      </div>
+          <TableRow>
+            <TableCell className="font-bold">
+              <span>蛋白質</span>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <span className="material-icons cursor-pointer" style={{ fontSize: '14px', height: '14px' }}>info</span>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto">
+                  <p className="text-sm">百分比 = 營養品蛋白質 / 輸入的最小蛋白質</p>
+                </PopoverContent>
+              </Popover>
+            </TableCell>
+            <TableCell>
+              <p>{rounding(ingredientsData.protein)} g</p>
+              {isProteinRangeValid && ingredientsData.protein > 0 && (
+                <ProteinRangeBlock protein={ingredientsData.protein} />
+              )}
+            </TableCell>
+            {proteinChartData().length > 0 && (
+              <TableCell>
+                <ChartContainer config={barChartConfig} className="w-[120px] h-[40px]">
+                  <BarChart accessibilityLayer data={proteinChartData()} layout="vertical">
+                    <XAxis type="number" dataKey="target" hide />
+                    <YAxis
+                      dataKey="label"
+                      type="category"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      tickFormatter={(value) => value.slice(0, 3)}
+                      hide
+                    />
+                    <Bar dataKey="percentage" fill="#ad7c48" radius={4} className="font-bold">
+                      <LabelList
+                        dataKey="text"
+                        position={proteinChartData()[0]?.percentage < 45 ? "right" : "insideRight"}
+                        offset={8}
+                        fill={proteinChartData()[0]?.percentage < 45 ? "black" : "white"}
+                        fontSize={12}
+                      />
+                    </Bar>
+                  </BarChart>
+                </ChartContainer>
+              </TableCell>
+            )}
+          </TableRow>
+
+          <TableRow>
+            <TableCell className="font-bold">碳水化合物</TableCell>
+            <TableCell>{rounding(ingredientsData.carbohydrate)} g</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="font-bold">脂肪</TableCell>
+            <TableCell>{rounding(ingredientsData.fat)} g</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="font-bold">磷</TableCell>
+            <TableCell>{rounding(micronutrients().phosphorus)} mg</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="font-bold">鉀</TableCell>
+            <TableCell>{rounding(micronutrients().potassium)} mg</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="font-bold">鈉</TableCell>
+            <TableCell>{rounding(micronutrients().sodium)} mg</TableCell>
+          </TableRow>
+          <TableRow>
+            <TableCell className="font-bold">纖維</TableCell>
+            <TableCell>{rounding(micronutrients().fiber)} g</TableCell>
+          </TableRow>
+        </TableBody>
+      </Table>
 
       <div className="flex flex-col items-start justify-center w-full mt-4 lg:w-[250px] lg:mt-0 lg:ml-4">
         {pieChartData().length > 0 &&

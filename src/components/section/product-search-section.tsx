@@ -170,7 +170,7 @@ export default function ProductSearchSection() {
   return (
     <CardContent>
       <p className="text-sm mb-1">＊所有欄位皆為選填，請自由搭配</p>
-      <div className="flex items-start flex-col max-w-[300px] gap-1">
+      <div className="flex items-start flex-col max-w-[300px] gap-1 overflow-x-auto">
         <Input className="w-full" placeholder="關鍵字搜尋" value={searchValue} onChange={handleInputChange} />
 
         <Select value={selectedBrand} onValueChange={(value) => handleSelectBrandChange(value)}>
@@ -246,7 +246,7 @@ export default function ProductSearchSection() {
         </div>
       </div>
 
-      <div>
+      <div className="mt-4">
         {getCurrentPageData().length > 0 && (
           <div>
             <Table>
@@ -275,7 +275,7 @@ export default function ProductSearchSection() {
                     <TableCell>{item.brand}</TableCell>
                     <TableCell>{item.type}</TableCell>
                     <TableCell>
-                      <Button variant="outline" onClick={() => handleAddToCalculate(item.id)}>
+                      <Button variant={productList.includes(item.id) ? "secondary" : "outline"} onClick={() => handleAddToCalculate(item.id)}>
                         {productList.includes(item.id) ? '已加入' : '加入'}
                       </Button>
                     </TableCell>
@@ -285,7 +285,7 @@ export default function ProductSearchSection() {
             </Table>
 
             {totalPages > 1 && (
-              <Pagination>
+              <Pagination className="overflow-x-auto mt-2">
                 <PaginationContent>
                   <PaginationItem>
                     <PaginationPrevious 
