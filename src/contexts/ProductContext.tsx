@@ -70,9 +70,12 @@ export function ProductProvider({ children }: { children: ReactNode }) {
           }
         }
       })
-      const sortedBrands: BrandOption[] = Array.from(brands.entries())
+      let sortedBrands: BrandOption[] = Array.from(brands.entries())
         .sort((a, b) => b[1] - a[1])
         .map(([brand]) => ({ id: brand, name: brand }))
+
+      // Add "All" option at the beginning
+      sortedBrands = [{ id: '全部', name: '全部' }, ...sortedBrands]
       
       setBrandOptions(sortedBrands)
       

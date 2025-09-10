@@ -52,7 +52,7 @@ export default function ProductSearchSection() {
   useEffect(() => {
     if (allProducts.length > 0) {
       setData(allProducts)
-      console.log("allProducts", allProducts)
+      // console.log("allProducts", allProducts)
     }
   }, [allProducts])
 
@@ -75,6 +75,10 @@ export default function ProductSearchSection() {
     setSearchValue(value)
   }
 
+  const handleClearSearch = (): void => {
+    setSearchValue("")
+  }
+
   const handleSelectBrandChange = (value: string) => {
     setSelectedBrand(value)
   }
@@ -95,17 +99,22 @@ export default function ProductSearchSection() {
       const textInput = searchValue.toLowerCase();
       const nameMatches = item.name.toLowerCase().includes(textInput) || 
                         (item.engName && item.engName.toLowerCase().includes(textInput));
-      
-      const brandMatches = !selectedBrand || item.brand === selectedBrand;
-      const typeMatches = !selectedType || item.type === selectedType;
-      
-      const hasCategory = !!(selectedCate[0] || selectedCate[2])
+
+      // If "全部" is selected, treat it as no filter
+      const allText = "全部"
+      const selectedBrandValue = selectedBrand === allText ? "" : selectedBrand
+      const selectedTypeValue = selectedType === allText ? "" : selectedType
+      const brandMatches = !selectedBrandValue || item.brand === selectedBrandValue;
+      const typeMatches = !selectedTypeValue || item.type === selectedTypeValue;
+
+      const selectedCateValue = selectedCate.map(cate => cate === allText ? "" : cate)
+      const hasCategory = !!(selectedCateValue[0] || selectedCateValue[2])
       // if selectedCate[0] and selectedCate[2] are both selected, isOrOperator 才會是『或』以外的值
-      const isOrOperator = (selectedCate[1] || "or") === "or"
+      const isOrOperator = (selectedCateValue[1] || "or") === "or"
       const categoryMatches = !hasCategory ||
         (isOrOperator ?
-          (item.categories && (item.categories.includes(selectedCate[0]) || item.categories.includes(selectedCate[2]))) :
-          (item.categories && item.categories.includes(selectedCate[0]) && item.categories.includes(selectedCate[2])))
+          (item.categories && (item.categories.includes(selectedCateValue[0]) || item.categories.includes(selectedCateValue[2]))) :
+          (item.categories && item.categories.includes(selectedCateValue[0]) && item.categories.includes(selectedCateValue[2])))
 
       return brandMatches && typeMatches && categoryMatches &&
             (!searchValue || nameMatches);
@@ -171,7 +180,21 @@ export default function ProductSearchSection() {
     <CardContent>
       <p className="text-sm mb-1">＊所有欄位皆為選填，請自由搭配</p>
       <div className="flex items-start flex-col max-w-[300px] gap-1 overflow-x-auto">
-        <Input className="w-full" placeholder="關鍵字搜尋" value={searchValue} onChange={handleInputChange} />
+        <div className="relative w-full">
+          <Input placeholder="關鍵字搜尋" value={searchValue} onChange={handleInputChange} />
+          {searchValue && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleClearSearch}
+              className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
+              aria-label="清除搜尋"
+            >
+              <span className="material-icons cursor-pointer" style={{ fontSize: '18px', height: '18px' }}>cancel</span>
+            </Button>
+          )}
+        </div>
 
         <Select value={selectedBrand} onValueChange={(value) => handleSelectBrandChange(value)}>
           <SelectTrigger className="w-full">

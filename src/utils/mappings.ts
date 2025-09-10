@@ -19,11 +19,13 @@ export const calcUnitMapping: calcUnitMapping = {
 }
 
 export const typeOptions = [
+  { id: "全部", name: "全部" },
   { id: "粉劑", name: "粉劑" },
   { id: "液劑", name: "液劑" },
 ]
 
 export const categoryOptions = [
+  { id: "全部", name: "全部" },
   { id: "均衡配方", name: "均衡配方" },
   { id: "低蛋白配方", name: "低蛋白配方" },
   { id: "腎臟病配方", name: "腎臟病配方" },
