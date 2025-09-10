@@ -58,7 +58,7 @@ export function ProteinEditDialog() {
     const index = parseInt(id.split('-')[1], 10);
     setProteinList((prevList) => {
       const newList = [...prevList];
-      newList[index] = { ...newList[index], value: Number(value) };
+      newList[index] = { ...newList[index], value: value };
 
       saveToLocalStorage(newList);
       return newList;

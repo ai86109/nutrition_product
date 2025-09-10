@@ -19,7 +19,7 @@ type SubmittedValues = {
 
 export type CalorieFactorList = {
   id: number
-  value: number
+  value: number | string
   checked: boolean
 }
 
@@ -37,7 +37,7 @@ export type TDEEList = {
 
 export type ProteinList = {
   id: number
-  value: number
+  value: number | string
   checked: boolean
 }
 

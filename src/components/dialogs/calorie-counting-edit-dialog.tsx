@@ -58,7 +58,7 @@ export function CalorieCountingEditDialog() {
     const index = parseInt(id.split('-')[1], 10);
     setCalorieFactorLists((prevList) => {
       const newList = [...prevList];
-      newList[index] = { ...newList[index], value: Number(value) };
+      newList[index] = { ...newList[index], value: value };
 
       saveToLocalStorage(newList);
       return newList;
