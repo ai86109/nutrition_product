@@ -169,7 +169,7 @@ export default function ChartSection({ ingredientsData }: ChartSectionProps): Re
           {ingredientsData.calories > 0 && PBW > 0 && (
             <TableRow>
               <TableCell></TableCell>
-              <TableCell>
+              <TableCell className="text-xs text-muted-foreground px-0">
                 {PBW > 0 && <p>* {rounding(ingredientsData.calories / PBW)} kcal/kg PBW</p>}
                 {IBW > 0 && <p>* {rounding(ingredientsData.calories / IBW)} kcal/kg IBW</p>}
                 {ABW > 0 && <p>* {rounding(ingredientsData.calories / ABW)} kcal/kg ABW</p>}
@@ -225,7 +225,7 @@ export default function ChartSection({ ingredientsData }: ChartSectionProps): Re
           </TableRow>
 
           <TableRow>
-            <TableCell className="font-bold">碳水化合物</TableCell>
+            <TableCell className="font-bold max-w-[45px] overflow-hidden text-ellipsis sm:max-w-auto">碳水化合物</TableCell>
             <TableCell>{rounding(ingredientsData.carbohydrate)} g</TableCell>
           </TableRow>
           <TableRow>

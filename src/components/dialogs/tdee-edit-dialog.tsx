@@ -104,7 +104,7 @@ export function TDEEEditDialog() {
       <DialogTrigger>
         <Button>Edit</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>TDEE 參數</DialogTitle>
           <DialogDescription>編輯、管理你的 TDEE 參數</DialogDescription>
@@ -122,26 +122,26 @@ export function TDEEEditDialog() {
           <TableBody>
             {tdeeList.length > 0 && tdeeList.map((factor, index) => (
               <TableRow key={index}>
-                <TableCell>{factor.name}</TableCell>
+                <TableCell className="max-w-[50px] text-wrap whitespace-normal sm:max-w-[100px]">{factor.name}</TableCell>
                 <TableCell>{factor.activityFactor}</TableCell>
                 <TableCell>{factor.stressFactor}</TableCell>
                 <TableCell>
-                  <Button onClick={() => handleDelete(index)}>刪除</Button>
+                  <Button className="text-xs sm:text-sm" onClick={() => handleDelete(index)}>刪除</Button>
                 </TableCell>
               </TableRow>
             ))}
             <TableRow>
               <TableCell>
-                <Input className="w-[70px]" id="name" type="text" placeholder="" value={newTDEEFactors.name} onChange={handleNewFactorInputChange} />
+                <Input className="w-[60px] sm:w-[100px]" id="name" type="text" placeholder="" value={newTDEEFactors.name} onChange={handleNewFactorInputChange} />
               </TableCell>
               <TableCell>
-                <Input className="w-[70px]" id="activityFactor" type="number" step={0.1} placeholder="" value={newTDEEFactors.activityFactor} onChange={handleNewFactorInputChange} />
+                <Input className="w-[55px] sm:w-[60px]" id="activityFactor" type="number" step={0.1} placeholder="" value={newTDEEFactors.activityFactor} onChange={handleNewFactorInputChange} />
               </TableCell>
               <TableCell>
-                <Input className="w-[70px]" id="stressFactor" type="number" step={0.1} placeholder="" value={newTDEEFactors.stressFactor} onChange={handleNewFactorInputChange} />
+                <Input className="w-[55px] sm:w-[60px]" id="stressFactor" type="number" step={0.1} placeholder="" value={newTDEEFactors.stressFactor} onChange={handleNewFactorInputChange} />
               </TableCell>
               <TableCell>
-                <Button onClick={handleAdd}>新增</Button>
+                <Button className="text-xs sm:text-sm" onClick={handleAdd}>新增</Button>
               </TableCell>
             </TableRow>
           </TableBody>

@@ -169,7 +169,7 @@ function CalculateDailyServingsPerMeal({ mealsPerDay, item }: CalculateDailyServ
   const proteinPerMeal = (ingredients.protein * ratio) * servingsPerMeal
 
   return (
-    <div className="bg-blue-50 p-2 rounded">
+    <div className="bg-blue-50 p-2 rounded w-[200px] text-wrap lg:w-auto">
       <p>
         <span className="font-bold">每餐需要 {rounding(servingsPerMeal)} {unit} = {rounding(currentAmount * servingsPerMeal)}{calcUnitMapping[unit]}</span>
         <span>（總共 {rounding(servingsPerMeal * mealsPerDay)} {unit} = {rounding(currentAmount * servingsPerMeal * mealsPerDay)}{calcUnitMapping[unit]}）</span>

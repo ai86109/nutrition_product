@@ -83,7 +83,7 @@ export function ProteinEditDialog() {
       <DialogTrigger>
         <Button>Edit</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-[240px] sm:max-w-[300px]">
         <DialogHeader>
           <DialogTitle>Protein 參數</DialogTitle>
           <DialogDescription>編輯、管理你的 Protein 參數</DialogDescription>
@@ -108,9 +108,9 @@ export function ProteinEditDialog() {
               </TableRow>
             ))}
           </TableBody>
-
-          <Button onClick={resetToDefault}>重置為預設</Button>
         </Table>
+
+        <Button className="w-[100px]" variant="destructive" onClick={resetToDefault}>重置為預設</Button>
       </DialogContent>
     </Dialog>
   );

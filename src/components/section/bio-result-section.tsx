@@ -84,7 +84,7 @@ export default function BioResultSection() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="overflow-auto">
           <CardHeader className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-1">
               <p>熱量計算</p>
@@ -107,7 +107,7 @@ export default function BioResultSection() {
               <>
                 {calorieFactorLists.length > 0 && calorieFactorLists.some(item => item.checked) ? (
                   <>
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 mb-2">
                       {calorieTypeLists.map((type) => (
                         <div key={type.id}>
                           <Checkbox checked={type.checked} onCheckedChange={(checked) => handleCalorieTypeCheck(!!checked, type.id)} className="mr-1" />
@@ -199,7 +199,7 @@ export default function BioResultSection() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="overflow-auto">
           <CardHeader className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-1">
               <p>蛋白質需求</p>
@@ -220,7 +220,7 @@ export default function BioResultSection() {
           <CardContent>
             {isValidPBW || isValidIBW ? (
               <>
-                <div className="flex gap-2">
+                <div className="flex gap-2 mb-2">
                   {calorieTypeLists.map((type) => (
                     <div key={type.id}>
                       <Checkbox checked={type.checked} onCheckedChange={(checked) => handleCalorieTypeCheck(!!checked, type.id)} className="mr-1" />

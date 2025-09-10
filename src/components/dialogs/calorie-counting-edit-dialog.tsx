@@ -78,7 +78,7 @@ export function CalorieCountingEditDialog() {
       <DialogTrigger>
         <Button>Edit</Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="max-w-[240px] sm:max-w-[400px]">
         <DialogHeader>
           <DialogTitle>熱量計算參數</DialogTitle>
           <DialogDescription>編輯、管理你的熱量計算參數</DialogDescription>
