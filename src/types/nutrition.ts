@@ -29,7 +29,7 @@ export type ProductData = {
   engName: string
   brand: string
   defaultAmount: number
-  quantity: number
+  quantity: number | string
   checked: boolean
   select: SelectData
   ingredients: IngredientsData

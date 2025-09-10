@@ -205,7 +205,7 @@ export default function Index() {
       if (!item.checked) return acc;
       
       const { ingredients, id } = item
-      let quantity = item.quantity > 0 ? item.quantity : 0
+      let quantity = Number(item.quantity) > 0 ? Number(item.quantity) : 0
       
       if (rewriteId && rewriteQuantity && id === rewriteId) {
         quantity = rewriteQuantity > 0 ? rewriteQuantity : 0
@@ -343,7 +343,7 @@ export default function Index() {
     const product = listData.find((item) => item.id === id)
     if (product) {      
       setListData((prevData: ProductData[]): ProductData[] => prevData.map((item: ProductData) => {
-        if (item.id === id) return { ...item, quantity: Number(value) }
+        if (item.id === id) return { ...item, quantity: value }
         return item
       }))
       
