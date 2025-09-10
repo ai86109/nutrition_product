@@ -257,7 +257,7 @@ export default function ChartSection({ ingredientsData }: ChartSectionProps): Re
             <Alert>
               <AlertDescription>以下為目前選取的營養品<b>『三大營養素』之比例</b></AlertDescription>
             </Alert>
-            <ChartContainer config={pieChartConfig} className="h-[250px]">
+            <ChartContainer config={pieChartConfig} className="w-full h-[250px]">
               <PieChart>
                 <Pie data={pieChartData()} dataKey="percentage" nameKey="macronutrients">
                   <LabelList
