@@ -10,7 +10,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useProduct, type ProductData } from "@/contexts/ProductContext"
+import { useProduct } from "@/contexts/ProductContext"
+import { type ProductData } from "@/hooks/useProducts"
 import Link from "next/link"
 import { getLinkPath } from "@/utils/link"
 import { Input } from "@/components/ui/input";
