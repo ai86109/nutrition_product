@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { useProduct } from "@/contexts/ProductContext"
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import ChartSection from "@/components/section/product-calculate-section/chart-section"
 import Link from "next/link"
 import { getLinkPath } from "@/utils/link"
@@ -185,32 +185,14 @@ export default function Index() {
   const [mealsPerDay, setMealsPerDay] = useState<number | string>(3) // default meals per day
   const [listData, setListData] = useState<ProductData[]>([])
   const [isCalculateServings, setIsCalculateServings] = useState<boolean>(false)
-  const [ingredientsData, setIngredientsData] = useState<IngredientsData>({
-    calories: 0,
-    carbohydrate: 0,
-    protein: 0,
-    fat: 0,
-    phosphorus: 0,
-    potassium: 0,
-    sodium: 0,
-    fiber: 0,
-  })
-  
-  const calculateIngredients = useCallback((
-    data: ProductData[],
-    rewriteId: string | null = null,
-    rewriteQuantity: number | null = null
-  ): IngredientsData => {
-    return data.reduce((acc: IngredientsData, item: ProductData) => {
+
+  const ingredientsData = useMemo(() => {
+    return listData.reduce((acc: IngredientsData, item: ProductData) => {
       if (!item.checked) return acc;
       
       const { ingredients, id } = item
-      let quantity = Number(item.quantity) > 0 ? Number(item.quantity) : 0
+      const quantity = Number(item.quantity) > 0 ? Number(item.quantity) : 0
       
-      if (rewriteId && rewriteQuantity && id === rewriteId) {
-        quantity = rewriteQuantity > 0 ? rewriteQuantity : 0
-      }
-
       // calculate ratio
       const { selectedId, selectOptions } = item.select
       const currentAmount = selectOptions.map((type) => {
@@ -244,8 +226,9 @@ export default function Index() {
       sodium: 0,
       fiber: 0,
     })
-  }, [])
+  }, [listData])
   
+  // todo: refactor
   useEffect(() => {
     setListData((prevListData: ProductData[]) => {
       const existingMap = new Map(prevListData.map(item => [item.id, item]))
@@ -332,12 +315,7 @@ export default function Index() {
       return newListData
     })
   }, [productList, allProducts])
-  
-  useEffect(() => {
-    setIngredientsData(calculateIngredients(listData))
-  }, [listData, calculateIngredients])
-  
-  
+    
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
     const product = listData.find((item) => item.id === id)
@@ -346,8 +324,6 @@ export default function Index() {
         if (item.id === id) return { ...item, quantity: value }
         return item
       }))
-      
-      setIngredientsData(calculateIngredients(listData, id, Number(value)))
     }
   }
 

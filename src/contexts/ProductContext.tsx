@@ -89,6 +89,7 @@ export function ProductProvider({ children }: { children: ReactNode }) {
     }
   }
 
+  // todo: use SWR or React Query
   useEffect(() => {
     fetchProductsData()
   }, [])
