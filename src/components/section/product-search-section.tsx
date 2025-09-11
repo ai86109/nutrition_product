@@ -34,28 +34,19 @@ import {
 } from "@/components/ui/select"
 import { typeOptions, categoryOptions, operatorOptions } from "@/utils/mappings"
 import { Badge } from "@/components/ui/badge"
+import { useProductSearch } from "@/hooks/useProductSearch"
+
+const truncateLength = 5
 
 export default function ProductSearchSection() {
   const { productList, setProductList, allProducts, brandOptions } = useProduct()
-  const [selectedBrand, setSelectedBrand] = useState<string>("")
-  const [selectedType, setSelectedType] = useState<string>("")
-  const [searchValue, setSearchValue] = useState<string>("")
-  const [selectedCate, setSelectedCate] = useState<string[]>(["", "", ""])
-  const [data, setData] = useState<ProductData[]>([])
+  const { formState, filteredData, updateField, applySearch, reset } = useProductSearch(allProducts)
   const [windowWidth, setWindowWidth] = useState<number>(0);
 
   // pagination
   const [currentPage, setCurrentPage] = useState<number>(1)
   const itemsPerPage = windowWidth <= 1024 ? 5 : 10
-  const totalPages = Math.ceil(data.length / itemsPerPage)
-  const truncateLength = 5
-
-  useEffect(() => {
-    if (allProducts.length > 0) {
-      setData(allProducts)
-      // console.log("allProducts", allProducts)
-    }
-  }, [allProducts])
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage)
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -64,58 +55,9 @@ export default function ProductSearchSection() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { value } = e.target
-    setSearchValue(value)
-  }
-
-  const handleClearSearch = (): void => {
-    setSearchValue("")
-  }
-
-  const handleSelectBrandChange = (value: string) => {
-    setSelectedBrand(value)
-  }
-
-  const handleSelectTypeChange = (value: string) => {
-    setSelectedType(value)
-  }
-
-  const handleReset = (): void => {
-    setSelectedBrand("")
-    setSelectedType("")
-    setSearchValue("")
-    setSelectedCate(["", "", ""])
-  }
-
   const handleSearchSubmit = (): void => {
-    const filteredData = allProducts.filter((item: ProductData) => {
-      const textInput = searchValue.toLowerCase();
-      const nameMatches = item.name.toLowerCase().includes(textInput) || 
-                        (item.engName && item.engName.toLowerCase().includes(textInput));
-
-      // If "全部" is selected, treat it as no filter
-      const allText = "全部"
-      const selectedBrandValue = selectedBrand === allText ? "" : selectedBrand
-      const selectedTypeValue = selectedType === allText ? "" : selectedType
-      const brandMatches = !selectedBrandValue || item.brand === selectedBrandValue;
-      const typeMatches = !selectedTypeValue || item.type === selectedTypeValue;
-
-      const selectedCateValue = selectedCate.map(cate => cate === allText ? "" : cate)
-      const hasCategory = !!(selectedCateValue[0] || selectedCateValue[2])
-      // if selectedCate[0] and selectedCate[2] are both selected, isOrOperator 才會是『或』以外的值
-      const isOrOperator = (selectedCateValue[1] || "or") === "or"
-      const categoryMatches = !hasCategory ||
-        (isOrOperator ?
-          (item.categories && (item.categories.includes(selectedCateValue[0]) || item.categories.includes(selectedCateValue[2]))) :
-          (item.categories && item.categories.includes(selectedCateValue[0]) && item.categories.includes(selectedCateValue[2])))
-
-      return brandMatches && typeMatches && categoryMatches &&
-            (!searchValue || nameMatches);
-    })
-
-    setData(filteredData)
-    setCurrentPage(1) // Reset to the first page after search
+    applySearch()
+    handlePageChange(1) // Reset to the first page after search
   }
 
   const handleAddToCalculate = (productId: string): void => {
@@ -128,7 +70,7 @@ export default function ProductSearchSection() {
   const getCurrentPageData = (): ProductData[] => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
-    return data.slice(startIndex, endIndex)
+    return filteredData.slice(startIndex, endIndex)
   }
 
   const handlePageChange = (page: number): void => {
@@ -161,13 +103,11 @@ export default function ProductSearchSection() {
   }
 
   const handleSelectCateChange = (value: string, index: number): void => {
-    setSelectedCate((prevCate: string[]) => {
-      if (index < 0 || index >= prevCate.length) return prevCate;
+    if (index < 0 || index >= formState.selectedCate.length) return;
+    const newCate = [...formState.selectedCate]
+    newCate[index] = value
 
-      const newCate = [...prevCate]
-      newCate[index] = value
-      return newCate
-    })
+    updateField("selectedCate", newCate)
   }
 
   return (
@@ -175,13 +115,13 @@ export default function ProductSearchSection() {
       <p className="text-sm mb-1">＊所有欄位皆為選填，請自由搭配</p>
       <div className="flex items-start flex-col max-w-[300px] gap-1 overflow-x-auto">
         <div className="relative w-full">
-          <Input placeholder="關鍵字搜尋" value={searchValue} onChange={handleInputChange} />
-          {searchValue && (
+          <Input placeholder="關鍵字搜尋" value={formState.searchValue} onChange={(e) => updateField("searchValue", e.target.value)} />
+          {formState.searchValue && (
             <Button
               type="button"
               variant="ghost"
               size="sm"
-              onClick={handleClearSearch}
+              onClick={() => updateField("searchValue", "")}
               className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
               aria-label="清除搜尋"
             >
@@ -190,7 +130,7 @@ export default function ProductSearchSection() {
           )}
         </div>
 
-        <Select value={selectedBrand} onValueChange={(value) => handleSelectBrandChange(value)}>
+        <Select value={formState.selectedBrand} onValueChange={(value) => updateField("selectedBrand", value)}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="選擇品牌" />
           </SelectTrigger>
@@ -203,7 +143,7 @@ export default function ProductSearchSection() {
           </SelectContent>
         </Select>
 
-        <Select value={selectedType} onValueChange={(value) => handleSelectTypeChange(value)}>
+        <Select value={formState.selectedType} onValueChange={(value) => updateField("selectedType", value)}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder="選擇劑型" />
           </SelectTrigger>
@@ -217,7 +157,7 @@ export default function ProductSearchSection() {
         </Select>
 
         <div className="flex space-x-2 w-full justify-between">
-          <Select value={selectedCate[0]} onValueChange={(value) => handleSelectCateChange(value, 0)}>
+          <Select value={formState.selectedCate[0]} onValueChange={(value) => handleSelectCateChange(value, 0)}>
             <SelectTrigger>
               <SelectValue placeholder="選擇類別" />
             </SelectTrigger>
@@ -230,7 +170,7 @@ export default function ProductSearchSection() {
             </SelectContent>
           </Select>
 
-          <Select value={selectedCate[1]} onValueChange={(value) => handleSelectCateChange(value, 1)}>
+          <Select value={formState.selectedCate[1]} onValueChange={(value) => handleSelectCateChange(value, 1)}>
             <SelectTrigger>
               <SelectValue placeholder="或" />
             </SelectTrigger>
@@ -243,7 +183,7 @@ export default function ProductSearchSection() {
             </SelectContent>
           </Select>
 
-          <Select value={selectedCate[2]} onValueChange={(value) => handleSelectCateChange(value, 2)}>
+          <Select value={formState.selectedCate[2]} onValueChange={(value) => handleSelectCateChange(value, 2)}>
             <SelectTrigger>
               <SelectValue placeholder="選擇類別" />
             </SelectTrigger>
@@ -259,7 +199,7 @@ export default function ProductSearchSection() {
 
         <div className="flex gap-2 w-full mt-1">
           <Button className="flex-1 cursor-pointer" onClick={handleSearchSubmit}>搜尋</Button>
-          <Button className="w-[100px] cursor-pointer" variant="destructive" onClick={handleReset}>重置所有設定</Button>
+          <Button className="w-[100px] cursor-pointer" variant="destructive" onClick={reset}>重置所有設定</Button>
         </div>
       </div>
 
@@ -326,7 +266,7 @@ export default function ProductSearchSection() {
             )}
           </div>
         )}
-        {!data.length && <p className="mt-4">目前沒有符合的資料唷，請使用其他關鍵字查詢</p>}
+        {!filteredData.length && <p className="mt-4">目前沒有符合的資料唷，請使用其他關鍵字查詢</p>}
         {/* 顯示成分（做成 dialog？怕 table 太長） */}
         {/* 顯示 tag，包括此產品的類別、特殊疾病配方？ */}
       </div>
