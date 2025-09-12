@@ -22,13 +22,15 @@ import {
 } from "@/components/ui/popover"
 import { useCalorieSettings, type CalorieFactorList } from "@/hooks/useCalorieSettings"
 import { useTdeeSettings, type TDEEList } from "@/hooks/useTdeeSettings"
+import { useProteinSettings, type ProteinList } from "@/hooks/useProteinSettings"
 
 
 export default function BioResultSection() {
-  const { calorieFactorLists, updateChecked, updateValue }: { calorieFactorLists: CalorieFactorList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void } = useCalorieSettings();
+  const { calorieFactorLists, updateChecked: updateCalorieChecked, updateValue: updateCalorieValue }: { calorieFactorLists: CalorieFactorList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void } = useCalorieSettings();
   const { tdeeList, addList, deleteList }: { tdeeList: TDEEList[], addList: (item: TDEEList) => void, deleteList: (index: number) => void } = useTdeeSettings();
+  const { proteinList, updateChecked: updateProteinChecked, updateValue: updateProteinValue, resetToDefault }: { proteinList: ProteinList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void, resetToDefault: () => void } = useProteinSettings();
 
-  const { calorieTypeLists, setCalorieTypeLists, proteinList, submittedValues } = useBioInfo()
+  const { calorieTypeLists, setCalorieTypeLists, submittedValues } = useBioInfo()
   const { height, age } = submittedValues
   const { calculateBMI, calculatePBW, calculateIBW, calculateABW, calculateTDEE, rounding } = useNutritionCalculations()
   
@@ -106,7 +108,7 @@ export default function BioResultSection() {
                 </PopoverContent>
               </Popover>
             </CardTitle>
-            <CalorieCountingEditDialog calorieFactorLists={calorieFactorLists} updateChecked={updateChecked} updateValue={updateValue} />
+            <CalorieCountingEditDialog calorieFactorLists={calorieFactorLists} updateChecked={updateCalorieChecked} updateValue={updateCalorieValue} />
           </CardHeader>
           <CardContent>
             {isValidPBW || isValidIBW ? (
@@ -221,7 +223,7 @@ export default function BioResultSection() {
                 </PopoverContent>
               </Popover>
             </CardTitle>
-            <ProteinEditDialog />
+            <ProteinEditDialog proteinList={proteinList} updateChecked={updateProteinChecked} updateValue={updateProteinValue} resetToDefault={resetToDefault}/>
           </CardHeader>
           <CardContent>
             {isValidPBW || isValidIBW ? (

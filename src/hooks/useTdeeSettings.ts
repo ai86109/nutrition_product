@@ -19,12 +19,10 @@ export const DEFAULT_TDEE_SETTINGS: TDEEList[] = [
 export function useTdeeSettings() {
   const [tdeeList, setTDEEList] = useLocalStorage<TDEEList[]>(STORAGE_KEY, DEFAULT_TDEE_SETTINGS);
 
-  // add
   const addList = (newItem: TDEEList) => {
     setTDEEList([...tdeeList, newItem]);
   }
 
-  // delete
   const deleteList = (index: number) => {
     const newList = [...tdeeList];
     newList.splice(index, 1);

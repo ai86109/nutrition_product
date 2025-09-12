@@ -86,7 +86,7 @@ export function TDEEEditDialog({ tdeeList, addList, deleteList }: { tdeeList: TD
                 <TableCell>{factor.activityFactor}</TableCell>
                 <TableCell>{factor.stressFactor}</TableCell>
                 <TableCell>
-                  <Button className="text-xs sm:text-sm" onClick={() => handleDelete(index)}>刪除</Button>
+                  <Button className="text-xs sm:text-sm" variant="destructive" onClick={() => handleDelete(index)}>刪除</Button>
                 </TableCell>
               </TableRow>
             ))}
