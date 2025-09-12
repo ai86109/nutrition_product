@@ -20,9 +20,13 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { useCalorieSettings, type CalorieFactorList } from "@/hooks/useCalorieSettings"
+
 
 export default function BioResultSection() {
-  const { calorieFactorLists, calorieTypeLists, setCalorieTypeLists, tdeeList, proteinList, submittedValues } = useBioInfo()
+  const { calorieFactorLists, updateChecked, updateValue }: { calorieFactorLists: CalorieFactorList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void } = useCalorieSettings();
+
+  const { calorieTypeLists, setCalorieTypeLists, tdeeList, proteinList, submittedValues } = useBioInfo()
   const { height, age } = submittedValues
   const { calculateBMI, calculatePBW, calculateIBW, calculateABW, calculateTDEE, rounding } = useNutritionCalculations()
   
@@ -100,7 +104,7 @@ export default function BioResultSection() {
                 </PopoverContent>
               </Popover>
             </CardTitle>
-            <CalorieCountingEditDialog />
+            <CalorieCountingEditDialog calorieFactorLists={calorieFactorLists} updateChecked={updateChecked} updateValue={updateValue} />
           </CardHeader>
           <CardContent>
             {isValidPBW || isValidIBW ? (
@@ -140,7 +144,7 @@ export default function BioResultSection() {
                                   if (!item.checked) return null;
                                   return (
                                     <TableCell key={`cell-${item.id}`}>
-                                      {calculateCalorie(type.label, item.value)}
+                                      {calculateCalorie(type.label, Number(item.value))}
                                     </TableCell>
                                   )
                               })}
@@ -255,7 +259,7 @@ export default function BioResultSection() {
                               if (!item.checked) return null;
                               return (
                                 <TableCell key={`body-${index}`}>
-                                  <span>{calculateProtein(type.label, item.value)}</span>
+                                  <span>{calculateProtein(type.label, Number(item.value))}</span>
                                 </TableCell>
                               )
                             })}

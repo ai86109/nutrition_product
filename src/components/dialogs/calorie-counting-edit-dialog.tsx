@@ -17,60 +17,24 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { useBioInfo, DEFAULT_CALORIE_SETTINGS } from "@/contexts/BioInfoContext";
-import { useEffect } from "react"
+import { type CalorieFactorList } from "@/hooks/useCalorieSettings";
 
-const STORAGE_KEY = "nutriapp.bio.calorie";
-
-export function CalorieCountingEditDialog() {
-  const { calorieFactorLists, setCalorieFactorLists } = useBioInfo();
-
-  useEffect(() => {
-    try {
-      const storedFactors = localStorage.getItem(STORAGE_KEY);
-      if (storedFactors) {
-        const data = JSON.parse(storedFactors);
-        if (Array.isArray(data) && data.length > 0) {
-          setCalorieFactorLists(data);
-        } else {
-          console.warn("Invalid Calorie factors format in localStorage, using default settings.");
-          setCalorieFactorLists(DEFAULT_CALORIE_SETTINGS);
-          saveToLocalStorage(DEFAULT_CALORIE_SETTINGS);
-        }
-      }
-    } catch (error) {
-      console.error("Error loading Protein factors from localStorage:", error);
-    }
-  }, []);
-
+export function CalorieCountingEditDialog({ 
+  calorieFactorLists,
+  updateChecked,
+  updateValue 
+}: { 
+  calorieFactorLists: CalorieFactorList[],
+  updateChecked: (checked: boolean, index: number) => void,
+  updateValue: (id: string, value: string) => void
+}) {
   const handleCalorieSettingCheck = (checked: boolean, index: number): void => {
-    setCalorieFactorLists((prevList) => {
-      const newList = [...prevList];
-      newList[index] = { ...newList[index], checked: checked };
-
-      saveToLocalStorage(newList);
-      return newList;
-    });
+    updateChecked(checked, index);
   }
 
   const handleCalorieSettingValueChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { id, value } = e.target;
-    const index = parseInt(id.split('-')[1], 10);
-    setCalorieFactorLists((prevList) => {
-      const newList = [...prevList];
-      newList[index] = { ...newList[index], value: value };
-
-      saveToLocalStorage(newList);
-      return newList;
-    });
-  }
-
-  const saveToLocalStorage = (data: typeof calorieFactorLists) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-    } catch (error) {
-      console.error("Error saving TDEE factors:", error)
-    }
+    updateValue(id, value);
   }
 
   return (
