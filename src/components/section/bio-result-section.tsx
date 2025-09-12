@@ -1,6 +1,6 @@
 "use client"
 
-import { useBioInfo, type TDEEList } from "@/contexts/BioInfoContext"
+import { useBioInfo } from "@/contexts/BioInfoContext"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Checkbox } from "@/components/ui/checkbox"
 import {
@@ -21,12 +21,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 import { useCalorieSettings, type CalorieFactorList } from "@/hooks/useCalorieSettings"
+import { useTdeeSettings, type TDEEList } from "@/hooks/useTdeeSettings"
 
 
 export default function BioResultSection() {
   const { calorieFactorLists, updateChecked, updateValue }: { calorieFactorLists: CalorieFactorList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void } = useCalorieSettings();
+  const { tdeeList, addList, deleteList }: { tdeeList: TDEEList[], addList: (item: TDEEList) => void, deleteList: (index: number) => void } = useTdeeSettings();
 
-  const { calorieTypeLists, setCalorieTypeLists, tdeeList, proteinList, submittedValues } = useBioInfo()
+  const { calorieTypeLists, setCalorieTypeLists, proteinList, submittedValues } = useBioInfo()
   const { height, age } = submittedValues
   const { calculateBMI, calculatePBW, calculateIBW, calculateABW, calculateTDEE, rounding } = useNutritionCalculations()
   
@@ -183,7 +185,7 @@ export default function BioResultSection() {
                 </PopoverContent>
               </Popover>
             </CardTitle>
-            <TDEEEditDialog />
+            <TDEEEditDialog tdeeList={tdeeList} addList={addList} deleteList={deleteList} />
           </CardHeader>
           <CardContent>
             {isValidPBW && height && age ? (

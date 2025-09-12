@@ -16,44 +16,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { useEffect, useState } from "react"
-import { useBioInfo, DEFAULT_TDEE_SETTINGS } from "@/contexts/BioInfoContext"
+import { useState } from "react"
+import { type TDEEList } from "@/hooks/useTdeeSettings"
 
-const STORAGE_KEY = "nutriapp.bio.tdee"
+const DEFAULT_TDEE_ITEM = {
+  name: '',
+  activityFactor: '',
+  stressFactor: '',
+}
 
-export function TDEEEditDialog() {
-  const { tdeeList, setTDEEList } = useBioInfo();
-  const [newTDEEFactors, setNewTDEEFactors] = useState({
-    name: '',
-    activityFactor: '',
-    stressFactor: '',
-  });
-
-  useEffect(() => {
-    try {
-      const storedFactors = localStorage.getItem(STORAGE_KEY);
-      if (storedFactors) {
-        const data = JSON.parse(storedFactors);
-        if (Array.isArray(data) && data.length > 0) {
-          setTDEEList(data);
-        } else {
-          console.warn("Invalid TDEE factors format in localStorage, using default settings.");
-          setTDEEList(DEFAULT_TDEE_SETTINGS);
-          saveToLocalStorage(DEFAULT_TDEE_SETTINGS);
-        }
-      }
-    } catch (error) {
-      console.error("Error loading TDEE factors from localStorage:", error);
-    }
-  }, []);
-
-  const saveToLocalStorage = (data: typeof tdeeList) => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
-    } catch (error) {
-      console.error("Error saving TDEE factors:", error)
-    }
-  }
+export function TDEEEditDialog({ tdeeList, addList, deleteList }: { tdeeList: TDEEList[], addList: (item: TDEEList) => void, deleteList: (index: number) => void }) {
+  const [newTDEEFactors, setNewTDEEFactors] = useState(DEFAULT_TDEE_ITEM);
 
   const handleNewFactorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -64,12 +37,7 @@ export function TDEEEditDialog() {
   }
 
   const handleDelete = (index: number) => {
-    setTDEEList((prevList) => {
-      const newList = [...prevList];
-      newList.splice(index, 1);
-      saveToLocalStorage(newList);
-      return newList;
-    });
+    deleteList(index);
   }
 
   const handleAdd = () => {
@@ -85,18 +53,10 @@ export function TDEEEditDialog() {
       activityFactor: activityFactor,
       stressFactor: stressFactor,
     }
-    setTDEEList((prevList) => {
-      const newList = [...prevList, newItem];
-      saveToLocalStorage(newList);
-      return newList;
-    })
+    addList(newItem);
 
     // reset input fields
-    setNewTDEEFactors({
-      name: '',
-      activityFactor: '',
-      stressFactor: '',
-    });
+    setNewTDEEFactors(DEFAULT_TDEE_ITEM);
   }
 
   return (
