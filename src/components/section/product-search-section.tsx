@@ -35,11 +35,24 @@ import {
 import { typeOptions, categoryOptions, operatorOptions } from "@/utils/mappings"
 import { Badge } from "@/components/ui/badge"
 import { useProductSearch } from "@/hooks/useProductSearch"
+import { Skeleton } from "@/components/ui/skeleton"
 
 const truncateLength = 5
 
+function SkeletonBlock() {
+  return (
+    <div className="flex items-center space-x-4 mt-4">
+      <Skeleton className="h-12 w-12 rounded-full" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 w-[250px]" />
+        <Skeleton className="h-4 w-[200px]" />
+      </div>
+    </div>
+  )
+}
+
 export default function ProductSearchSection() {
-  const { productList, setProductList, allProducts, brandOptions } = useProduct()
+  const { productList, setProductList, allProducts, brandOptions, isLoading } = useProduct()
   const { formState, filteredData, updateField, applySearch, reset } = useProductSearch(allProducts)
   const [windowWidth, setWindowWidth] = useState<number>(0);
 
@@ -266,7 +279,13 @@ export default function ProductSearchSection() {
             )}
           </div>
         )}
-        {!filteredData.length && <p className="mt-4">目前沒有符合的資料唷，請使用其他關鍵字查詢</p>}
+        {isLoading && (
+          <>
+            <SkeletonBlock />
+            <SkeletonBlock />
+          </>
+        )}
+        {!isLoading && !filteredData.length && <p className="mt-4">目前沒有符合的資料唷，請使用其他關鍵字查詢</p>}
         {/* 顯示成分（做成 dialog？怕 table 太長） */}
         {/* 顯示 tag，包括此產品的類別、特殊疾病配方？ */}
       </div>
