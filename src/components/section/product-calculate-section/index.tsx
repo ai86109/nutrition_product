@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/select"
 import { Separator } from "@/components/ui/separator"
 import { useProduct } from "@/contexts/ProductContext"
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import ChartSection from "@/components/section/product-calculate-section/chart-section"
 import Link from "next/link"
 import { getLinkPath } from "@/utils/link"
@@ -179,14 +179,107 @@ function CalculateDailyServingsPerMeal({ mealsPerDay, item }: CalculateDailyServ
   )
 }
 
+interface UserInput {
+  quantity: string | number
+  selectedId: string
+  checked: boolean
+}
+
 export default function Index() {
   const { productList, setProductList, allProducts } = useProduct()
   const { tdee } = useBioInfo();
   const [mealsPerDay, setMealsPerDay] = useState<number | string>(3) // default meals per day
-  const [listData, setListData] = useState<ProductData[]>([])
   const [isCalculateServings, setIsCalculateServings] = useState<boolean>(false)
+  const [userInputs, setUserInputs] = useState<Record<string, UserInput>>({})
 
-  const ingredientsData = useMemo(() => {
+  const listData = useMemo((): ProductData[] => {
+    return productList.map((productId) => {
+      const product = allProducts.find(product => product.id === productId)
+      if (!product) return null
+
+      let selectOptions: SelectOption[] = []
+      const isMultiOptions = product.spec.length > 1
+
+      if (isMultiOptions) {
+        // 轉成 selectOptions 格式
+        const tempList: Record<string, SelectOption> = {}
+        product.spec.forEach((option) => {
+          // 看 option.unit 有沒有在 tempList 裡
+          const { unit, defaultAmount, volume } = option
+          const isListed = unit in tempList
+          // 有的話 加入 products
+          if (isListed) {
+            const list = tempList[unit].products
+            list.push({
+              id: `${unitMapping[unit]}-${list.length + 1}`,
+              defaultAmount: Number(defaultAmount),
+              volume: Number(volume)
+            })
+          } else {
+            // 沒有的話 新建一個
+            tempList[unit] = {
+              unit,
+              products: [{
+                id: `${unitMapping[unit]}-${1}`,
+                defaultAmount: Number(defaultAmount),
+                volume: Number(volume)
+              }]
+            }
+          }
+          
+          // add to selectOptions
+          selectOptions = Object.values(tempList)
+        })
+      } else {
+        const { unit, defaultAmount, volume } = product.spec[0]
+        selectOptions = [{
+          unit: unit,
+          products: [{
+            id: `${unitMapping[unit]}-${1}`,
+            defaultAmount: Number(defaultAmount),
+            volume: Number(volume)
+          }]
+        }]
+      }
+
+      const existingUserInput = userInputs[productId]
+
+      const defaultSelectId = selectOptions[0].products[0].id
+      const defaultQuantity = selectOptions[0].products[0].defaultAmount
+
+      const finalQuantity = existingUserInput?.quantity ?? defaultQuantity
+      const finalChecked = existingUserInput?.checked ?? true
+      const finalSelectedId = existingUserInput?.selectedId ?? defaultSelectId
+
+      return {
+        id: product.id,
+        name: product.name,
+        engName: product.engName,
+        brand: product.brand,
+        defaultAmount: Number(product.defaultAmount),
+        quantity: finalQuantity,
+        checked: finalChecked,
+        select: {
+          selectedId: finalSelectedId,
+          selectOptions,
+        },
+        ingredients: {
+          calories: product.ingredients.calories,
+          carbohydrate: product.ingredients.carbohydrate,
+          protein: product.ingredients.protein,
+          fat: product.ingredients.fat,
+          phosphorus: product.ingredients.phosphorus,
+          potassium: product.ingredients.potassium,
+          sodium: product.ingredients.sodium,
+          fiber: product.ingredients.fiber,
+        },
+        categories: product.categories || [],
+      }
+    }).filter((item) => item !== null)
+
+  }, [allProducts, productList, userInputs])
+
+  const ingredientsData = useMemo((): IngredientsData => {
     return listData.reduce((acc: IngredientsData, item: ProductData) => {
       if (!item.checked) return acc;
       
@@ -227,141 +320,63 @@ export default function Index() {
       fiber: 0,
     })
   }, [listData])
-  
-  // todo: refactor
-  useEffect(() => {
-    setListData((prevListData: ProductData[]) => {
-      const existingMap = new Map(prevListData.map(item => [item.id, item]))
-
-      const newListData = productList.map(productId => {
-        if (existingMap.has(productId)) {
-          return existingMap.get(productId)!
-        }
-
-        const product = allProducts.find(product => product.id === productId)
-        if (!product) return null
-
-        let selectOptions: SelectOption[] = []
-        const isMultiOptions = product.spec.length > 1
-
-        if (isMultiOptions) {
-          // 轉成 selectOptions 格式
-          const tempList: Record<string, SelectOption> = {}
-          product.spec.forEach((option) => {
-            // 看 option.unit 有沒有在 tempList 裡
-            const { unit, defaultAmount, volume } = option
-            const isListed = unit in tempList
-            // 有的話 加入 products
-            if (isListed) {
-              const list = tempList[unit].products
-              list.push({
-                id: `${unitMapping[unit]}-${list.length + 1}`,
-                defaultAmount: Number(defaultAmount),
-                volume: Number(volume)
-              })
-            } else {
-              // 沒有的話 新建一個
-              tempList[unit] = {
-                unit,
-                products: [{
-                  id: `${unitMapping[unit]}-${1}`,
-                  defaultAmount: Number(defaultAmount),
-                  volume: Number(volume)
-                }]
-              }
-            }
-            
-            // add to selectOptions
-            selectOptions = Object.values(tempList)
-          })
-        } else {
-          const { unit, defaultAmount, volume } = product.spec[0]
-          selectOptions = [{
-            unit: unit,
-            products: [{
-              id: `${unitMapping[unit]}-${1}`,
-              defaultAmount: Number(defaultAmount),
-              volume: Number(volume)
-            }]
-          }]
-        }
-        
-        return {
-          id: product.id,
-          name: product.name,
-          engName: product.engName,
-          brand: product.brand,
-          defaultAmount: product.defaultAmount,
-          quantity: selectOptions[0].products[0].defaultAmount,
-          checked: true,
-          select: {
-            selectedId: selectOptions[0].products[0].id,
-            selectOptions,
-          },
-          ingredients: {
-            calories: product.ingredients.calories,
-            carbohydrate: product.ingredients.carbohydrate,
-            protein: product.ingredients.protein,
-            fat: product.ingredients.fat,
-            phosphorus: product.ingredients.phosphorus,
-            potassium: product.ingredients.potassium,
-            sodium: product.ingredients.sodium,
-            fiber: product.ingredients.fiber,
-          },
-          categories: product.categories || [],
-        }
-      }).filter((item) => item !== null) as ProductData[]
-
-      return newListData
-    })
-  }, [productList, allProducts])
     
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target
-    const product = listData.find((item) => item.id === id)
-    if (product) {      
-      setListData((prevData: ProductData[]): ProductData[] => prevData.map((item: ProductData) => {
-        if (item.id === id) return { ...item, quantity: value }
-        return item
-      }))
+    const productNew = listData.find((item) => item.id === id)
+    if (productNew) {
+      setUserInputs((prevInputs) => {
+        return {
+          ...prevInputs,
+          [id]: {
+            ...prevInputs[id],
+            quantity: value,
+          }
+        }
+      })
     }
   }
 
   const handleValueChange = (value: string, productId: string): void => {
-    const product = listData.find(item => item.id === productId);
-    if (!product) return;
+    const productNew = listData.find((item) => item.id === productId)
+    if (!productNew) return;
 
-    setListData((prevData) => prevData.map((item) => {
-      if (item.id === productId) {
-        const selectedId = value
-        const selectedQuantity = item.select.selectOptions.map((type) => {
-          const { products } = type
-          return products.find((product) => selectedId === product.id)?.defaultAmount || null
-        }).filter((item) => item !== null)
-        
-        return { 
-          ...item,
-          select: {
-            ...item.select,
-            selectedId: value,
-          },
-          quantity: selectedQuantity[0] || item.quantity,
+    const selectedQuantity = productNew.select.selectOptions
+      .flatMap(type => type.products)
+      .find(p => p.id === value)?.defaultAmount || productNew.quantity
+
+    setUserInputs((prevInputs) => {
+      return {
+        ...prevInputs,
+        [productId]: {
+          ...prevInputs[productId],
+          selectedId: value,
+          quantity: selectedQuantity,
         }
       }
-
-      return item
-    }))
+    })
   }
 
   const handleRemoveProduct = (productId: string): void => {
     setProductList((prevData: string[]) => prevData.filter((item) => item !== productId))
+
+    setUserInputs((prevInputs) => {
+      const updatedInputs = { ...prevInputs }
+      delete updatedInputs[productId]
+      return updatedInputs
+    })
   }
 
   const handleCheck = (id: string, checked: boolean): void => {
-    setListData((prevData: ProductData[]) => prevData.map((item) => {
-      if (item.id === id) return { ...item, checked }
-      return item;
-    }))
+    setUserInputs((prevInputs) => {
+      return {
+        ...prevInputs,
+        [id]: {
+          ...prevInputs[id],
+          checked,
+        }
+      }
+    })
   }
 
   const handleMealsCheck = (checked: boolean): void => {
