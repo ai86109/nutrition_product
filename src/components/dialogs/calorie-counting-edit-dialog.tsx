@@ -39,7 +39,7 @@ export function CalorieCountingEditDialog({
 
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button>Edit</Button>
       </DialogTrigger>
       <DialogContent className="max-w-[240px] sm:max-w-[400px]">

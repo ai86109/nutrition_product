@@ -61,7 +61,7 @@ export function TDEEEditDialog({ tdeeList, addList, deleteList }: { tdeeList: TD
 
   return (
     <Dialog>
-      <DialogTrigger>
+      <DialogTrigger asChild>
         <Button>Edit</Button>
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] overflow-y-auto">
