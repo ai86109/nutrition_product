@@ -1,12 +1,11 @@
 "use client"
 
-import { useProducts, useBrandOptions, ProductData, BrandOption } from '@/hooks/useProducts'
+import { useBrandOptions, BrandOption } from '@/hooks/useProducts'
 import { createContext, useContext, useState, ReactNode } from 'react'
+import { type ApiProductData } from '@/types/api'
 
 export type ProductContextType = {
-  allProducts: ProductData[]
-  isLoading: boolean
-  isError: Error | undefined
+  allProducts: ApiProductData[]
   productList: string[]
   setProductList: React.Dispatch<React.SetStateAction<string[]>> 
   brandOptions: BrandOption[]
@@ -14,19 +13,16 @@ export type ProductContextType = {
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined)
 
-export function ProductProvider({ children }: { children: ReactNode }) {
+export function ProductProvider({ children, allProducts }: { children: ReactNode, allProducts: ApiProductData[] }) {
   // local state
   const [productList, setProductList] = useState<string[]>([])
 
   // fetched state
-  const { allProducts, isLoading, isError } = useProducts()
-  const brandOptions = useBrandOptions()
+  const brandOptions = useBrandOptions(allProducts)
 
   return (
     <ProductContext.Provider value={{
       allProducts,
-      isLoading,
-      isError,
       productList,
       setProductList,
       brandOptions,

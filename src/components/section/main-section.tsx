@@ -4,7 +4,6 @@ import { Card, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import ProductSearchSection from "./product-search-section";
 import ProductCalculateSection from "./product-calculate-section";
-import { ProductProvider } from "@/contexts/ProductContext";
 import {
   Tabs,
   TabsContent,
@@ -25,7 +24,7 @@ import {
 
 export default function MainSection() {
   return (
-    <ProductProvider>
+    <>
       {/* mobile */}
       <div className="sm:hidden">
         <Accordion type="single" defaultValue="item-1" collapsible>
@@ -93,6 +92,6 @@ export default function MainSection() {
           </ResizablePanelGroup>
         </Card>
       </div>
-    </ProductProvider>
+    </>
   )
 }

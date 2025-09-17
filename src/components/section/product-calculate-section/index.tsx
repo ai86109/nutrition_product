@@ -206,21 +206,22 @@ export default function Index() {
         product.spec.forEach((option) => {
           // 看 option.unit 有沒有在 tempList 裡
           const { unit, defaultAmount, volume } = option
-          const isListed = unit in tempList
+          const safeUnit = unit!
+          const isListed = safeUnit in tempList
           // 有的話 加入 products
           if (isListed) {
-            const list = tempList[unit].products
+            const list = tempList[safeUnit].products
             list.push({
-              id: `${UNIT_MAPPINGS[unit]}-${list.length + 1}`,
+              id: `${UNIT_MAPPINGS[safeUnit]}-${list.length + 1}`,
               defaultAmount: Number(defaultAmount),
               volume: Number(volume)
             })
           } else {
             // 沒有的話 新建一個
-            tempList[unit] = {
-              unit,
+            tempList[safeUnit] = {
+              unit: safeUnit,
               products: [{
-                id: `${UNIT_MAPPINGS[unit]}-${1}`,
+                id: `${UNIT_MAPPINGS[safeUnit]}-${1}`,
                 defaultAmount: Number(defaultAmount),
                 volume: Number(volume)
               }]
@@ -232,10 +233,11 @@ export default function Index() {
         })
       } else {
         const { unit, defaultAmount, volume } = product.spec[0]
+        const safeUnit = unit!
         selectOptions = [{
-          unit: unit,
+          unit: safeUnit,
           products: [{
-            id: `${UNIT_MAPPINGS[unit]}-${1}`,
+            id: `${UNIT_MAPPINGS[safeUnit]}-${1}`,
             defaultAmount: Number(defaultAmount),
             volume: Number(volume)
           }]

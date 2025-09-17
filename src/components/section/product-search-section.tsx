@@ -11,7 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useProduct } from "@/contexts/ProductContext"
-import { type ProductData } from "@/hooks/useProducts"
 import Link from "next/link"
 import { getLinkPath } from "@/utils/external-links"
 import { Input } from "@/components/ui/input";
@@ -35,24 +34,12 @@ import {
 import { TYPE_OPTIONS, CATEGORY_OPTIONS, OPERATOR_OPTIONS } from "@/utils/constants"
 import { Badge } from "@/components/ui/badge"
 import { useProductSearch } from "@/hooks/useProductSearch"
-import { Skeleton } from "@/components/ui/skeleton"
+import { type ApiProductData } from "@/types/api"
 
 const truncateLength = 5
 
-function SkeletonBlock() {
-  return (
-    <div className="flex items-center space-x-4 mt-4">
-      <Skeleton className="h-12 w-12 rounded-full" />
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-[250px]" />
-        <Skeleton className="h-4 w-[200px]" />
-      </div>
-    </div>
-  )
-}
-
 export default function ProductSearchSection() {
-  const { productList, setProductList, allProducts, brandOptions, isLoading } = useProduct()
+  const { productList, setProductList, allProducts, brandOptions } = useProduct()
   const { formState, filteredData, updateField, applySearch, reset } = useProductSearch(allProducts)
   const [windowWidth, setWindowWidth] = useState<number>(0);
 
@@ -80,7 +67,7 @@ export default function ProductSearchSection() {
     setProductList((prevData: string[]) => [...prevData, productId])
   }
 
-  const getCurrentPageData = (): ProductData[] => {
+  const getCurrentPageData = (): ApiProductData[] => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
     return filteredData.slice(startIndex, endIndex)
@@ -229,7 +216,7 @@ export default function ProductSearchSection() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {getCurrentPageData().map((item: ProductData) => (
+                {getCurrentPageData().map((item: ApiProductData) => (
                   <TableRow key={item.id}>
                     <TableCell className="max-w-[200px]" style={{ textWrap: 'wrap'}}>
                       <Link href={getLinkPath(item.id)} target="_blank">
@@ -279,13 +266,7 @@ export default function ProductSearchSection() {
             )}
           </div>
         )}
-        {isLoading && (
-          <>
-            <SkeletonBlock />
-            <SkeletonBlock />
-          </>
-        )}
-        {!isLoading && !filteredData.length && <p className="mt-4">目前沒有符合的資料唷，請使用其他關鍵字查詢</p>}
+        {!filteredData.length && <p className="mt-4">目前沒有符合的資料唷，請使用其他關鍵字查詢</p>}
         {/* 顯示成分（做成 dialog？怕 table 太長） */}
         {/* 顯示 tag，包括此產品的類別、特殊疾病配方？ */}
       </div>

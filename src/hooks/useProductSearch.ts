@@ -1,5 +1,5 @@
 import { useMemo, useReducer, useState } from "react"
-import { type ProductData } from "@/hooks/useProducts"
+import { type ApiProductData } from "@/types/api"
 
 type SearchState = {
   searchValue: string
@@ -31,14 +31,14 @@ function searchReducer(state: SearchState, action: SearchAction): SearchState {
   }
 }
 
-export function useProductSearch(allProducts: ProductData[]) {
+export function useProductSearch(allProducts: ApiProductData[]) {
   const [formState, dispatch] = useReducer(searchReducer, initialState)
   const [appliedState, setAppliedState] = useState<SearchState>(initialState)
 
   const filteredData = useMemo(() => {
     if (!allProducts.length) return []
 
-    return allProducts.filter((item: ProductData) => {
+    return allProducts.filter((item: ApiProductData) => {
       const { searchValue, selectedBrand, selectedType, selectedCate } = appliedState
       const textInput = searchValue.toLowerCase();
       const nameMatches = item.name.toLowerCase().includes(textInput) || 
