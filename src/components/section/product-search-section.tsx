@@ -13,7 +13,7 @@ import {
 import { useProduct } from "@/contexts/ProductContext"
 import { type ProductData } from "@/hooks/useProducts"
 import Link from "next/link"
-import { getLinkPath } from "@/utils/link"
+import { getLinkPath } from "@/utils/external-links"
 import { Input } from "@/components/ui/input";
 import { useState, useEffect } from "react";
 import {
@@ -32,7 +32,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { typeOptions, categoryOptions, operatorOptions } from "@/utils/mappings"
+import { TYPE_OPTIONS, CATEGORY_OPTIONS, OPERATOR_OPTIONS } from "@/utils/constants"
 import { Badge } from "@/components/ui/badge"
 import { useProductSearch } from "@/hooks/useProductSearch"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -161,7 +161,7 @@ export default function ProductSearchSection() {
             <SelectValue placeholder="選擇劑型" />
           </SelectTrigger>
           <SelectContent>
-            {typeOptions.map((option) => (
+            {TYPE_OPTIONS.map((option) => (
               <SelectItem key={option.id} value={option.id}>
                 {option.name}
               </SelectItem>
@@ -175,7 +175,7 @@ export default function ProductSearchSection() {
               <SelectValue placeholder="選擇類別" />
             </SelectTrigger>
             <SelectContent>
-              {categoryOptions.map((option) => (
+              {CATEGORY_OPTIONS.map((option) => (
                 <SelectItem key={option.id} value={option.id}>
                   {option.name}
                 </SelectItem>
@@ -188,7 +188,7 @@ export default function ProductSearchSection() {
               <SelectValue placeholder="或" />
             </SelectTrigger>
             <SelectContent>
-              {operatorOptions.map((option) => (
+              {OPERATOR_OPTIONS.map((option) => (
                 <SelectItem key={option.id} value={option.id}>
                   {option.name}
                 </SelectItem>
@@ -201,7 +201,7 @@ export default function ProductSearchSection() {
               <SelectValue placeholder="選擇類別" />
             </SelectTrigger>
             <SelectContent>
-              {categoryOptions.map((option) => (
+              {CATEGORY_OPTIONS.map((option) => (
                 <SelectItem key={option.id} value={option.id}>
                   {option.name}
                 </SelectItem>

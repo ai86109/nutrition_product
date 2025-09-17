@@ -2,29 +2,29 @@ type UnitMapping = {
   [key: string]: string;
 };
 
-export const unitMapping: UnitMapping = {
+export const UNIT_MAPPINGS: UnitMapping = {
   "匙": "spoon",
   "包": "pack",
   "罐": "can"
 }
 
-type calcUnitMapping = {
+type CalcUnitMapping = {
   [key: string]: string;
 };
 
-export const calcUnitMapping: calcUnitMapping = {
+export const CALC_UNIT_MAPPINGS: CalcUnitMapping = {
   "匙": "g",
   "包": "g",
   "罐": "ml",
 }
 
-export const typeOptions = [
+export const TYPE_OPTIONS = [
   { id: "全部", name: "全部" },
   { id: "粉劑", name: "粉劑" },
   { id: "液劑", name: "液劑" },
 ]
 
-export const categoryOptions = [
+export const CATEGORY_OPTIONS = [
   { id: "全部", name: "全部" },
   { id: "均衡配方", name: "均衡配方" },
   { id: "低蛋白配方", name: "低蛋白配方" },
@@ -36,7 +36,7 @@ export const categoryOptions = [
   { id: "單素配方", name: "單素配方" },
 ]
 
-export const operatorOptions = [
+export const OPERATOR_OPTIONS = [
   { id: "or", name: "或" },
   { id: "and", name: "和" },
 ]

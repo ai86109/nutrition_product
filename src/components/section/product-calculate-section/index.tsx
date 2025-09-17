@@ -24,8 +24,8 @@ import { useProduct } from "@/contexts/ProductContext"
 import { useMemo, useState } from "react";
 import ChartSection from "@/components/section/product-calculate-section/chart-section"
 import Link from "next/link"
-import { getLinkPath } from "@/utils/link"
-import { unitMapping, calcUnitMapping } from "@/utils/mappings"
+import { getLinkPath } from "@/utils/external-links"
+import { UNIT_MAPPINGS, CALC_UNIT_MAPPINGS } from "@/utils/constants"
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
 import { Badge } from "@/components/ui/badge"
 import type { SelectOption, SelectData, IngredientsData, ProductData } from "@/types/nutrition"
@@ -70,7 +70,7 @@ function GetSelectBlock({ selectData, handleValueChange, productId }: GetProduct
                   <SelectLabel>{unit.unit}</SelectLabel>
                   {unit.products.map((product) => (
                     <SelectItem key={product.id} value={product.id}>
-                      {product.defaultAmount}{unit.unit} = {rounding(product.defaultAmount * product.volume)}{calcUnitMapping[unit.unit]}
+                      {product.defaultAmount}{unit.unit} = {rounding(product.defaultAmount * product.volume)}{CALC_UNIT_MAPPINGS[unit.unit]}
                     </SelectItem>
                   ))}
                 </SelectGroup>
@@ -79,7 +79,7 @@ function GetSelectBlock({ selectData, handleValueChange, productId }: GetProduct
             
             return unit.products.map((product) => (
               <SelectItem key={product.id} value={product.id}>
-                {product.defaultAmount}{unit.unit} = {rounding(product.defaultAmount * product.volume)}{calcUnitMapping[unit.unit]}
+                {product.defaultAmount}{unit.unit} = {rounding(product.defaultAmount * product.volume)}{CALC_UNIT_MAPPINGS[unit.unit]}
               </SelectItem>
             ))
           })}
@@ -99,7 +99,7 @@ function GetSingleTypeBlock({ selectData }: GetSingleTypeBlockProps): React.Reac
   const { unit, products } = selectOptions[0]
   const { defaultAmount, volume } = products[0]
   return (
-    <p>{defaultAmount}{unit} = {rounding(defaultAmount * volume)}{calcUnitMapping[unit]}</p>
+    <p>{defaultAmount}{unit} = {rounding(defaultAmount * volume)}{CALC_UNIT_MAPPINGS[unit]}</p>
   )
 }
 
@@ -171,8 +171,8 @@ function CalculateDailyServingsPerMeal({ mealsPerDay, item }: CalculateDailyServ
   return (
     <div className="bg-blue-50 p-2 rounded w-[200px] text-wrap lg:w-auto">
       <p>
-        <span className="font-bold">每餐需要 {rounding(servingsPerMeal)} {unit} = {rounding(currentAmount * servingsPerMeal)}{calcUnitMapping[unit]}</span>
-        <span>（總共 {rounding(servingsPerMeal * mealsPerDay)} {unit} = {rounding(currentAmount * servingsPerMeal * mealsPerDay)}{calcUnitMapping[unit]}）</span>
+        <span className="font-bold">每餐需要 {rounding(servingsPerMeal)} {unit} = {rounding(currentAmount * servingsPerMeal)}{CALC_UNIT_MAPPINGS[unit]}</span>
+        <span>（總共 {rounding(servingsPerMeal * mealsPerDay)} {unit} = {rounding(currentAmount * servingsPerMeal * mealsPerDay)}{CALC_UNIT_MAPPINGS[unit]}）</span>
       </p>
       <ProteinRangeBlock proteinPerMeal={proteinPerMeal} mealsPerDay={mealsPerDay} />
     </div>
@@ -211,7 +211,7 @@ export default function Index() {
           if (isListed) {
             const list = tempList[unit].products
             list.push({
-              id: `${unitMapping[unit]}-${list.length + 1}`,
+              id: `${UNIT_MAPPINGS[unit]}-${list.length + 1}`,
               defaultAmount: Number(defaultAmount),
               volume: Number(volume)
             })
@@ -220,7 +220,7 @@ export default function Index() {
             tempList[unit] = {
               unit,
               products: [{
-                id: `${unitMapping[unit]}-${1}`,
+                id: `${UNIT_MAPPINGS[unit]}-${1}`,
                 defaultAmount: Number(defaultAmount),
                 volume: Number(volume)
               }]
@@ -235,7 +235,7 @@ export default function Index() {
         selectOptions = [{
           unit: unit,
           products: [{
-            id: `${unitMapping[unit]}-${1}`,
+            id: `${UNIT_MAPPINGS[unit]}-${1}`,
             defaultAmount: Number(defaultAmount),
             volume: Number(volume)
           }]
