@@ -14,9 +14,7 @@ const mockSubmittedValues = {
 }
 
 jest.mock('@/contexts/BioInfoContext', () => ({
-  useBioInfo: () => ({
-    submittedValues: mockSubmittedValues
-  })
+  useBioInfo: () => ({ submittedValues: mockSubmittedValues })
 }))
 
 describe('useNutritionCalculations', () => {
@@ -26,7 +24,19 @@ describe('useNutritionCalculations', () => {
     mockSubmittedValues.age = defaultAge;
     mockSubmittedValues.gender = defaultGender;
   });
-  
+
+  describe('rounding', () => {
+    test('rounds to specified digits', () => {
+      const { result } = renderHook(() => useNutritionCalculations());
+
+      // Test rounding for different values
+      expect(result.current.rounding(2.3456, 0)).toBe(2);
+      expect(result.current.rounding(2.3456, 1)).toBe(2.3);
+      expect(result.current.rounding(2.3456, 2)).toBe(2.35);
+      expect(result.current.rounding(2.3456, 3)).toBe(2.346);
+    });
+  });
+
   describe('calculateBMI', () => {
     test('calculates BMI correctly', () => {
       const { result } = renderHook(() => useNutritionCalculations());
@@ -138,6 +148,95 @@ describe('useNutritionCalculations', () => {
 
       mockSubmittedValues.weight = NaN;
       expect(result.current.calculateABW()).toBe(0);
+    });
+  });
+
+  describe('calculateTDEE', () => {
+    test('calculates TDEE correctly', () => {
+      const { result } = renderHook(() => useNutritionCalculations())
+
+      // BEE = 13.7 * 70 + 5 * 180 - 6.8 * 30 + 66 = 1721
+      expect(result.current.calculateTDEE(1.2)).toBe(2065);
+      expect(result.current.calculateTDEE(1.55)).toBe(2668);
+      expect(result.current.calculateTDEE(1.9)).toBe(3270);
+    })
+
+    test('returns 0 for invalid parameters', () => {
+      const { result } = renderHook(() => useNutritionCalculations())
+
+      expect(result.current.calculateTDEE(0)).toBe(0);
+      expect(result.current.calculateTDEE(-1)).toBe(0);
+      expect(result.current.calculateTDEE(NaN)).toBe(0);
+    })
+
+    test('returns 0 for invalid input values', () => {
+      const { result } = renderHook(() => useNutritionCalculations())
+
+      // Invalid height
+      mockSubmittedValues.height = 0;
+      expect(result.current.calculateTDEE(1.2)).toBe(0);
+
+      mockSubmittedValues.height = -170;
+      expect(result.current.calculateTDEE(1.2)).toBe(0);
+
+      mockSubmittedValues.height = NaN;
+      expect(result.current.calculateTDEE(1.2)).toBe(0);
+
+      // Reset height and make weight invalid
+      mockSubmittedValues.height = defaultHeight;
+
+      mockSubmittedValues.weight = 0;
+      expect(result.current.calculateTDEE(1.2)).toBe(0);
+
+      mockSubmittedValues.weight = -70;
+      expect(result.current.calculateTDEE(1.2)).toBe(0);
+
+      mockSubmittedValues.weight = NaN;
+      expect(result.current.calculateTDEE(1.2)).toBe(0);
+
+      // Reset weight and make age invalid
+      mockSubmittedValues.weight = defaultWeight;
+
+      mockSubmittedValues.age = 0;
+      expect(result.current.calculateTDEE(1.2)).toBe(0);
+
+      mockSubmittedValues.age = -30;
+      expect(result.current.calculateTDEE(1.2)).toBe(0);
+
+      mockSubmittedValues.age = NaN;
+      expect(result.current.calculateTDEE(1.2)).toBe(0);
+    });
+  });
+
+  describe('calculateProtein', () => {
+    test('calculates protein correctly', () => {
+      const { result } = renderHook(() => useNutritionCalculations())
+
+      // IBW = 71
+      expect(result.current.calculateProtein(0.8)).toBe(56.8);
+      expect(result.current.calculateProtein(1.2)).toBe(85.2);
+      expect(result.current.calculateProtein(1.5)).toBe(106.5);
+    })
+
+    test('returns 0 for invalid protein factor', () => {
+      const { result } = renderHook(() => useNutritionCalculations())
+
+      expect(result.current.calculateProtein(0)).toBe(0);
+      expect(result.current.calculateProtein(-1)).toBe(0);
+      expect(result.current.calculateProtein(NaN)).toBe(0);
+    })
+
+    test('returns 0 for invalid IBW', () => {
+      const { result } = renderHook(() => useNutritionCalculations())
+
+      mockSubmittedValues.height = 0;
+      expect(result.current.calculateProtein(1)).toBe(0);
+
+      mockSubmittedValues.height = -170;
+      expect(result.current.calculateProtein(1)).toBe(0);
+
+      mockSubmittedValues.height = NaN;
+      expect(result.current.calculateProtein(1)).toBe(0);
     });
   });
 });

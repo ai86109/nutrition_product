@@ -15,6 +15,14 @@ type NutritionCalculationsReturn = {
 export function useNutritionCalculations(): NutritionCalculationsReturn {
   const { submittedValues } = useBioInfo()
 
+  const rounding = (value: number, digits: number = 2): number => {
+    if (!isFinite(value) || isNaN(value)) return 0
+
+    const validDigits = Math.max(0, Math.floor(digits))
+    const multiplier = Math.pow(10, validDigits)
+    return Math.round(value * multiplier) / multiplier
+  }
+
   const calculateBMI = (): number => {
     const { height, weight } = submittedValues
     if (!height || !weight || height <= 0 || weight <= 0) return 0
@@ -70,16 +78,9 @@ export function useNutritionCalculations(): NutritionCalculationsReturn {
   const calculateProtein = (proteinFactor: number): number => {
     const idealWeight = calculateIBW()
     if (idealWeight <= 0) return 0
+    if (proteinFactor <= 0) return 0
 
     return rounding(proteinFactor * idealWeight, 1)
-  }
-
-  const rounding = (value: number, digits: number = 2): number => {
-    if (!isFinite(value) || isNaN(value)) return 0
-
-    const validDigits = Math.max(0, Math.floor(digits))
-    const multiplier = Math.pow(10, validDigits)
-    return Math.round(value * multiplier) / multiplier
   }
 
   return { 
