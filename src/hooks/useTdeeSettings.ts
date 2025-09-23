@@ -24,9 +24,7 @@ export function useTdeeSettings() {
   }
 
   const deleteList = (index: number) => {
-    const newList = [...tdeeList];
-    newList.splice(index, 1);
-    setTDEEList(newList);
+    setTDEEList(tdeeList.toSpliced(index, 1));
   }
 
   return { tdeeList, addList, deleteList };
