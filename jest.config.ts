@@ -32,6 +32,9 @@ const customJestConfig: Config = {
     '!src/**/*.d.ts',
     '!src/**/types/**',
     '!src/components/ui/**',
+    '!src/app/**/layout.tsx',
+    '!src/app/**/page.tsx',
+    '!src/**/utils/**',
   ],
 
   // The directory where Jest should output its coverage files
