@@ -1,274 +1,58 @@
 "use client"
 
 import { CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { useProduct } from "@/contexts/ProductContext"
-import Link from "next/link"
-import { getLinkPath } from "@/utils/external-links"
-import { Input } from "@/components/ui/input";
-import { useState, useEffect } from "react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
-import { TYPE_OPTIONS, CATEGORY_OPTIONS, OPERATOR_OPTIONS } from "@/utils/constants"
-import { Badge } from "@/components/ui/badge"
+import { useMemo } from "react";
 import { useProductSearch } from "@/hooks/useProductSearch"
-import { type ApiProductData } from "@/types/api"
-
-const truncateLength = 5
+import SearchForm from "../product-search/search-form"
+import ProductTable from "../product-search/product-table"
+import PaginationBlock from "../product-search/pagination-block";
+import { usePagination } from "@/hooks/usePagination";
 
 export default function ProductSearchSection() {
   const { productList, setProductList, allProducts, brandOptions } = useProduct()
   const { formState, filteredData, updateField, applySearch, reset } = useProductSearch(allProducts)
-  const [windowWidth, setWindowWidth] = useState<number>(0);
+  const { currentPage, setCurrentPage, itemsPerPage } = usePagination()
 
-  // pagination
-  const [currentPage, setCurrentPage] = useState<number>(1)
-  const itemsPerPage = windowWidth <= 1024 ? 5 : 10
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage)
-
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  const handleSearchSubmit = (): void => {
-    applySearch()
-    handlePageChange(1) // Reset to the first page after search
-  }
-
-  const handleAddToCalculate = (productId: string): void => {
-    const existingProduct = productList.includes(productId)
-    if (existingProduct) return
-
-    setProductList((prevData: string[]) => [...prevData, productId])
-  }
-
-  const getCurrentPageData = (): ApiProductData[] => {
+  const currentPageData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage
     const endIndex = startIndex + itemsPerPage
     return filteredData.slice(startIndex, endIndex)
-  }
+  }, [currentPage, itemsPerPage, filteredData])
 
   const handlePageChange = (page: number): void => {
     setCurrentPage(page)
   }
 
-  const renderPaginationItems = (): React.ReactElement[] => {
-    let pages = []
-    if (totalPages <= truncateLength) pages = Array.from({ length: totalPages }, (_, index) => index + 1)
-    else if (currentPage <= 2) pages = [1, 2, 3, "...", totalPages]
-    else if (currentPage >= totalPages - 1) pages = [1, "...", totalPages - 2, totalPages - 1, totalPages]
-    else if (currentPage === 3) pages = [2, 3, 4, "...", totalPages]
-    else if (currentPage === totalPages - 2) pages = [1, "...", totalPages - 3, totalPages - 2, totalPages - 1]
-    else pages = [1, "...", currentPage - 1, currentPage, currentPage + 1, "...", totalPages]
-
-    return pages.map((page, index) => {
-      if (typeof page !== "number") {
-        return (
-          <PaginationItem key={`ellipsis-${index}`}>
-            <PaginationEllipsis />
-          </PaginationItem>
-        )
-      }
-      return (
-        <PaginationItem key={page} onClick={() => handlePageChange(page)}>
-          <PaginationLink isActive={currentPage === page}>{page}</PaginationLink>
-        </PaginationItem>
-      )
-    })
-  }
-
-  const handleSelectCateChange = (value: string, index: number): void => {
-    if (index < 0 || index >= formState.selectedCate.length) return;
-    const newCate = [...formState.selectedCate]
-    newCate[index] = value
-
-    updateField("selectedCate", newCate)
-  }
-
   return (
     <CardContent>
-      <p className="text-sm mb-1">＊所有欄位皆為選填，請自由搭配</p>
-      <div className="flex items-start flex-col max-w-[300px] gap-1 overflow-x-auto">
-        <div className="relative w-full">
-          <Input placeholder="關鍵字搜尋" value={formState.searchValue} onChange={(e) => updateField("searchValue", e.target.value)} />
-          {formState.searchValue && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={() => updateField("searchValue", "")}
-              className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
-              aria-label="清除搜尋"
-            >
-              <span className="material-icons cursor-pointer" style={{ fontSize: '18px', height: '18px' }}>cancel</span>
-            </Button>
-          )}
-        </div>
-
-        <Select value={formState.selectedBrand} onValueChange={(value) => updateField("selectedBrand", value)}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="選擇品牌" />
-          </SelectTrigger>
-          <SelectContent>
-            {brandOptions.map((option) => (
-              <SelectItem key={option.id} value={option.id}>
-                {option.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select value={formState.selectedType} onValueChange={(value) => updateField("selectedType", value)}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder="選擇劑型" />
-          </SelectTrigger>
-          <SelectContent>
-            {TYPE_OPTIONS.map((option) => (
-              <SelectItem key={option.id} value={option.id}>
-                {option.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <div className="flex space-x-2 w-full justify-between">
-          <Select value={formState.selectedCate[0]} onValueChange={(value) => handleSelectCateChange(value, 0)}>
-            <SelectTrigger>
-              <SelectValue placeholder="選擇類別" />
-            </SelectTrigger>
-            <SelectContent>
-              {CATEGORY_OPTIONS.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={formState.selectedCate[1]} onValueChange={(value) => handleSelectCateChange(value, 1)}>
-            <SelectTrigger>
-              <SelectValue placeholder="或" />
-            </SelectTrigger>
-            <SelectContent>
-              {OPERATOR_OPTIONS.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={formState.selectedCate[2]} onValueChange={(value) => handleSelectCateChange(value, 2)}>
-            <SelectTrigger>
-              <SelectValue placeholder="選擇類別" />
-            </SelectTrigger>
-            <SelectContent>
-              {CATEGORY_OPTIONS.map((option) => (
-                <SelectItem key={option.id} value={option.id}>
-                  {option.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex gap-2 w-full mt-1">
-          <Button className="flex-1 cursor-pointer" onClick={handleSearchSubmit}>搜尋</Button>
-          <Button className="w-[100px] cursor-pointer" variant="destructive" onClick={reset}>重置所有設定</Button>
-        </div>
-      </div>
+      <SearchForm
+        formState={formState}
+        onUpdateField={updateField}
+        onSearch={applySearch}
+        onReset={reset}
+        brandOptions={brandOptions}
+        handlePageChange={handlePageChange}
+      />
 
       <div className="mt-4">
-        {getCurrentPageData().length > 0 && (
+        {currentPageData.length > 0 && (
           <div>
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>品名</TableHead>
-                  <TableHead>品牌</TableHead>
-                  <TableHead>劑型</TableHead>
-                  <TableHead></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {getCurrentPageData().map((item: ApiProductData) => (
-                  <TableRow key={item.id}>
-                    <TableCell className="max-w-[200px]" style={{ textWrap: 'wrap'}}>
-                      <Link href={getLinkPath(item.id)} target="_blank">
-                        <p>{item.name}</p>
-                        {item.engName && <p className="text-xs">{item.engName}</p>}
-                        {item.categories && item.categories.length > 0 && item.categories.map((category: string) => (
-                          <Badge key={category} className="mt-1 mr-1" variant="secondary">
-                            {category}
-                          </Badge>
-                        ))}
-                      </Link>
-                    </TableCell>
-                    <TableCell>{item.brand}</TableCell>
-                    <TableCell>{item.type}</TableCell>
-                    <TableCell>
-                      <Button variant={productList.includes(item.id) ? "secondary" : "outline"} onClick={() => handleAddToCalculate(item.id)}>
-                        {productList.includes(item.id) ? '已加入' : '加入'}
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
+            <ProductTable
+              productList={productList}
+              setProductList={setProductList}
+              currentPageData={currentPageData}
+            />
 
-            {totalPages > 1 && (
-              <Pagination className="overflow-x-auto mt-2">
-                <PaginationContent>
-                  <PaginationItem>
-                    <PaginationPrevious 
-                      onClick={() => handlePageChange(currentPage - 1)}
-                      aria-disabled={currentPage <= 1}
-                      tabIndex={currentPage <= 1 ? -1 : undefined}
-                      className={currentPage <= 1 ? "pointer-events-none opacity-50" : undefined}
-                    />
-                  </PaginationItem>
-                  {renderPaginationItems()}
-                  <PaginationItem>
-                    <PaginationNext
-                      onClick={() => handlePageChange(currentPage + 1)}
-                      aria-disabled={currentPage >= totalPages}
-                      tabIndex={currentPage >= totalPages ? -1 : undefined}
-                      className={currentPage >= totalPages ? "pointer-events-none opacity-50" : undefined}
-                    />
-                  </PaginationItem>
-                </PaginationContent>
-              </Pagination>
-            )}
+            <PaginationBlock
+              filteredData={filteredData}
+              currentPage={currentPage}
+              handlePageChange={handlePageChange}
+              itemsPerPage={itemsPerPage}
+            />
           </div>
         )}
         {!filteredData.length && <p className="mt-4">目前沒有符合的資料唷，請使用其他關鍵字查詢</p>}
-        {/* 顯示成分（做成 dialog？怕 table 太長） */}
-        {/* 顯示 tag，包括此產品的類別、特殊疾病配方？ */}
       </div>
     </CardContent>
   )

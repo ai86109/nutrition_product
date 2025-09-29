@@ -1,7 +1,7 @@
 import { useMemo, useReducer, useState } from "react"
 import { type ApiProductData } from "@/types/api"
 
-type SearchState = {
+export type SearchState = {
   searchValue: string
   selectedBrand: string
   selectedType: string
