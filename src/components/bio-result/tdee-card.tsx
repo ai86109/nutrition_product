@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import InfoPopover from "./info-popover";
+import InfoPopover from "../info-popover";
 import { TDEEEditDialog } from "../dialogs/tdee-edit-dialog";
 import { useTdeeSettings, type TDEEList } from "@/hooks/useTdeeSettings";
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";

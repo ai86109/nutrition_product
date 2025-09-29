@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card"
-import InfoPopover from "./info-popover"
+import InfoPopover from "../info-popover"
 import ConditionalContent from "./conditional-content"
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
 

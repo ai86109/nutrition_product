@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import InfoPopover from "./info-popover";
+import InfoPopover from "../info-popover";
 import { CalorieCountingEditDialog } from "../dialogs/calorie-counting-edit-dialog";
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
 import { useCalorieSettings, type CalorieFactorList } from "@/hooks/useCalorieSettings";

@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import InfoPopover from "./info-popover";
+import InfoPopover from "../info-popover";
 import { ProteinEditDialog } from "../dialogs/protein-edit-dialog";
 import { useProteinSettings, type ProteinList } from "@/hooks/useProteinSettings"
 import { useBioInfo } from "@/contexts/BioInfoContext";
