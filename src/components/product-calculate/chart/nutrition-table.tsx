@@ -17,20 +17,17 @@ import { useNutritionChartData } from "@/hooks/useNutritionChartData"
 function ProteinRangeBlock({ protein }: { protein: number }) {
   const { proteinRange } = useBioInfo()
   const { min, max } = proteinRange
-  const minValue = Number(Math.min(Number(min), Number(max)))
-  const maxValue = Number(Math.max(Number(min), Number(max)))
+  const minValue = Math.min(Number(min), Number(max))
+  const maxValue = Math.max(Number(min), Number(max))
 
-  let proteinRangeText = '符合'
-  let isIncludedInRange = true
-  const isProteinInRange: boolean = protein >= minValue && protein <= maxValue
-  if (!isProteinInRange) {
-    if (protein < minValue) proteinRangeText = `低於`
-    else if (protein > maxValue) proteinRangeText = `高於`
-
-    isIncludedInRange = false
+  const isInRange = protein >= minValue && protein <= maxValue
+  let statusText = '符合'
+  if (!isInRange) {
+    statusText = protein < minValue ? '低於' : '高於'
   }
+
   return (
-    <p className={`text-xs font-bold ${isIncludedInRange ? 'text-green-700' : 'text-red-700'}`}>{proteinRangeText}蛋白質範圍</p>
+    <p className={`text-xs font-bold ${isInRange ? 'text-green-700' : 'text-red-700'}`}>{statusText}蛋白質範圍</p>
   )
 }
 
