@@ -10,15 +10,8 @@ import CalculationTable from "./calculation-table";
 
 export default function ProteinCard() {
   const { proteinList, updateChecked: updateProteinChecked, updateValue: updateProteinValue, resetToDefault }: { proteinList: ProteinList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void, resetToDefault: () => void } = useProteinSettings();
-  const { calorieTypeLists, setCalorieTypeLists } = useBioInfo()
+  const { calorieTypeLists } = useBioInfo()
   const { pbw, ibw } = useNutritionCalculations()
-
-  const handleCalorieTypeCheck = (checked: boolean, id: string): void => {
-    setCalorieTypeLists((prevList) => {
-      const newList = prevList.map(item => item.id === id ? { ...item, checked } : item)
-      return newList
-    })
-  }
 
   return (
     <Card className="overflow-auto">
@@ -36,14 +29,10 @@ export default function ProteinCard() {
       </CardHeader>
       <CardContent>
         <ConditionalContent condition={pbw > 0 || ibw > 0} fallback="請先填寫數值來計算蛋白質需求量">
-          <CalorieTypesBlock
-            calorieTypeLists={calorieTypeLists}
-            onChange={handleCalorieTypeCheck}
-          />
+          <CalorieTypesBlock />
           <ConditionalContent condition={calorieTypeLists.length > 0 && calorieTypeLists.some(item => item.checked)} fallback="請至少選擇一個熱量類型">
             <ConditionalContent condition={proteinList.length > 0 && proteinList.some(item => item.checked)} fallback="尚未勾選任何蛋白質參數">
               <CalculationTable
-                types={calorieTypeLists}
                 factors={proteinList}
                 valueDigits={1}
               />

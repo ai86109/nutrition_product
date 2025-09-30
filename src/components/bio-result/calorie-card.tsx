@@ -11,13 +11,7 @@ import CalculationTable from "./calculation-table";
 export default function CalorieCard() {
   const { calorieFactorLists, updateChecked: updateCalorieChecked, updateValue: updateCalorieValue }: { calorieFactorLists: CalorieFactorList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void } = useCalorieSettings();
   const { pbw, ibw } = useNutritionCalculations()
-  const { calorieTypeLists, setCalorieTypeLists } = useBioInfo()
-
-  const handleCalorieTypeCheck = (checked: boolean, id: string): void => {
-    setCalorieTypeLists((prevList) => {
-      return prevList.map(item => item.id === id ? { ...item, checked } : item)
-    })
-  }
+  const { calorieTypeLists } = useBioInfo()
 
   return (
     <Card className="overflow-auto">
@@ -36,13 +30,9 @@ export default function CalorieCard() {
       <CardContent>
         <ConditionalContent condition={pbw > 0 || ibw > 0} fallback="請先填寫數值來計算熱量">
           <ConditionalContent condition={calorieFactorLists.length > 0 && calorieFactorLists.some(item => item.checked)} fallback="尚未勾選熱量參數，請先設定">
-            <CalorieTypesBlock
-              calorieTypeLists={calorieTypeLists}
-              onChange={handleCalorieTypeCheck}
-            />
+            <CalorieTypesBlock />
             <ConditionalContent condition={calorieTypeLists.length > 0 && calorieTypeLists.some(item => item.checked)} fallback="請至少選擇一個熱量類型">
               <CalculationTable
-                types={calorieTypeLists}
                 factors={calorieFactorLists}
                 valueDigits={1}
               />

@@ -1,15 +1,16 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { useBioInfo } from "@/contexts/BioInfoContext";
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
 import { useMemo } from "react";
 
 interface CalculationTableProps {
-  types: { id: string, label: string, checked: boolean }[],
   factors: { id: number, value: string | number, checked: boolean }[],
   valueDigits: number
 }
 
-export default function CalculationTable({ types, factors, valueDigits }: CalculationTableProps) {
+export default function CalculationTable({ factors, valueDigits }: CalculationTableProps) {
   const { rounding, pbw, ibw, abw } = useNutritionCalculations();
+  const { calorieTypeLists: types } = useBioInfo()
 
   const calorieTypeLists = useMemo(() => types.filter(type => type.checked), [types]);
   const tableHeaderLists = useMemo(() => factors.filter(factor => factor.checked), [factors]);

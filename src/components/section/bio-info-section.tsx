@@ -33,21 +33,31 @@ const FormField = ({ id, value, placeholder, onChange }: FormFieldProps) => (
   </div>
 )
 
-const GenderSelector = ({ value, onChange }: { value: Gender, onChange: (value: Gender) => void}) => (
-  <RadioGroup defaultValue="man" value={value} onValueChange={onChange} className="w-[50%]">
-    <Label className="mb-0">性別</Label>
-    <div className="flex items-center space-x-2">
+const GenderSelector = () => {
+  const { gender, setGender } = useBioInfo()
+
+  const handleGenderChange = (value: string): void => {
+    if (value === "man" || value === "woman") {
+      setGender(value as Gender)
+    }
+  }
+
+  return (
+    <RadioGroup defaultValue="man" value={gender} onValueChange={handleGenderChange} className="w-[50%]">
+      <Label className="mb-0">性別</Label>
       <div className="flex items-center space-x-2">
-        <RadioGroupItem value="man" id="r1" />
-        <Label htmlFor="r1">男</Label>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="man" id="r1" />
+          <Label htmlFor="r1">男</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <RadioGroupItem value="woman" id="r2" />
+          <Label htmlFor="r2">女</Label>
+        </div>
       </div>
-      <div className="flex items-center space-x-2">
-        <RadioGroupItem value="woman" id="r2" />
-        <Label htmlFor="r2">女</Label>
-      </div>
-    </div>
-  </RadioGroup>
-)
+    </RadioGroup>
+  )
+}
 
 export default function BioInfoSection() {
   const { formData, setFormData, gender, setGender, setSubmittedValues } = useBioInfo()
@@ -83,7 +93,7 @@ export default function BioInfoSection() {
       <FormField id="age" value={formData.age} placeholder="輸入年齡" onChange={handleInputChange} />
 
       <div className="flex items-end space-x-4">
-        <GenderSelector value={gender} onChange={handleGenderChange} />
+        <GenderSelector />
         <Button className="cursor-pointer" onClick={handleSubmit}>送出</Button>
       </div>
     </CardContent>
