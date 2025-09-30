@@ -2,7 +2,6 @@
 
 import { CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { useProductContext } from "@/contexts/ProductContext"
 import ChartSection from "@/components/product-calculate/chart-section"
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import BioSettings from "../product-calculate/bio-settings";
@@ -15,10 +14,9 @@ import ConditionalContent from "../bio-result/conditional-content"
 
 
 export default function ProductCalculateSection() {
-  const { allProducts } = useProductContext()
-  const { listData, setUserInputs } = useProductCalculation(allProducts)
+  const { listData, setUserInputs } = useProductCalculation()
   const { ingredientsData } = useIngredientCalculation(listData)
-  const { mealsPerDay, isCalculateServings, handleMealsCheck, handleMealsInputChange } = useMealCalculation()
+  const { mealsPerDay, isCalculateServings, setIsCalculateServings, handleMealsInputChange } = useMealCalculation()
   const { tdee } = useBioInfo();
     
   const isServingsCanBeUsed = Number(tdee) > 0 && listData.filter((item) => item.checked).length === 1
@@ -45,7 +43,7 @@ export default function ProductCalculateSection() {
               isServingsCanBeUsed={isServingsCanBeUsed}
               isCalculateServings={isCalculateServings}
               mealsPerDay={mealsPerDay}
-              handleMealsCheck={handleMealsCheck}
+              setIsCalculateServings={setIsCalculateServings}
               handleMealsInputChange={handleMealsInputChange}
             />
             <Separator className="my-4" />

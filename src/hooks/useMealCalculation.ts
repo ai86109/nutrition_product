@@ -4,10 +4,6 @@ export function useMealCalculation() {
   const [mealsPerDay, setMealsPerDay] = useState<number | string>(3) // default meals per day
   const [isCalculateServings, setIsCalculateServings] = useState<boolean>(false)
 
-  const handleMealsCheck = (checked: boolean): void => {
-    setIsCalculateServings(checked)
-  }
-
   const handleMealsInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value
     if (value === '') setMealsPerDay(value)
@@ -21,7 +17,7 @@ export function useMealCalculation() {
   return { 
     mealsPerDay,
     isCalculateServings,
-    handleMealsCheck,
+    setIsCalculateServings,
     handleMealsInputChange
   }
 }

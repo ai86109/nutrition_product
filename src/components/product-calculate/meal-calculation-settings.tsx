@@ -4,13 +4,13 @@ import { Checkbox } from "@/components/ui/checkbox"
 export default function MealCalculationSettings({ 
   isServingsCanBeUsed,
   isCalculateServings,
-  handleMealsCheck,
+  setIsCalculateServings,
   mealsPerDay,
   handleMealsInputChange
 }: {
   isServingsCanBeUsed: boolean,
   isCalculateServings: boolean,
-  handleMealsCheck: (checked: boolean) => void,
+  setIsCalculateServings: React.Dispatch<React.SetStateAction<boolean>>,
   mealsPerDay: string | number,
   handleMealsInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
 }) {
@@ -21,7 +21,7 @@ export default function MealCalculationSettings({
           disabled={!isServingsCanBeUsed}
           id={`check`}
           checked={isCalculateServings}
-          onCheckedChange={(checked) => handleMealsCheck(!!checked)}
+          onCheckedChange={(checked) => setIsCalculateServings(!!checked)}
         />
         計算每餐所需份量，每日
         <Input

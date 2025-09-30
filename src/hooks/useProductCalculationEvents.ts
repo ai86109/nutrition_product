@@ -1,11 +1,11 @@
-import { useProductContext } from "@/contexts/ProductContext";
+import { useProduct } from "@/contexts/ProductContext";
 import { ProductData } from "@/types/nutrition"
 
 export function useProductCalculationEvents(
   listData: ProductData[],
   setUserInputs: React.Dispatch<React.SetStateAction<{ [key: string]: { quantity: number | string; selectedId: string; checked: boolean } }>>
 ) {
-  const { setProductList } = useProductContext()
+  const { setProductList } = useProduct()
   
   const handleCheck = (id: string, checked: boolean): void => {
     setUserInputs((prevInputs) => {

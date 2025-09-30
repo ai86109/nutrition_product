@@ -1,8 +1,12 @@
 "use client"
 
-import { useBrandOptions, BrandOption } from '@/hooks/useProducts'
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, ReactNode, useMemo } from 'react'
 import { type ApiProductData } from '@/types/api'
+
+type BrandOption = {
+  id: string
+  name: string
+}
 
 export type ProductContextType = {
   allProducts: ApiProductData[]
@@ -18,7 +22,22 @@ export function ProductProvider({ children, allProducts }: { children: ReactNode
   const [productList, setProductList] = useState<string[]>([])
 
   // fetched state
-  const brandOptions = useBrandOptions(allProducts)
+  const brandOptions = useMemo(() => {
+    const brands = new Map<string, number>()
+
+    allProducts.forEach((product: ApiProductData) => {
+      if (product.brand) {
+        brands.set(product.brand, (brands.get(product.brand) || 0) + 1)
+      }
+    })
+
+    const sortedBrands: BrandOption[] = Array.from(brands.entries())
+      .sort((a, b) => b[1] - a[1])
+      .map(([brand]) => ({ id: brand, name: brand }))
+
+    // Add "All" option at the beginning
+    return [{ id: '全部', name: '全部' }, ...sortedBrands]
+  }, [allProducts])
 
   return (
     <ProductContext.Provider value={{
@@ -32,10 +51,10 @@ export function ProductProvider({ children, allProducts }: { children: ReactNode
   )
 }
 
-export function useProductContext(): ProductContextType {
+export function useProduct(): ProductContextType {
   const context = useContext(ProductContext)
   if (context === undefined) {
-    throw new Error('useProductContext must be used within a ProductProvider')
+    throw new Error('useProduct must be used within a ProductProvider')
   }
   return context
 }

@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/select"
 import { TYPE_OPTIONS, CATEGORY_OPTIONS, OPERATOR_OPTIONS } from "@/utils/constants"
 import { SearchState } from "@/hooks/useProductSearch";
-import { useProductContext } from "@/contexts/ProductContext";
+import { useProduct } from "@/contexts/ProductContext";
 
 interface SearchFormProps {
   value: string;
@@ -106,7 +106,7 @@ export default function SearchForm({
   onReset: () => void,
   handlePageChange: (page: number) => void
 }) {
-  const { brandOptions } = useProductContext()
+  const { brandOptions } = useProduct()
   
   const handleSearchSubmit = (): void => {
     onSearch()

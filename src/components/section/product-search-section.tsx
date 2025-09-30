@@ -1,7 +1,6 @@
 "use client"
 
 import { CardContent } from "@/components/ui/card"
-import { useProductContext } from "@/contexts/ProductContext"
 import { useMemo } from "react";
 import { useProductSearch } from "@/hooks/useProductSearch"
 import SearchForm from "../product-search/search-form"
@@ -10,8 +9,7 @@ import PaginationBlock from "../product-search/pagination-block";
 import { usePagination } from "@/hooks/usePagination";
 
 export default function ProductSearchSection() {
-  const { allProducts } = useProductContext()
-  const { formState, filteredData, updateField, applySearch, reset } = useProductSearch(allProducts)
+  const { formState, filteredData, updateField, applySearch, reset } = useProductSearch()
   const { currentPage, setCurrentPage, itemsPerPage } = usePagination()
 
   const currentPageData = useMemo(() => {

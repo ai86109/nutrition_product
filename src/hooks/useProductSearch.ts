@@ -1,5 +1,6 @@
 import { useMemo, useReducer, useState } from "react"
 import { type ApiProductData } from "@/types/api"
+import { useProduct } from "@/contexts/ProductContext"
 
 export type SearchState = {
   searchValue: string
@@ -31,7 +32,8 @@ function searchReducer(state: SearchState, action: SearchAction): SearchState {
   }
 }
 
-export function useProductSearch(allProducts: ApiProductData[]) {
+export function useProductSearch() {
+  const { allProducts } = useProduct()
   const [formState, dispatch] = useReducer(searchReducer, initialState)
   const [appliedState, setAppliedState] = useState<SearchState>(initialState)
 
