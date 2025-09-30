@@ -32,10 +32,10 @@ export function ProductProvider({ children, allProducts }: { children: ReactNode
   )
 }
 
-export function useProduct(): ProductContextType {
+export function useProductContext(): ProductContextType {
   const context = useContext(ProductContext)
   if (context === undefined) {
-    throw new Error('useNutrition must be used within a ProductContext')
+    throw new Error('useProductContext must be used within a ProductProvider')
   }
   return context
 }

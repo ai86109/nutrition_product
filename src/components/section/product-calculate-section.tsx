@@ -2,7 +2,7 @@
 
 import { CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { useProduct } from "@/contexts/ProductContext"
+import { useProductContext } from "@/contexts/ProductContext"
 import ChartSection from "@/components/product-calculate/chart-section"
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import BioSettings from "../product-calculate/bio-settings";
@@ -15,7 +15,7 @@ import ConditionalContent from "../bio-result/conditional-content"
 
 
 export default function ProductCalculateSection() {
-  const { productList, setProductList, allProducts } = useProduct()
+  const { productList, setProductList, allProducts } = useProductContext()
   const { listData, setUserInputs } = useProductCalculation(allProducts, productList)
   const { ingredientsData } = useIngredientCalculation(listData)
   const { mealsPerDay, isCalculateServings, handleMealsCheck, handleMealsInputChange } = useMealCalculation()
