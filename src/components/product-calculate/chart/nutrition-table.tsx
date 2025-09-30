@@ -57,10 +57,9 @@ const NutritionRow = ({
   config: NutritionConfig,
 }) => {
   const { getCaloriesChartData, getProteinChartData, isProteinRangeValid } = useNutritionChartData()
-  const { calculatePBW } = useNutritionCalculations()
-  const PBW = calculatePBW()
+  const { pbw } = useNutritionCalculations()
   const { key, label, unit, hasChart, infoText } = config;
-  const isShowCaloriesPerWeight = key === 'calories' && value > 0 && PBW > 0
+  const isShowCaloriesPerWeight = key === 'calories' && value > 0 && pbw > 0
   const isShowProteinRange = key === 'protein' && value > 0 && isProteinRangeValid 
 
   const chartData = useMemo(() => {

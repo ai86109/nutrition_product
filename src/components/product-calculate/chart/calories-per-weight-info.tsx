@@ -1,16 +1,13 @@
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
 
 export function CaloriesPerWeightInfo({ value }: { value: number }): React.ReactElement {
-  const { calculatePBW, calculateIBW, calculateABW, rounding } = useNutritionCalculations()
-  const PBW = calculatePBW()
-  const IBW = calculateIBW()
-  const ABW = calculateABW()
+  const { pbw, ibw, abw, rounding } = useNutritionCalculations()
 
   return (
     <div className="text-xs text-muted-foreground px-0">
-      {PBW > 0 && <p>* {rounding(value / PBW)} kcal/kg PBW</p>}
-      {IBW > 0 && <p>* {rounding(value / IBW)} kcal/kg IBW</p>}
-      {ABW > 0 && <p>* {rounding(value / ABW)} kcal/kg ABW</p>}
+      {pbw > 0 && <p>* {rounding(value / pbw)} kcal/kg PBW</p>}
+      {ibw > 0 && <p>* {rounding(value / ibw)} kcal/kg IBW</p>}
+      {abw > 0 && <p>* {rounding(value / abw)} kcal/kg ABW</p>}
     </div>
   )
 }

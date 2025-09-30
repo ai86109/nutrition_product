@@ -11,10 +11,7 @@ import CalculationTable from "./calculation-table";
 export default function ProteinCard() {
   const { proteinList, updateChecked: updateProteinChecked, updateValue: updateProteinValue, resetToDefault }: { proteinList: ProteinList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void, resetToDefault: () => void } = useProteinSettings();
   const { calorieTypeLists, setCalorieTypeLists } = useBioInfo()
-  const { calculatePBW, calculateIBW } = useNutritionCalculations()
-
-  const isValidPBW = calculatePBW() > 0
-  const isValidIBW = calculateIBW() > 0
+  const { pbw, ibw } = useNutritionCalculations()
 
   const handleCalorieTypeCheck = (checked: boolean, id: string): void => {
     setCalorieTypeLists((prevList) => {
@@ -38,7 +35,7 @@ export default function ProteinCard() {
         <ProteinEditDialog proteinList={proteinList} updateChecked={updateProteinChecked} updateValue={updateProteinValue} resetToDefault={resetToDefault}/>
       </CardHeader>
       <CardContent>
-        <ConditionalContent condition={isValidPBW || isValidIBW} fallback="請先填寫數值來計算蛋白質需求量">
+        <ConditionalContent condition={pbw > 0 || ibw > 0} fallback="請先填寫數值來計算蛋白質需求量">
           <CalorieTypesBlock
             calorieTypeLists={calorieTypeLists}
             onChange={handleCalorieTypeCheck}

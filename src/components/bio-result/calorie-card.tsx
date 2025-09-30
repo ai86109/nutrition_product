@@ -10,10 +10,8 @@ import CalculationTable from "./calculation-table";
 
 export default function CalorieCard() {
   const { calorieFactorLists, updateChecked: updateCalorieChecked, updateValue: updateCalorieValue }: { calorieFactorLists: CalorieFactorList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void } = useCalorieSettings();
-  const { calculatePBW, calculateIBW } = useNutritionCalculations()
+  const { pbw, ibw } = useNutritionCalculations()
   const { calorieTypeLists, setCalorieTypeLists } = useBioInfo()
-  const isValidPBW = calculatePBW() > 0
-  const isValidIBW = calculateIBW() > 0
 
   const handleCalorieTypeCheck = (checked: boolean, id: string): void => {
     setCalorieTypeLists((prevList) => {
@@ -36,7 +34,7 @@ export default function CalorieCard() {
         <CalorieCountingEditDialog calorieFactorLists={calorieFactorLists} updateChecked={updateCalorieChecked} updateValue={updateCalorieValue} />
       </CardHeader>
       <CardContent>
-        <ConditionalContent condition={isValidPBW || isValidIBW} fallback="請先填寫數值來計算熱量">
+        <ConditionalContent condition={pbw > 0 || ibw > 0} fallback="請先填寫數值來計算熱量">
           <ConditionalContent condition={calorieFactorLists.length > 0 && calorieFactorLists.some(item => item.checked)} fallback="尚未勾選熱量參數，請先設定">
             <CalorieTypesBlock
               calorieTypeLists={calorieTypeLists}

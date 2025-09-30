@@ -8,10 +8,9 @@ import ConditionalContent from "./conditional-content";
 
 export default function TdeeCard() {
   const { tdeeList, addList, deleteList }: { tdeeList: TDEEList[], addList: (item: TDEEList) => void, deleteList: (index: number) => void } = useTdeeSettings();
-  const { calculatePBW, calculateTDEE, rounding } = useNutritionCalculations()
+  const { pbw, calculateTDEE, rounding } = useNutritionCalculations()
   const { submittedValues } = useBioInfo()
   const { height, age } = submittedValues
-  const isValidPBW = calculatePBW() > 0
 
   const adjustmentFactor = (item: TDEEList): number => {
     const { activityFactor, stressFactor } = item
@@ -35,7 +34,7 @@ export default function TdeeCard() {
         <TDEEEditDialog tdeeList={tdeeList} addList={addList} deleteList={deleteList} />
       </CardHeader>
       <CardContent>
-        <ConditionalContent condition={isValidPBW && height > 0 && age > 0} fallback="請先填寫數值來計算 TDEE">
+        <ConditionalContent condition={pbw > 0 && height > 0 && age > 0} fallback="請先填寫數值來計算 TDEE">
           <ConditionalContent condition={tdeeList.length > 0} fallback="尚未設定 TDEE 參數，請先設定">
             {tdeeList.map((item, index) => (
               <div key={`${item.name}-${index}`}>

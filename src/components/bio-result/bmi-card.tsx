@@ -4,8 +4,7 @@ import ConditionalContent from "./conditional-content"
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
 
 export default function BmiCard() {
-  const { calculateBMI } = useNutritionCalculations()
-  const bmi = calculateBMI()
+  const { bmi } = useNutritionCalculations()
   const isValidBMI = bmi > 0
   
   return (

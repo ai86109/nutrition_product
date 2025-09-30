@@ -9,10 +9,7 @@ interface CalculationTableProps {
 }
 
 export default function CalculationTable({ types, factors, valueDigits }: CalculationTableProps) {
-  const { rounding, calculatePBW, calculateIBW, calculateABW } = useNutritionCalculations();
-  const pbw = calculatePBW();
-  const ibw = calculateIBW();
-  const abw = calculateABW();
+  const { rounding, pbw, ibw, abw } = useNutritionCalculations();
 
   const calorieTypeLists = useMemo(() => types.filter(type => type.checked), [types]);
   const tableHeaderLists = useMemo(() => factors.filter(factor => factor.checked), [factors]);
