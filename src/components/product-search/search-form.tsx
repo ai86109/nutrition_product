@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select"
 import { TYPE_OPTIONS, CATEGORY_OPTIONS, OPERATOR_OPTIONS } from "@/utils/constants"
 import { SearchState } from "@/hooks/useProductSearch";
+import { useProductContext } from "@/contexts/ProductContext";
 
 interface SearchFormProps {
   value: string;
@@ -94,19 +95,19 @@ const MultiSelect = ({ selectedCate, onChange }: MultiSelectProps) => {
 
 export default function SearchForm({
   formState,
-  brandOptions,
   onUpdateField,
   onSearch,
   onReset,
   handlePageChange
 }: {
   formState: SearchState,
-  brandOptions: { id: string; name: string }[],
   onUpdateField: (field: keyof SearchState, value: string | string[]) => void,
   onSearch: () => void,
   onReset: () => void,
   handlePageChange: (page: number) => void
 }) {
+  const { brandOptions } = useProductContext()
+  
   const handleSearchSubmit = (): void => {
     onSearch()
     handlePageChange(1) // Reset to the first page after search

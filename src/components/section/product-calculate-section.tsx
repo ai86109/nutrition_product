@@ -15,8 +15,8 @@ import ConditionalContent from "../bio-result/conditional-content"
 
 
 export default function ProductCalculateSection() {
-  const { productList, setProductList, allProducts } = useProductContext()
-  const { listData, setUserInputs } = useProductCalculation(allProducts, productList)
+  const { allProducts } = useProductContext()
+  const { listData, setUserInputs } = useProductCalculation(allProducts)
   const { ingredientsData } = useIngredientCalculation(listData)
   const { mealsPerDay, isCalculateServings, handleMealsCheck, handleMealsInputChange } = useMealCalculation()
   const { tdee } = useBioInfo();
@@ -55,7 +55,6 @@ export default function ProductCalculateSection() {
               isServingsCanBeUsed={isServingsCanBeUsed}
               isShowServings={isShowServings}
               mealsPerDay={mealsPerDay}
-              setProductList={setProductList}
               setUserInputs={setUserInputs}
             />
           </CardContent>

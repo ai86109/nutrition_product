@@ -18,17 +18,15 @@ export default function ProductTable({
   isServingsCanBeUsed, 
   isShowServings, 
   mealsPerDay, 
-  setProductList,
   setUserInputs
 }: {
   listData: ProductData[],
   isServingsCanBeUsed: boolean,
   isShowServings: boolean,
   mealsPerDay: number | string,
-  setProductList: React.Dispatch<React.SetStateAction<string[]>>
   setUserInputs: React.Dispatch<React.SetStateAction<{ [key: string]: { quantity: number | string; selectedId: string; checked: boolean } }>>
 }) {
-  const { handleCheck, handleInputChange, handleValueChange, handleRemoveProduct } = useProductCalculationEvents(listData, setProductList, setUserInputs)
+  const { handleCheck, handleInputChange, handleValueChange, handleRemoveProduct } = useProductCalculationEvents(listData, setUserInputs)
   return (
     <Table>
       <TableBody>

@@ -10,7 +10,7 @@ import PaginationBlock from "../product-search/pagination-block";
 import { usePagination } from "@/hooks/usePagination";
 
 export default function ProductSearchSection() {
-  const { productList, setProductList, allProducts, brandOptions } = useProductContext()
+  const { allProducts } = useProductContext()
   const { formState, filteredData, updateField, applySearch, reset } = useProductSearch(allProducts)
   const { currentPage, setCurrentPage, itemsPerPage } = usePagination()
 
@@ -31,18 +31,13 @@ export default function ProductSearchSection() {
         onUpdateField={updateField}
         onSearch={applySearch}
         onReset={reset}
-        brandOptions={brandOptions}
         handlePageChange={handlePageChange}
       />
 
       <div className="mt-4">
         {currentPageData.length > 0 && (
           <div>
-            <ProductTable
-              productList={productList}
-              setProductList={setProductList}
-              currentPageData={currentPageData}
-            />
+            <ProductTable currentPageData={currentPageData} />
 
             <PaginationBlock
               filteredData={filteredData}

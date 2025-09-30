@@ -2,6 +2,7 @@ import { useCallback, useMemo, useState } from "react"
 import type { SelectOption, ProductData } from "@/types/nutrition"
 import { UNIT_MAPPINGS } from "@/utils/constants"
 import { type ApiProductData } from '@/types/api'
+import { useProductContext } from "@/contexts/ProductContext"
 
 interface UserInput {
   quantity: string | number
@@ -9,7 +10,8 @@ interface UserInput {
   checked: boolean
 }
 
-export function useProductCalculation(allProducts: ApiProductData[], productList: string[]) {
+export function useProductCalculation(allProducts: ApiProductData[]) {
+  const { productList } = useProductContext()
   const [userInputs, setUserInputs] = useState<Record<string, UserInput>>({})
 
   const generateSelectOptions = (product: ApiProductData) => {

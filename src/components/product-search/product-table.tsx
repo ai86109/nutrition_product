@@ -11,16 +11,11 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ApiProductData } from "@/types/api"
 import { getLinkPath } from "@/utils/external-links"
+import { useProductContext } from "@/contexts/ProductContext"
 
-export default function ProductTable({ 
-  productList,
-  setProductList,
-  currentPageData
-}: { 
-  productList: string[],
-  setProductList: React.Dispatch<React.SetStateAction<string[]>>,
-  currentPageData: ApiProductData[]
-}) {
+export default function ProductTable({ currentPageData }: { currentPageData: ApiProductData[] }) {
+  const { productList, setProductList } = useProductContext()
+  
   const handleAddToCalculate = (productId: string): void => {
     const existingProduct = productList.includes(productId)
     if (existingProduct) return
