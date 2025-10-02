@@ -1,19 +1,7 @@
 "use client"
 
 import { createContext, useContext, useState, ReactNode, useMemo } from 'react'
-import { type ApiProductData } from '@/types/api'
-
-type BrandOption = {
-  id: string
-  name: string
-}
-
-export type ProductContextType = {
-  allProducts: ApiProductData[]
-  productList: string[]
-  setProductList: React.Dispatch<React.SetStateAction<string[]>> 
-  brandOptions: BrandOption[]
-}
+import { ApiProductData, BrandOption, ProductContextType } from '@/types'
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined)
 

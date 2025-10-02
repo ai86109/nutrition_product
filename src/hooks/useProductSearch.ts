@@ -1,18 +1,7 @@
 import { useMemo, useReducer, useState } from "react"
-import { type ApiProductData } from "@/types/api"
+import { ApiProductData } from "@/types"
 import { useProduct } from "@/contexts/ProductContext"
-
-export type SearchState = {
-  searchValue: string
-  selectedBrand: string
-  selectedType: string
-  selectedCate: string[]
-}
-
-type SearchAction = 
-  | { type: 'SET_FIELD'; field: keyof SearchState; value: string | string[] }
-  | { type: 'RESET' }
-  | { type: 'APPLY_SEARCH' }
+import { SearchState, SearchAction } from "@/types"
 
 const initialState: SearchState = {
   searchValue: "",

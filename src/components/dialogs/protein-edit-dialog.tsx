@@ -17,7 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { type ProteinList } from "@/hooks/useProteinSettings"
+import { ProteinList } from "@/types"
 
 export function ProteinEditDialog({ proteinList, updateChecked, updateValue, resetToDefault }: { proteinList: ProteinList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void, resetToDefault: () => void }) {
   const handleProteinSettingCheck = (checked: boolean, index: number): void => {

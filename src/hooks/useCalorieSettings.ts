@@ -1,12 +1,7 @@
 import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { CalorieFactorList } from "@/types";
 
 const STORAGE_KEY = "nutriapp.bio.calorie";
-
-export type CalorieFactorList = {
-  id: number
-  value: number | string
-  checked: boolean
-}
 
 export const DEFAULT_CALORIE_SETTINGS: CalorieFactorList[] = [
   { id: 1, value: 25, checked: true },

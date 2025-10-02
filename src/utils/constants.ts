@@ -1,8 +1,8 @@
-import { IngredientsData } from "@/types/nutrition";
+import { NutritionConfig } from "@/types";
 
-type UnitMapping = {
+interface UnitMapping {
   [key: string]: string;
-};
+}
 
 export const UNIT_MAPPINGS: UnitMapping = {
   "匙": "spoon",
@@ -10,9 +10,9 @@ export const UNIT_MAPPINGS: UnitMapping = {
   "罐": "can"
 }
 
-type CalcUnitMapping = {
+interface CalcUnitMapping {
   [key: string]: string;
-};
+}
 
 export const CALC_UNIT_MAPPINGS: CalcUnitMapping = {
   "匙": "g",
@@ -42,14 +42,6 @@ export const OPERATOR_OPTIONS = [
   { id: "or", name: "或" },
   { id: "and", name: "和" },
 ]
-
-export interface NutritionConfig {
-  key: keyof IngredientsData
-  label: string
-  unit: string
-  hasChart: boolean
-  infoText?: string
-}
 
 export const NUTRITION_CONFIG: NutritionConfig[] = [
   {

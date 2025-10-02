@@ -3,7 +3,6 @@ import { useBioInfo } from "@/contexts/BioInfoContext"
 
 export default function BioSettings() {
   const { tdee, setTdee, proteinRange, setProteinRange } = useBioInfo();
-
   const isTdeeInvalid = isNaN(Number(tdee)) || Number(tdee) < 0;
   
   return (

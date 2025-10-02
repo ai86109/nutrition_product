@@ -1,6 +1,6 @@
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { ChartContainer, ChartConfig } from "@/components/ui/chart"
-import { IngredientsData } from "@/types/nutrition"
+import { IngredientsData } from "@/types"
 import { useMemo } from "react"
 import { LabelList, Pie, PieChart } from "recharts"
 

@@ -1,4 +1,4 @@
-import { IngredientsData, ProductData } from "@/types/nutrition";
+import { IngredientsData, ProductData } from "@/types";
 import { useMemo } from "react";
 
 export function useIngredientCalculation(listData: ProductData[]) {

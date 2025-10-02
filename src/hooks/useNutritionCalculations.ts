@@ -2,6 +2,7 @@
 
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import { useCallback, useMemo } from "react"
+import { NutritionCalculationsReturn } from "@/types"
 
 const rounding = (value: number, digits: number = 2): number => {
   if (!isFinite(value) || isNaN(value)) return 0
@@ -9,16 +10,6 @@ const rounding = (value: number, digits: number = 2): number => {
   const validDigits = Math.max(0, Math.floor(digits))
   const multiplier = Math.pow(10, validDigits)
   return Math.round(value * multiplier) / multiplier
-}
-
-type NutritionCalculationsReturn = {
-  bmi: number
-  pbw: number
-  ibw: number
-  abw: number
-  calculateTDEE: (adjustedFactor: number) => number
-  calculateProtein: (proteinFactor: number) => number
-  rounding: (value: number, digits?: number) => number
 }
 
 export function useNutritionCalculations(): NutritionCalculationsReturn {

@@ -1,4 +1,4 @@
-export type SelectOption = {
+export interface SelectOption {
   unit: string
   products: {
     id: string
@@ -7,12 +7,12 @@ export type SelectOption = {
   }[]
 }
 
-export type SelectData = {
+export interface SelectData {
   selectedId: string
   selectOptions: SelectOption[]
 }
 
-export type IngredientsData = {
+export interface IngredientsData {
   calories: number
   carbohydrate: number
   protein: number
@@ -23,7 +23,7 @@ export type IngredientsData = {
   fiber: number
 }
 
-export type ProductData = {
+export interface ProductData {
   id: string
   name: string
   engName: string
@@ -34,4 +34,12 @@ export type ProductData = {
   select: SelectData
   ingredients: IngredientsData
   categories: string[]
+}
+
+export interface NutritionConfig {
+  key: keyof IngredientsData
+  label: string
+  unit: string
+  hasChart: boolean
+  infoText?: string
 }

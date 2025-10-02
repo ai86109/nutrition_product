@@ -9,8 +9,8 @@ import { NutritionBarChart } from "./nutrition-bar-chart"
 import { CaloriesPerWeightInfo } from "./calories-per-weight-info"
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
-import { IngredientsData } from "@/types/nutrition"
-import { NUTRITION_CONFIG, NutritionConfig } from "@/utils/constants"
+import { NUTRITION_CONFIG } from "@/utils/constants"
+import { NutritionConfig, IngredientsData } from "@/types"
 import { useMemo } from "react"
 import { useNutritionChartData } from "@/hooks/useNutritionChartData"
 
@@ -97,11 +97,7 @@ const NutritionRow = ({
   )
 }
 
-interface NutritionTableProps {
-  ingredientsData: IngredientsData
-}
-
-export function NutritionTable({ ingredientsData }: NutritionTableProps) {
+export function NutritionTable({ ingredientsData }: { ingredientsData: IngredientsData }) {
   const { rounding } = useNutritionCalculations()
 
   return (

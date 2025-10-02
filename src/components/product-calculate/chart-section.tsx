@@ -1,15 +1,11 @@
 "use client"
 
 import { CardContent } from "@/components/ui/card"
-import type { IngredientsData } from "@/types/nutrition"
+import { IngredientsData } from "@/types"
 import { MacronutrientsPieChart } from "./chart/macronutrients-pie-chart"
 import { NutritionTable } from "./chart/nutrition-table"
 
-interface ChartSectionProps {
-  ingredientsData: IngredientsData
-}
-
-export default function ChartSection({ ingredientsData }: ChartSectionProps): React.ReactElement {
+export default function ChartSection({ ingredientsData }: { ingredientsData: IngredientsData }): React.ReactElement {
   return(
     <CardContent className="flex flex-col lg:flex-row">
       <NutritionTable ingredientsData={ingredientsData} />

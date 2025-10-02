@@ -1,12 +1,7 @@
 import { useLocalStorage } from "./useLocalStorage";
+import { TDEEList } from "@/types";
 
 const STORAGE_KEY = "nutriapp.bio.tdee"
-
-export type TDEEList = {
-  name: string
-  activityFactor: string | number
-  stressFactor: string | number
-}
 
 export const DEFAULT_TDEE_SETTINGS: TDEEList[] = [
   {

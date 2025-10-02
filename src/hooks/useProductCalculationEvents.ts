@@ -1,9 +1,9 @@
 import { useProduct } from "@/contexts/ProductContext";
-import { ProductData } from "@/types/nutrition"
+import { UserInput, ProductData } from "@/types";
 
 export function useProductCalculationEvents(
   listData: ProductData[],
-  setUserInputs: React.Dispatch<React.SetStateAction<{ [key: string]: { quantity: number | string; selectedId: string; checked: boolean } }>>
+  setUserInputs: React.Dispatch<React.SetStateAction<Record<string, UserInput>>>
 ) {
   const { setProductList } = useProduct()
   

@@ -17,9 +17,9 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useState } from "react"
-import { type TDEEList } from "@/hooks/useTdeeSettings"
+import { TDEEList } from "@/types"
 
-const DEFAULT_TDEE_ITEM = {
+const DEFAULT_TDEE_ITEM: TDEEList = {
   name: '',
   activityFactor: '',
   stressFactor: '',

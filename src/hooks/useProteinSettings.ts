@@ -1,12 +1,7 @@
 import { useLocalStorage } from "./useLocalStorage";
+import { ProteinList } from "@/types";
 
 const STORAGE_KEY = "nutriapp.bio.protein"
-
-export type ProteinList = {
-  id: number
-  value: number | string
-  checked: boolean
-}
 
 export const DEFAULT_PROTEIN_SETTINGS: ProteinList[] = [
   { id: 1, value: 0.6, checked: true },

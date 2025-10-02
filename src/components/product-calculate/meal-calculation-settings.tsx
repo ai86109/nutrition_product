@@ -19,7 +19,7 @@ export default function MealCalculationSettings({
       <div className="flex items-center space-x-2">
         <Checkbox
           disabled={!isServingsCanBeUsed}
-          id={`check`}
+          id={'check-calculate-servings'}
           checked={isCalculateServings}
           onCheckedChange={(checked) => setIsCalculateServings(!!checked)}
         />

@@ -1,14 +1,7 @@
 import { useCallback, useMemo, useState } from "react"
-import type { SelectOption, ProductData } from "@/types/nutrition"
+import { SelectOption, ProductData, ApiProductData, UserInput } from "@/types"
 import { UNIT_MAPPINGS } from "@/utils/constants"
-import { type ApiProductData } from '@/types/api'
 import { useProduct } from "@/contexts/ProductContext"
-
-interface UserInput {
-  quantity: string | number
-  selectedId: string
-  checked: boolean
-}
 
 export function useProductCalculation() {
   const { allProducts, productList } = useProduct()

@@ -4,8 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Button } from "@/components/ui/button"
-import { useBioInfo, type FormData, type Gender } from "@/contexts/BioInfoContext"
+import { useBioInfo } from "@/contexts/BioInfoContext"
 import { CardContent } from "@/components/ui/card"
+import { FormData, Gender } from "@/types";
 
 const formFieldUnits = {
   height: "cm",
@@ -19,7 +20,7 @@ const formFieldLabels = {
   age: "年齡",
 }
 
-type FormFieldProps = {
+interface FormFieldProps {
   id: keyof FormData,
   value: string | number,
   placeholder: string,

@@ -1,13 +1,9 @@
+import type { IngredientsData } from './nutrition'
 export interface FieldMappings {
   info: Record<string, string>;
   spec: Record<string, string>;
   ingredients: Record<string, string>;
 }
-
-export interface IngredientsData {
-  [key: string]: number | string;
-}
-
 export interface ProcessedSpec {
   type: string;
   unit?: string;
@@ -32,14 +28,5 @@ export interface ApiProductData {
   reviewStatus: string;
   categories: string[];
   spec: ProcessedSpec[];
-  ingredients: {
-    calories: number;
-    carbohydrate: number;
-    protein: number;
-    fat: number;
-    phosphorus: number;
-    potassium: number;
-    sodium: number;
-    fiber: number;
-  };
+  ingredients: IngredientsData;
 }

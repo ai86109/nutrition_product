@@ -4,7 +4,7 @@ import type {
   ProcessedSpec,
   ProcessedSpecData,
   IngredientsData
-} from '@/types/api'
+} from '@/types'
 
 const FIELD_MAPPINGS: FieldMappings = {
   info: {
@@ -96,11 +96,14 @@ export function combineSheetData(
     if (!ingredientsMap.has(id)) {
       ingredientsMap.set(id, [])
     }
-    const ingredientsObj: IngredientsData = {}
-    ingredientsHeaders.forEach((header: string, index: number) => {
-      ingredientsObj[header] = row[index] || ''
+    const ingredientsObj: Partial<IngredientsData> = {}
+    ingredientsHeaders.forEach((header, index) => {
+      const mappedField = FIELD_MAPPINGS.ingredients[header]
+      if (mappedField) {
+      ingredientsObj[mappedField as keyof IngredientsData] = Number(row[index]) || 0
+      }
     })
-    ingredientsMap.get(id)!.push(ingredientsObj)
+    ingredientsMap.get(id)!.push(ingredientsObj as IngredientsData)
   })
 
   // 合併資料

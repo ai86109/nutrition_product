@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { type CalorieFactorList } from "@/hooks/useCalorieSettings";
+import { CalorieFactorList } from "@/types"
 
 export function CalorieCountingEditDialog({ 
   calorieFactorLists,

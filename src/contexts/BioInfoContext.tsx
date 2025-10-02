@@ -1,47 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode } from 'react'
-
-export type FormData = {
-  height: string | number
-  weight: string | number
-  age: string | number
-}
-
-export type Gender = "man" | "woman"
-
-type SubmittedValues = {
-  height: number
-  weight: number
-  age: number
-  gender: Gender
-}
-
-export type CalorieType = {
-  id: string
-  label: string
-  checked: boolean
-}
-
-export type ProteinRange = {
-  min: number | string
-  max: number | string
-}
-
-type BioInfoContextType = {
-  formData: FormData
-  gender: Gender
-  submittedValues: SubmittedValues
-  setFormData: React.Dispatch<React.SetStateAction<FormData>>
-  setGender: React.Dispatch<React.SetStateAction<Gender>>
-  setSubmittedValues: React.Dispatch<React.SetStateAction<SubmittedValues>>
-  calorieTypeLists: CalorieType[]
-  setCalorieTypeLists: React.Dispatch<React.SetStateAction<CalorieType[]>>
-  tdee: number | string
-  setTdee: React.Dispatch<React.SetStateAction<number | string>>
-  proteinRange: ProteinRange
-  setProteinRange: React.Dispatch<React.SetStateAction<ProteinRange>>
-}
+import { FormData, Gender, SubmittedValues, CalorieType, ProteinRange, BioInfoContextType } from '@/types'
 
 export const DEFAULT_CALORIE_TYPE_SETTINGS: CalorieType[] = [
   { id: 'PBW', label: 'PBW', checked: true },

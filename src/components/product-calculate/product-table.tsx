@@ -6,7 +6,7 @@ import {
 } from "@/components/ui/table"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
-import type { ProductData } from "@/types/nutrition"
+import { ProductData, UserInput } from "@/types"
 import { useProductCalculationEvents } from "@/hooks/useProductCalculationEvents"
 import { ProductName } from "./product-name"
 import { ProductQuantityInput } from "./product-quantity-input"
@@ -24,7 +24,7 @@ export default function ProductTable({
   isServingsCanBeUsed: boolean,
   isShowServings: boolean,
   mealsPerDay: number | string,
-  setUserInputs: React.Dispatch<React.SetStateAction<{ [key: string]: { quantity: number | string; selectedId: string; checked: boolean } }>>
+  setUserInputs: React.Dispatch<React.SetStateAction<Record<string, UserInput>>>
 }) {
   const { handleCheck, handleInputChange, handleValueChange, handleRemoveProduct } = useProductCalculationEvents(listData, setUserInputs)
   return (

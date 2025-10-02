@@ -8,15 +8,15 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { TYPE_OPTIONS, CATEGORY_OPTIONS, OPERATOR_OPTIONS } from "@/utils/constants"
-import { SearchState } from "@/hooks/useProductSearch";
 import { useProduct } from "@/contexts/ProductContext";
+import { SearchState } from "@/types";
 
-interface SearchFormProps {
+interface SearchInputProps {
   value: string;
-  onChange: (field: keyof SearchState, value: string) => void;
+  onChange: (field: keyof SearchState, value: string | string[]) => void;
 }
 
-const SearchInput = ({ value, onChange }: SearchFormProps) => {
+const SearchInput = ({ value, onChange }: SearchInputProps) => {
   return (
     <div className="relative w-full">
       <Input placeholder="關鍵字搜尋" value={value} onChange={(e) => onChange("searchValue", e.target.value)} />
@@ -93,19 +93,15 @@ const MultiSelect = ({ selectedCate, onChange }: MultiSelectProps) => {
   )
 }
 
-export default function SearchForm({
-  formState,
-  onUpdateField,
-  onSearch,
-  onReset,
-  handlePageChange
-}: {
-  formState: SearchState,
-  onUpdateField: (field: keyof SearchState, value: string | string[]) => void,
-  onSearch: () => void,
-  onReset: () => void,
-  handlePageChange: (page: number) => void
-}) {
+interface SearchFormProps {
+  formState: SearchState;
+  onUpdateField: (field: keyof SearchState, value: string | string[]) => void;
+  onSearch: () => void;
+  onReset: () => void;
+  handlePageChange: (page: number) => void;
+}
+
+export default function SearchForm({ formState, onUpdateField, onSearch, onReset, handlePageChange }: SearchFormProps) {
   const { brandOptions } = useProduct()
   
   const handleSearchSubmit = (): void => {
