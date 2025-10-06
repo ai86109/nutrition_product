@@ -27,7 +27,7 @@ export function useProductSearch() {
   const [appliedState, setAppliedState] = useState<SearchState>(initialState)
 
   const filteredData = useMemo(() => {
-    if (!allProducts.length) return []
+    if (!allProducts || !allProducts.length) return []
 
     return allProducts.filter((item: ApiProductData) => {
       const { searchValue, selectedBrand, selectedType, selectedCate } = appliedState
