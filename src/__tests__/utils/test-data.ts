@@ -1,4 +1,150 @@
-import { ApiProductData } from "@/types";
+import { ApiProductData, ProductData } from "@/types";
+
+export const mockListData: ProductData[] = [
+  {
+    "id": "1086036948",
+    "name": "立攝適均康1.5熱量濃縮完整均衡營養配方香草口味",
+    "engName": "RESOURCE 1.5 CAL (ACBL1001-1)",
+    "brand": "雀巢",
+    "defaultAmount": 250,
+    "quantity": 1,
+    "checked": true,
+    "select": {
+      "selectedId": "can-1",
+      "selectOptions": [
+        {
+          "unit": "罐",
+          "products": [
+            {
+              "id": "can-1",
+              "defaultAmount": 1,
+              "volume": 250
+            }
+          ]
+        }
+      ]
+    },
+    "ingredients": {
+      "calories": 382.8,
+      "carbohydrate": 47.5,
+      "protein": 16,
+      "fat": 14.8,
+      "phosphorus": 192,
+      "potassium": 450,
+      "sodium": 250,
+      "fiber": 3
+    },
+    "categories": [
+      "均衡配方",
+      "濃縮配方"
+    ]
+  },
+  {
+    "id": "1139093028",
+    "name": "健力體1.2熱量濃縮含纖維質及果寡醣均衡營養配方",
+    "engName": "Jevity Plus 1.2",
+    "brand": "亞培",
+    "defaultAmount": 237,
+    "quantity": 1,
+    "checked": true,
+    "select": {
+      "selectedId": "can-1",
+      "selectOptions": [
+        {
+          "unit": "罐",
+          "products": [
+            {
+              "id": "can-1",
+              "defaultAmount": 1,
+              "volume": 237
+            }
+          ]
+        }
+      ]
+    },
+    "ingredients": {
+      "calories": 289,
+      "carbohydrate": 40.9,
+      "protein": 13.2,
+      "fat": 9.3,
+      "phosphorus": 190,
+      "potassium": 438,
+      "sodium": 299,
+      "fiber": 5.2
+    },
+    "categories": [
+      "均衡配方",
+      "濃縮配方"
+    ]
+  },
+  {
+    "id": "1139087708",
+    "name": "寶灜康素佳纖優蛋白營養均衡完整配方",
+    "engName": "BAOWIN Kealth Premium Fiber and Protein Formula",
+    "brand": "寶灜",
+    "defaultAmount": 57,
+    "quantity": 1,
+    "checked": true,
+    "select": {
+      "selectedId": "pack-1",
+      "selectOptions": [
+        {
+          "unit": "包",
+          "products": [
+            {
+              "id": "pack-1",
+              "defaultAmount": 1,
+              "volume": 23
+            },
+            {
+              "id": "pack-2",
+              "defaultAmount": 1,
+              "volume": 34
+            },
+            {
+              "id": "pack-3",
+              "defaultAmount": 1,
+              "volume": 46
+            },
+            {
+              "id": "pack-4",
+              "defaultAmount": 1,
+              "volume": 57
+            },
+            {
+              "id": "pack-5",
+              "defaultAmount": 1,
+              "volume": 69
+            }
+          ]
+        },
+        {
+          "unit": "匙",
+          "products": [
+            {
+              "id": "spoon-1",
+              "defaultAmount": 2,
+              "volume": 28.5
+            }
+          ]
+        }
+      ]
+    },
+    "ingredients": {
+      "calories": 251,
+      "carbohydrate": 33.6,
+      "protein": 10.1,
+      "fat": 9.3,
+      "phosphorus": 171,
+      "potassium": 314,
+      "sodium": 209,
+      "fiber": 3.8
+    },
+    "categories": [
+      "均衡配方"
+    ]
+  }
+]
 
 export const mockProducts: ApiProductData[] = [
   {
@@ -61,6 +207,66 @@ export const mockProducts: ApiProductData[] = [
       "potassium": 438,
       "sodium": 299,
       "fiber": 5.2
+    }
+  },
+  {
+    "categories": [
+      "均衡配方"
+    ],
+    "reviewStatus": "TRUE",
+    "id": "1139087708",
+    "name": "寶灜康素佳纖優蛋白營養均衡完整配方",
+    "engName": "BAOWIN Kealth Premium Fiber and Protein Formula",
+    "brand": "寶灜",
+    "type": "粉劑",
+    "spec": [
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": "1",
+        "volume": "23"
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": "1",
+        "volume": "34"
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": "1",
+        "volume": "46"
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": "1",
+        "volume": "57"
+      },
+      {
+        "type": "粉劑",
+        "unit": "包",
+        "defaultAmount": "1",
+        "volume": "69"
+      },
+      {
+        "type": "粉劑",
+        "unit": "匙",
+        "defaultAmount": "2",
+        "volume": "28.5"
+      }
+    ],
+    "defaultAmount": "57",
+    "ingredients": {
+      "calories": 251,
+      "carbohydrate": 33.6,
+      "protein": 10.1,
+      "fat": 9.3,
+      "phosphorus": 171,
+      "potassium": 314,
+      "sodium": 209,
+      "fiber": 3.8
     }
   }
 ]

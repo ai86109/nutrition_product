@@ -107,7 +107,7 @@ describe('useProductSearch', () => {
         result.current.applySearch();
       });
       expect(result.current.formState.selectedType).toEqual('液劑');
-      expect(result.current.filteredData).toEqual(mockProducts);
+      expect(result.current.filteredData).toEqual([mockProducts[0], mockProducts[1]]);
     })
 
     test('apply search with selectedCate only', () => {
@@ -120,7 +120,7 @@ describe('useProductSearch', () => {
         result.current.applySearch();
       });
       expect(result.current.formState.selectedCate).toEqual(['均衡配方', 'and', '濃縮配方']);
-      expect(result.current.filteredData).toEqual(mockProducts);
+      expect(result.current.filteredData).toEqual([mockProducts[0], mockProducts[1]]);
     })
 
     test('apply search with multiple fields', () => {

@@ -99,11 +99,11 @@ export function useProductCalculation() {
   }, [userInputs])
 
   const listData = useMemo((): ProductData[] => {
+    if (!productList || productList.length === 0) return []
     return productList.map((productId) => {
       const product = allProducts.find(product => product.id === productId)
       return transformProductFormat(product, productId)
     }).filter((item) => item !== null)
-
   }, [allProducts, productList, transformProductFormat])
 
   return {

@@ -20,7 +20,8 @@ describe('ProductContext', () => {
       expect(result.current.brandOptions).toEqual([
         { id: '全部', name: '全部' },
         { id: '雀巢', name: '雀巢' },
-        { id: '亞培', name: '亞培' }
+        { id: '亞培', name: '亞培' },
+        { id: '寶灜', name: '寶灜' }
       ]);
     })
   })
