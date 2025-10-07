@@ -1,7 +1,6 @@
 import { useProductCalculation } from "@/hooks/useProductCalculation";
 import { act, renderHook } from "@testing-library/react";
 import { mockListData, mockProductContext, mockProducts } from "../utils/test-data";
-import { useProduct } from "@/contexts/ProductContext";
 
 const mockUseProduct = jest.fn()
 jest.mock('@/contexts/ProductContext', () => ({
