@@ -6,8 +6,8 @@ export function useMealCalculation() {
 
   const handleMealsInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const value = e.target.value
-    if (value === '') setMealsPerDay(value)
-    if (isNaN(Number(value))) setMealsPerDay(0)
+    if (value === '') return setMealsPerDay(value)
+    if (isNaN(Number(value))) return setMealsPerDay(0)
 
     const parsedValue = parseInt(value, 10)
     if (parsedValue <= 0) setMealsPerDay(0)
