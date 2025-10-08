@@ -3,6 +3,8 @@ import { ApiProductData } from "@/types"
 import { useProduct } from "@/contexts/ProductContext"
 import { SearchState, SearchAction } from "@/types"
 
+const ALL_TEXT = "全部"
+
 const initialState: SearchState = {
   searchValue: "",
   selectedBrand: "",
@@ -21,39 +23,72 @@ function searchReducer(state: SearchState, action: SearchAction): SearchState {
   }
 }
 
+const searchFilter = {
+  name: (item: ApiProductData, searchValue: string): boolean => {
+    if (!searchValue) return true
+
+    const textInput = searchValue.toLowerCase();
+    const nameMatches = item.name?.toLowerCase().includes(textInput)
+    const engNameMatches = item.engName?.toLowerCase().includes(textInput)
+
+    return nameMatches || engNameMatches
+  },
+  brand: (item: ApiProductData, selectedBrand: string): boolean => {
+    if (!selectedBrand || selectedBrand === ALL_TEXT) return true
+    return item.brand === selectedBrand;
+  },
+  type: (item: ApiProductData, selectedType: string): boolean => {
+    if (!selectedType || selectedType === ALL_TEXT) return true
+    return item.type === selectedType;
+  },
+  category: (item: ApiProductData, selectedCate: string[]): boolean => {
+    // if selected 全部, return true
+    if (selectedCate.some(cate => cate === ALL_TEXT)) return true
+
+    // if selected 全部, change to ""
+    const [cate1, operator, cate2] = selectedCate.map(cate => cate === ALL_TEXT ? "" : cate)
+    
+    // if no category selected, return true
+    const hasCategory = !!(cate1 || cate2)
+    if (!hasCategory) return true
+
+    // if product has no categories, return false
+    const productCate = item.categories || []
+    if (!productCate || !productCate.length) return false
+
+    const isOrOperator = (operator || "or") === "or"
+    
+    // if selectedCate[0] and selectedCate[2] are both selected, isOrOperator 才會是『或』以外的值
+    if (isOrOperator) {
+      return (productCate.includes(cate1) || productCate.includes(cate2))
+    } else {
+      return productCate.includes(cate1) && productCate.includes(cate2)
+    }
+  }
+}
+
+const filterProducts = (products: ApiProductData[], searchState: SearchState) => {
+  if (!products || !products.length) return []
+
+  return products.filter((item: ApiProductData) => {
+    const { searchValue, selectedBrand, selectedType, selectedCate } = searchState
+
+    return (
+      searchFilter.brand(item, selectedBrand) && 
+      searchFilter.type(item, selectedType) && 
+      searchFilter.category(item, selectedCate) && 
+      searchFilter.name(item, searchValue)
+    )
+  })
+}
+
 export function useProductSearch() {
   const { allProducts } = useProduct()
   const [formState, dispatch] = useReducer(searchReducer, initialState)
   const [appliedState, setAppliedState] = useState<SearchState>(initialState)
 
   const filteredData = useMemo(() => {
-    if (!allProducts || !allProducts.length) return []
-
-    return allProducts.filter((item: ApiProductData) => {
-      const { searchValue, selectedBrand, selectedType, selectedCate } = appliedState
-      const textInput = searchValue.toLowerCase();
-      const nameMatches = item.name.toLowerCase().includes(textInput) || 
-                        (item.engName && item.engName.toLowerCase().includes(textInput));
-
-      // If "全部" is selected, treat it as no filter
-      const allText = "全部"
-      const selectedBrandValue = selectedBrand === allText ? "" : selectedBrand
-      const selectedTypeValue = selectedType === allText ? "" : selectedType
-      const brandMatches = !selectedBrandValue || item.brand === selectedBrandValue;
-      const typeMatches = !selectedTypeValue || item.type === selectedTypeValue;
-
-      const selectedCateValue = selectedCate.map(cate => cate === allText ? "" : cate)
-      const hasCategory = !!(selectedCateValue[0] || selectedCateValue[2])
-      // if selectedCate[0] and selectedCate[2] are both selected, isOrOperator 才會是『或』以外的值
-      const isOrOperator = (selectedCateValue[1] || "or") === "or"
-      const categoryMatches = !hasCategory ||
-        (isOrOperator ?
-          (item.categories && (item.categories.includes(selectedCateValue[0]) || item.categories.includes(selectedCateValue[2]))) :
-          (item.categories && item.categories.includes(selectedCateValue[0]) && item.categories.includes(selectedCateValue[2])))
-
-      return brandMatches && typeMatches && categoryMatches &&
-            (!searchValue || nameMatches);
-    })
+    return filterProducts(allProducts, appliedState)
   }, [allProducts, appliedState]);
 
   const updateField = (field: keyof SearchState, value: string | string[]) => {
