@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# NutriBase
+這是一個協助營養師計算病人所需熱量、蛋白質，以及營養品查詢、計算的工具。
 
-## Getting Started
+## 功能介紹 📢
+✨ [Demo](https://nutrition-product.vercel.app/)
 
-First, run the development server:
+### 核心功能 🎯
+主要分為三個部分：
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1. 計算病人所需熱量、蛋白質
+  📌 PBW, IBW, ABW, BMI 計算
+  📌 TDEE 計算
+  📌 蛋白質需求計算
+2. 營養品查詢
+  📌 提供衛服部特定疾病配方食品所羅列的營養品資料
+  📌 可依照名稱、品牌、劑型、類別等條件搜尋
+3. 所需營養品份量計算
+  📌 可直接將查詢到的營養品加入計算
+  📌 計算目前所選營養品的熱量、蛋白質總量
+  📌 顯示目前所選營養品達目標熱量、蛋白質的比例
+  📌 提供快速試算每天幾餐所需營養品份量
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Why NutriBase ❓
+- 取代你自製的 Excel 公式
+  📍 計算病人所需熱量、蛋白質時，可以依據自身需求，客製化各種參數，此參數設定也會幫你保存起來
+- 方便的查詢營養品
+  📍 提供比衛福部官網更好用的查詢系統，你可以快速地找你要的營養品，以及其營養成分
+- 快速計算所需營養品份量
+  📍 直接將查詢到的營養品加入計算，並且可以快速試算每日所需營養品份量
+  📍 讓你在碰到不熟悉的產品時，能夠快速、精準的掌握所需份量
+  📍 輸入每日幾餐後，自動幫忙算出每餐、每日所需營養品的份量
+  📍 多個營養品一起計算時，能快速計算，並且得知其三大營養素比例
+- 使用者介面簡潔、易用
+  📍 乾淨、簡潔的畫面，讓你的眼睛不再痛苦
+  📍 在手機、平板、桌機上都有合適的介面供使用，讓你真正可以實現邊走邊計算的需求
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Todo 📋
+- [ ] 提供使用者可以儲存常用營養品，方便下次快速查找、計算
+- [ ] 完善營養品的分類
+- [ ] 加入營養品的照片，方便查找時辨識
+- [ ] 營養品的項目變動時提醒
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 其他 🗿
+已有提供一些營養師使用，在進行訪談後，根據回饋內容調整至目前的版本，歡迎大家試用，並且提供回饋給我！
 
-## Learn More
+另外，目前營養品的分類還未完善，因開發能量有限，若有興趣協助的話，也歡迎與我聯絡！
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+📬 ai86109@gmail.com
