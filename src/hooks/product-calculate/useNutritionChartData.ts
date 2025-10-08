@@ -2,11 +2,13 @@ import { useCallback, useMemo } from "react"
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import { useBioInfoCalculations } from "../useBioInfoCalculations"
 
+const DEFAULT_PROTEIN_RANGE = { min: '0', max: '0' } as const
+
 export function useNutritionChartData() {
   const { rounding } = useBioInfoCalculations()
   const { tdee, proteinRange } = useBioInfo()
 
-  const safeProteinRange = proteinRange || { min: '0', max: '0' }
+  const safeProteinRange = proteinRange || DEFAULT_PROTEIN_RANGE
   
   const getPercentage = useCallback((value: number): number => {
     return rounding(value * 100, 1)

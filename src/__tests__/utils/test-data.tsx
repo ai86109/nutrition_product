@@ -1,4 +1,4 @@
-import { ApiProductData, Gender, ProductData } from "@/types";
+import { ApiProductData, ProductData } from "@/types";
 import { BioInfoProvider } from '@/contexts/BioInfoContext';
 import { ProductProvider } from "@/contexts/ProductContext";
 
@@ -348,9 +348,10 @@ export const formattedMockFetchData = {
 
 // bio info context
 export const createBioInfoWrapper = () => {
-  return ({ children }: { children: React.ReactNode }) => (
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
     <BioInfoProvider>{children}</BioInfoProvider>
   );
+  return wrapper
 };
 
 export const defaultFormData = {
@@ -368,7 +369,8 @@ export const defaultSubmittedValues = {
 
 // product context
 export const createProductWrapper = (products: ApiProductData[] = mockProducts) => {
-  return ({ children }: { children: React.ReactNode }) => (
+  const wrapper = ({ children }: { children: React.ReactNode }) => (
     <ProductProvider allProducts={products}>{children}</ProductProvider>
   )
+  return wrapper
 }

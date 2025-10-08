@@ -61,17 +61,11 @@ const GenderSelector = () => {
 }
 
 export default function BioInfoSection() {
-  const { formData, setFormData, gender, setGender, setSubmittedValues } = useBioInfo()
+  const { formData, setFormData, gender, setSubmittedValues } = useBioInfo()
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     const { id, value } = e.target
     setFormData((prev: FormData) => ({ ...prev, [id]: value }))
-  }
-
-  const handleGenderChange = (value: string): void => {
-    if (value === "man" || value === "woman") {
-      setGender(value as Gender)
-    }
   }
 
   const convertToNumber = (value: string | number): number => {

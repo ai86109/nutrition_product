@@ -14,7 +14,8 @@ const rounding = (value: number, digits: number = 2): number => {
 
 export function useBioInfoCalculations(): NutritionCalculationsReturn {
   const { submittedValues } = useBioInfo()
-  const safeSubmittedValues = submittedValues || {}
+
+  const safeSubmittedValues = useMemo(() => submittedValues || {}, [submittedValues])
 
   const bmi = useMemo((): number => {
     const { height, weight } = safeSubmittedValues
@@ -24,7 +25,7 @@ export function useBioInfoCalculations(): NutritionCalculationsReturn {
 
     if (!isFinite(bmi) || isNaN(bmi)) return 0
     return rounding(bmi, 1)
-  }, [rounding, safeSubmittedValues.weight, safeSubmittedValues.height])
+  }, [rounding, safeSubmittedValues])
 
   const ibw = useMemo((): number => {
     const { height } = safeSubmittedValues
@@ -33,14 +34,14 @@ export function useBioInfoCalculations(): NutritionCalculationsReturn {
     const idealWeight = (height / 100) ** 2 * 22
     if (!isFinite(idealWeight) || isNaN(idealWeight)) return 0
     return rounding(idealWeight, 0)
-  }, [rounding, safeSubmittedValues.height])
+  }, [rounding, safeSubmittedValues])
 
   const pbw = useMemo((): number => {
     const { weight } = safeSubmittedValues
     if (!weight || weight <= 0) return 0
 
     return rounding(weight, 0)
-  }, [rounding, safeSubmittedValues.weight])
+  }, [rounding, safeSubmittedValues])
 
   const abw = useMemo((): number => {
     if (ibw <= 0 || pbw <= 0) return 0
