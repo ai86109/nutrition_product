@@ -5,22 +5,24 @@ import { useBioInfo } from "@/contexts/BioInfoContext"
 export function useNutritionChartData() {
   const { rounding } = useNutritionCalculations()
   const { tdee, proteinRange } = useBioInfo()
+
+  const safeProteinRange = proteinRange || { min: '0', max: '0' }
   
   const getPercentage = useCallback((value: number): number => {
     return rounding(value * 100, 1)
   }, [rounding])
 
   const validationState = useMemo(() => ({
-    isTdeeValid: !isNaN(Number(tdee)) || Number(tdee) > 0,
-    isProteinRangeValid: [proteinRange.min, proteinRange.max].every(val => Number(val) > 0)
-  }), [tdee, proteinRange])
+    isTdeeValid: !isNaN(Number(tdee)) && Number(tdee) > 0,
+    isProteinRangeValid: [safeProteinRange.min, safeProteinRange.max].every(val => Number(val) > 0)
+  }), [tdee, safeProteinRange])
 
   const createChartData = useCallback((
     value: number,
     target: number,
     type: "calories" | "protein"
   ) => {
-    if (value <= 0) return []
+    if (value <= 0 || isNaN(value) || !isFinite(Math.abs(value))) return []
 
     const percentage = getPercentage(value / target)
     const displayBarPercentage = Math.min(percentage, 100)
@@ -41,9 +43,9 @@ export function useNutritionChartData() {
   const getProteinChartData = useCallback((protein: number) => {
     if (!validationState.isProteinRangeValid) return []
 
-    const minProteinRequirement = Math.min(Number(proteinRange.min), Number(proteinRange.max))
+    const minProteinRequirement = Math.min(Number(safeProteinRange.min), Number(safeProteinRange.max))
     return createChartData(protein, minProteinRequirement, "protein")
-  }, [createChartData, proteinRange.max, proteinRange.min, validationState.isProteinRangeValid])
+  }, [createChartData, safeProteinRange.max, safeProteinRange.min, validationState.isProteinRangeValid])
 
   return {
     ...validationState,

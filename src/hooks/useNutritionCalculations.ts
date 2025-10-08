@@ -14,32 +14,33 @@ const rounding = (value: number, digits: number = 2): number => {
 
 export function useNutritionCalculations(): NutritionCalculationsReturn {
   const { submittedValues } = useBioInfo()
+  const safeSubmittedValues = submittedValues || {}
 
   const bmi = useMemo((): number => {
-    const { height, weight } = submittedValues
+    const { height, weight } = safeSubmittedValues
     if (!height || !weight || height <= 0 || weight <= 0) return 0
 
     const bmi = weight / ((height / 100) ** 2)
 
     if (!isFinite(bmi) || isNaN(bmi)) return 0
     return rounding(bmi, 1)
-  }, [rounding, submittedValues.weight, submittedValues.height])
+  }, [rounding, safeSubmittedValues.weight, safeSubmittedValues.height])
 
   const ibw = useMemo((): number => {
-    const { height } = submittedValues
+    const { height } = safeSubmittedValues
     if (!height || height <= 0) return 0
 
     const idealWeight = (height / 100) ** 2 * 22
     if (!isFinite(idealWeight) || isNaN(idealWeight)) return 0
     return rounding(idealWeight, 0)
-  }, [rounding, submittedValues.height])
+  }, [rounding, safeSubmittedValues.height])
 
   const pbw = useMemo((): number => {
-    const { weight } = submittedValues
+    const { weight } = safeSubmittedValues
     if (!weight || weight <= 0) return 0
 
     return rounding(weight, 0)
-  }, [rounding, submittedValues.weight])
+  }, [rounding, safeSubmittedValues.weight])
 
   const abw = useMemo((): number => {
     if (ibw <= 0 || pbw <= 0) return 0
@@ -50,7 +51,7 @@ export function useNutritionCalculations(): NutritionCalculationsReturn {
   // 沒有體重感覺也可以算
   const calculateTDEE = useCallback((adjustedFactor: number): number => {
     if (!adjustedFactor || adjustedFactor <= 0) return 0
-    const { height, weight, age, gender } = submittedValues
+    const { height = 0, weight = 0, age = 0, gender = "man" } = safeSubmittedValues
     if (!height || !weight || !age || height <= 0 || weight <= 0 || age <= 0) return 0
 
     if (pbw <= 0) return 0
