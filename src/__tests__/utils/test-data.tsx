@@ -1,5 +1,19 @@
-import { ApiProductData, ProductData } from "@/types";
+import { ApiProductData, Gender, ProductData } from "@/types";
+import { BioInfoProvider } from '@/contexts/BioInfoContext';
+import { ProductProvider } from "@/contexts/ProductContext";
 
+// bio info input
+export const defaultHeight = 180;
+export const defaultWeight = 70;
+export const defaultAge = 30;
+export const defaultGender = 'man';
+
+// screen width
+export const largeScreenWidth = 1800;
+export const defaultScreenWidth = 1024;
+export const smallScreenWidth = 800;
+
+// mock product data
 export const mockListData: ProductData[] = [
   {
     "id": "1086036948",
@@ -288,3 +302,73 @@ export const productSearchHelper = {
     selectedCate: ["", "", ""]
   }
 };
+
+// mock google sheet data
+export const mockInfoData = [
+  ['審核狀態', '許可證字號', '中文品名', '英文品名', '申請商名稱', '劑型', '類別'],
+  ['TRUE', '1139091114', '測試產品', 'Test Product', '測試品牌', '液劑', '']
+]
+
+export const mockSpecData = [
+  ['許可證字號', '中文品名', '預設份量', 'type', 'unit', 'defaultAmount', 'volume'],
+  ['1139091114', '測試產品', '100g', '液劑', '罐', '100g', '100g']
+]
+
+export const mockIngredientsData = [
+  ['許可證字號', '中文品名', 'calories', 'carbohydrate', 'protein', 'fat', 'phosphorus', 'potassium', 'sodium', 'fiber'],
+  ['1139091114', '測試產品', '100', '20', '5', '0', '0', '0', '0', '0']
+]
+
+export const formattedMockFetchData = {
+  id: '1139091114',
+  name: '測試產品',
+  engName: 'Test Product',
+  brand: '測試品牌',
+  type: '液劑',
+  defaultAmount: '100g',
+  reviewStatus: 'TRUE',
+  categories: [],
+  spec: [{
+      defaultAmount: '100g',
+      type: '液劑',
+      unit: '罐',
+      volume: '100g',
+  }],
+  ingredients: {
+    calories: 100,
+    protein: 5,
+    fat: 0,
+    carbohydrate: 20,
+    phosphorus: 0,
+    potassium: 0,
+    sodium: 0,
+    fiber: 0
+  }
+}
+
+// bio info context
+export const createBioInfoWrapper = () => {
+  return ({ children }: { children: React.ReactNode }) => (
+    <BioInfoProvider>{children}</BioInfoProvider>
+  );
+};
+
+export const defaultFormData = {
+  height: "",
+  weight: "",
+  age: "",
+};
+
+export const defaultSubmittedValues = {
+  height: 0,
+  weight: 0,
+  age: 0,
+  gender: defaultGender,
+};
+
+// product context
+export const createProductWrapper = (products: ApiProductData[] = mockProducts) => {
+  return ({ children }: { children: React.ReactNode }) => (
+    <ProductProvider allProducts={products}>{children}</ProductProvider>
+  )
+}

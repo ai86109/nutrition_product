@@ -1,18 +1,13 @@
-import { ProductProvider, useProduct } from "@/contexts/ProductContext";
+import { useProduct } from "@/contexts/ProductContext";
 import { ApiProductData } from "@/types";
 import { renderHook } from "@testing-library/react";
 import { mockProducts } from "../utils/test-data";
-
-const createWrapper = (products: ApiProductData[] = mockProducts) => {
-  return ({ children }: { children: React.ReactNode }) => (
-    <ProductProvider allProducts={products}>{children}</ProductProvider>
-  )
-}
+import { createProductWrapper } from "../utils/test-data";
 
 describe('ProductContext', () => {
   describe('ProductProvider', () => {
     test('provides context values to children', () => {
-      const { result } = renderHook(() => useProduct(), { wrapper: createWrapper() });
+      const { result } = renderHook(() => useProduct(), { wrapper: createProductWrapper() });
 
       expect(result.current.allProducts).toEqual(mockProducts);
       expect(result.current.productList).toEqual([]);
@@ -28,7 +23,7 @@ describe('ProductContext', () => {
 
   describe('allProducts', () => {
     test('handle empty product', () => {
-      const { result } = renderHook(() => useProduct(), { wrapper: createWrapper([]) });
+      const { result } = renderHook(() => useProduct(), { wrapper: createProductWrapper([]) });
   
       expect(result.current.allProducts).toEqual([]);
       expect(result.current.brandOptions).toEqual([
@@ -44,7 +39,7 @@ describe('ProductContext', () => {
         { ...mockProducts[1], brand: undefined },
       ]
   
-      const { result } = renderHook(() => useProduct(), { wrapper: createWrapper(productsWithoutBrand as ApiProductData[]) });
+      const { result } = renderHook(() => useProduct(), { wrapper: createProductWrapper(productsWithoutBrand as ApiProductData[]) });
   
       expect(result.current.brandOptions).toEqual([
         { id: '全部', name: '全部' },
@@ -58,7 +53,7 @@ describe('ProductContext', () => {
         { ...mockProducts[1], id: '1139093029' },
       ]
   
-      const { result } = renderHook(() => useProduct(), { wrapper: createWrapper(productsWithSameBrand) });
+      const { result } = renderHook(() => useProduct(), { wrapper: createProductWrapper(productsWithSameBrand) });
   
       expect(result.current.brandOptions).toEqual([
         { id: '全部', name: '全部' },

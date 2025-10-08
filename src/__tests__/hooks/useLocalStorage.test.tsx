@@ -2,6 +2,7 @@ import { renderHook, act } from "@testing-library/react";
 import { useLocalStorage } from "@/hooks/useLocalStorage";
 
 const LOCALSTORAGE_KEY = 'testKey';
+const defaultValue = { a: 1, b: 2 };
 
 describe('useLocalStorage', () => {
   beforeEach(() => {
@@ -10,22 +11,22 @@ describe('useLocalStorage', () => {
 
   describe('basic functionality', () => {
     test('initializes with default value when localStorage is empty', () => {
-      const { result } = renderHook(() => useLocalStorage(LOCALSTORAGE_KEY, { a: 1, b: 2 }));
+      const { result } = renderHook(() => useLocalStorage(LOCALSTORAGE_KEY, defaultValue));
       const [value] = result.current;
 
-      expect(value).toEqual({ a: 1, b: 2 });
+      expect(value).toEqual(defaultValue);
     });
 
     test('initializes with stored value when localStorage has valid data', () => {
       localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify({ a: 3, b: 4 }));
-      const { result } = renderHook(() => useLocalStorage(LOCALSTORAGE_KEY, { a: 1, b: 2 }));
+      const { result } = renderHook(() => useLocalStorage(LOCALSTORAGE_KEY, defaultValue));
       const [value] = result.current;
 
       expect(value).toEqual({ a: 3, b: 4 });
     });
 
     test('updates state and localStorage when setValue is called with new value', () => {
-      const { result } = renderHook(() => useLocalStorage(LOCALSTORAGE_KEY, { a: 1, b: 2 }));
+      const { result } = renderHook(() => useLocalStorage(LOCALSTORAGE_KEY, defaultValue));
       const setValue = result.current[1];
 
       act(() => {
@@ -37,7 +38,7 @@ describe('useLocalStorage', () => {
     });
 
     test('updates state and localStorage when setValue is called with function', () => {
-      const { result } = renderHook(() => useLocalStorage(LOCALSTORAGE_KEY, { a: 1, b: 2 }));
+      const { result } = renderHook(() => useLocalStorage(LOCALSTORAGE_KEY, defaultValue));
       const setValue = result.current[1];
 
       act(() => {
@@ -59,7 +60,7 @@ describe('useLocalStorage', () => {
 
       localStorage.setItem(LOCALSTORAGE_KEY, 'custom-7-8');
 
-      const { result } = renderHook(() => useLocalStorage(LOCALSTORAGE_KEY, { a: 1, b: 2 }, { serialize, deserialize }));
+      const { result } = renderHook(() => useLocalStorage(LOCALSTORAGE_KEY, defaultValue, { serialize, deserialize }));
       const [value] = result.current;
 
       expect(deserialize).toHaveBeenCalled();
@@ -76,7 +77,6 @@ describe('useLocalStorage', () => {
 
     test('falls back to default value when validator fails', () => {
       const validator = jest.fn((value) => value && typeof value.a === 'number' && typeof value.b === 'number');
-      const defaultValue = { a: 1, b: 2 };
 
       localStorage.setItem(LOCALSTORAGE_KEY, JSON.stringify({ a: 'invalid', b: 4 }));
 

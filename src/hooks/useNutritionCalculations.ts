@@ -63,7 +63,7 @@ export function useNutritionCalculations(): NutritionCalculationsReturn {
 
     if (!isFinite(TDEE) || isNaN(TDEE)) return 0
     return rounding(TDEE, 0)
-  }, [rounding, submittedValues, pbw])
+  }, [rounding, safeSubmittedValues, pbw])
 
   const calculateProtein = useCallback((proteinFactor: number): number => {
     const idealWeight = ibw

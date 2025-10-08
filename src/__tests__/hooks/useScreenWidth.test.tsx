@@ -1,10 +1,11 @@
 import { useScreenWidth } from "@/hooks/useScreenWidth";
 import { act, renderHook } from "@testing-library/react";
+import { defaultScreenWidth } from "../utils/test-data";
 
 Object.defineProperty(window, 'innerWidth', {
   writable: true,
   configurable: true,
-  value: 1024
+  value: defaultScreenWidth
 })
 
 describe('useScreenWidth', () => {
@@ -16,7 +17,6 @@ describe('useScreenWidth', () => {
   describe('initial state', () => {
     it('should initialize screenWidth to 0', () => {
       const { result } = renderHook(() => useScreenWidth());
-
       expect(result.current.screenWidth).toBe(0);
     });
   })
@@ -27,7 +27,7 @@ describe('useScreenWidth', () => {
       const resizeHandler = (window.addEventListener as jest.Mock).mock.calls[0][1]
 
       act(() => {
-        window.innerWidth = 1024;
+        window.innerWidth = defaultScreenWidth;
         resizeHandler()
       });
 

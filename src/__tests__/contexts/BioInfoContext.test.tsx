@@ -1,23 +1,17 @@
-import React from 'react';
 import  { act, renderHook } from '@testing-library/react';
-import { BioInfoProvider, useBioInfo, DEFAULT_CALORIE_TYPE_SETTINGS } from '@/contexts/BioInfoContext';
+import { useBioInfo, DEFAULT_CALORIE_TYPE_SETTINGS } from '@/contexts/BioInfoContext';
+import { createBioInfoWrapper, defaultFormData, defaultGender, defaultSubmittedValues } from '../utils/test-data';
+import { Gender } from '@/types';
 
-const wrapper = ({ children }: { children: React.ReactNode }) => {
-  return <BioInfoProvider>{children}</BioInfoProvider>;
-}
+const wrapper = createBioInfoWrapper()
 
 describe('BioInfoContext', () => {
   describe('initial values', () => {
     test('provides correct initial values', () => {
       const { result } = renderHook(() => useBioInfo(), { wrapper });
-  
-      expect(result.current.formData).toEqual({
-        height: "",
-        weight: "",
-        age: "",
-      })
-  
-      expect(result.current.gender).toBe('man');
+
+      expect(result.current.formData).toEqual(defaultFormData);
+      expect(result.current.gender).toBe(defaultGender);
     })
   
     test('provides correct initial calorie type list', () => {
@@ -64,9 +58,8 @@ describe('BioInfoContext', () => {
       });
 
       expect(result.current.formData).toEqual({
-        height: "",
+        ...defaultFormData,
         weight: 75,
-        age: "",
       });
     });
 
@@ -76,35 +69,30 @@ describe('BioInfoContext', () => {
       act(() => {
         result.current.setGender('woman');
       });
-
       expect(result.current.gender).toBe('woman');
 
       act(() => {
         result.current.setGender('man');
       });
-
       expect(result.current.gender).toBe('man');
     });
 
     test('updates submittedValues correctly', () => {
       const { result } = renderHook(() => useBioInfo(), { wrapper });
-  
-      act(() => {
-        result.current.setSubmittedValues(prev => ({
-          ...prev,
-          height: 180,
-          weight: 75,
-          age: 30,
-          gender: 'woman',
-        }));
-      });
-  
-      expect(result.current.submittedValues).toEqual({
+      const updatedValues = {
         height: 180,
         weight: 75,
         age: 30,
-        gender: 'woman',
+        gender: 'woman' as Gender,
+      };
+      
+      act(() => {
+        result.current.setSubmittedValues(prev => ({
+          ...prev,
+          ...updatedValues
+        }));
       });
+      expect(result.current.submittedValues).toEqual(updatedValues);
     });
   
     test('updates partial submittedValues correctly', () => {
@@ -118,10 +106,8 @@ describe('BioInfoContext', () => {
       });
   
       expect(result.current.submittedValues).toEqual({
-        height: 0,
+        ...defaultSubmittedValues,
         weight: 80,
-        age: 0,
-        gender: 'man'
       });
     });
   });
@@ -156,7 +142,6 @@ describe('BioInfoContext', () => {
       act(() => {
         result.current.setTdee(2200)
       })
-  
       expect(result.current.tdee).toBe(2200)
     })
   });
@@ -168,7 +153,6 @@ describe('BioInfoContext', () => {
       act(() => {
         result.current.setProteinRange({ min: 60, max: 120 })
       })
-  
       expect(result.current.proteinRange).toEqual({ min: 60, max: 120 })
     })
   });

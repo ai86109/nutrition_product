@@ -1,12 +1,27 @@
 import { act, renderHook } from "@testing-library/react";
 import { useProductSearch } from "@/hooks/useProductSearch";
 import { mockProductContext, mockProducts, productSearchHelper } from "../utils/test-data";
+import { SearchState } from "@/types";
 
 const { DEFAULT_FORM_STATE } = productSearchHelper;
 
 jest.mock('@/contexts/ProductContext', () => ({
   useProduct: () => mockProductContext()
 }))
+
+interface UpdateField {
+  fn: (field: keyof SearchState, value: string | string[]) => void
+  field: keyof SearchState
+  value: string | string[]
+}
+
+const updateField = ({ fn, field, value }: UpdateField) => {
+  act(() => fn(field, value));
+}
+
+const applySearch = (fn: () => void) => act(() => fn())
+
+const reset = (fn: () => void) => act(() => fn())
 
 describe('useProductSearch', () => {
   describe('initial', () => {
@@ -32,9 +47,7 @@ describe('useProductSearch', () => {
     test('update searchValue but not apply search button', () => {
       const { result } = renderHook(() => useProductSearch());
 
-      act(() => {
-        result.current.updateField('searchValue', 'test');
-      });
+      updateField({ fn: result.current.updateField, field: 'searchValue', value: 'test' });
       expect(result.current.formState.searchValue).toEqual('test');
       expect(result.current.filteredData).toEqual(mockProducts);
     })
@@ -42,9 +55,7 @@ describe('useProductSearch', () => {
     test('update selectedBrand but not apply search button', () => {
       const { result } = renderHook(() => useProductSearch());
 
-      act(() => {
-        result.current.updateField('selectedBrand', '雀巢');
-      });
+      updateField({ fn: result.current.updateField, field: 'selectedBrand', value: '雀巢' });
       expect(result.current.formState.selectedBrand).toEqual('雀巢');
       expect(result.current.filteredData).toEqual(mockProducts);
     })
@@ -52,9 +63,7 @@ describe('useProductSearch', () => {
     test('update selectedType but not apply search button', () => {
       const { result } = renderHook(() => useProductSearch());
 
-      act(() => {
-        result.current.updateField('selectedType', '液劑');
-      });
+      updateField({ fn: result.current.updateField, field: 'selectedType', value: '液劑' });
       expect(result.current.formState.selectedType).toEqual('液劑');
       expect(result.current.filteredData).toEqual(mockProducts);
     })
@@ -62,9 +71,7 @@ describe('useProductSearch', () => {
     test('update selectedCate but not apply search button', () => {
       const { result } = renderHook(() => useProductSearch());
 
-      act(() => {
-        result.current.updateField('selectedCate', ['均衡配方', 'or', '濃縮配方']);
-      });
+      updateField({ fn: result.current.updateField, field: 'selectedCate', value: ['均衡配方', 'or', '濃縮配方'] });
       expect(result.current.formState.selectedCate).toEqual(['均衡配方', 'or', '濃縮配方']);
       expect(result.current.filteredData).toEqual(mockProducts);
     })
@@ -74,12 +81,9 @@ describe('useProductSearch', () => {
     test('apply search with searchValue only', () => {
       const { result } = renderHook(() => useProductSearch());
 
-      act(() => {
-        result.current.updateField('searchValue', '立攝適');
-      });
-      act(() => {
-        result.current.applySearch();
-      });
+      updateField({ fn: result.current.updateField, field: 'searchValue', value: '立攝適' });
+      applySearch(result.current.applySearch)
+
       expect(result.current.formState.searchValue).toEqual('立攝適');
       expect(result.current.filteredData).toEqual([mockProducts[0]]);
     })
@@ -87,12 +91,9 @@ describe('useProductSearch', () => {
     test('apply search with selectedBrand only', () => {
       const { result } = renderHook(() => useProductSearch());
 
-      act(() => {
-        result.current.updateField('selectedBrand', '亞培');
-      });
-      act(() => {
-        result.current.applySearch();
-      });
+      updateField({ fn: result.current.updateField, field: 'selectedBrand', value: '亞培' });
+      applySearch(result.current.applySearch)
+
       expect(result.current.formState.selectedBrand).toEqual('亞培');
       expect(result.current.filteredData).toEqual([mockProducts[1]]);
     })
@@ -100,12 +101,9 @@ describe('useProductSearch', () => {
     test('apply search with selectedType only', () => {
       const { result } = renderHook(() => useProductSearch());
 
-      act(() => {
-        result.current.updateField('selectedType', '液劑');
-      });
-      act(() => {
-        result.current.applySearch();
-      });
+      updateField({ fn: result.current.updateField, field: 'selectedType', value: '液劑' });
+      applySearch(result.current.applySearch)
+
       expect(result.current.formState.selectedType).toEqual('液劑');
       expect(result.current.filteredData).toEqual([mockProducts[0], mockProducts[1]]);
     })
@@ -113,12 +111,9 @@ describe('useProductSearch', () => {
     test('apply search with selectedCate only', () => {
       const { result } = renderHook(() => useProductSearch());
 
-      act(() => {
-        result.current.updateField('selectedCate', ['均衡配方', 'and', '濃縮配方']);
-      });
-      act(() => {
-        result.current.applySearch();
-      });
+      updateField({ fn: result.current.updateField, field: 'selectedCate', value: ['均衡配方', 'and', '濃縮配方'] });
+      applySearch(result.current.applySearch)
+
       expect(result.current.formState.selectedCate).toEqual(['均衡配方', 'and', '濃縮配方']);
       expect(result.current.filteredData).toEqual([mockProducts[0], mockProducts[1]]);
     })
@@ -126,15 +121,12 @@ describe('useProductSearch', () => {
     test('apply search with multiple fields', () => {
       const { result } = renderHook(() => useProductSearch());
 
-      act(() => {
-        result.current.updateField('searchValue', '健力體');
-        result.current.updateField('selectedBrand', '亞培');
-        result.current.updateField('selectedType', '液劑');
-        result.current.updateField('selectedCate', ['均衡配方', 'or', '濃縮配方']);
-      });
-      act(() => {
-        result.current.applySearch();
-      });
+      const fn = result.current.updateField;
+      updateField({ fn, field: 'searchValue', value: '健力體' });
+      updateField({ fn, field: 'selectedBrand', value: '亞培' });
+      updateField({ fn, field: 'selectedType', value: '液劑' });
+      updateField({ fn, field: 'selectedCate', value: ['均衡配方', 'or', '濃縮配方'] });
+      applySearch(result.current.applySearch)
 
       expect(result.current.formState).toEqual({
         searchValue: '健力體',
@@ -150,15 +142,12 @@ describe('useProductSearch', () => {
     test('reset form state and filtered data', () => {
       const { result } = renderHook(() => useProductSearch());
 
-      act(() => {
-        result.current.updateField('searchValue', '健力體');
-        result.current.updateField('selectedBrand', '亞培');
-        result.current.updateField('selectedType', '液劑');
-        result.current.updateField('selectedCate', ['均衡配方', 'or', '濃縮配方']);
-      });
-      act(() => {
-        result.current.applySearch();
-      });
+      const fn = result.current.updateField;
+      updateField({ fn, field: 'searchValue', value: '健力體' });
+      updateField({ fn, field: 'selectedBrand', value: '亞培' });
+      updateField({ fn, field: 'selectedType', value: '液劑' });
+      updateField({ fn, field: 'selectedCate', value: ['均衡配方', 'or', '濃縮配方'] });
+      applySearch(result.current.applySearch)
 
       expect(result.current.formState).toEqual({
         searchValue: '健力體',
@@ -168,15 +157,10 @@ describe('useProductSearch', () => {
       });
       expect(result.current.filteredData).toEqual([mockProducts[1]]);
 
-      act(() => {
-        result.current.reset();
-      });
-
+      reset(result.current.reset)
       expect(result.current.formState).toEqual(DEFAULT_FORM_STATE);
 
-      act(() => {
-        result.current.applySearch();
-      })
+      applySearch(result.current.applySearch)
       expect(result.current.filteredData).toEqual(mockProducts);
     })
   })

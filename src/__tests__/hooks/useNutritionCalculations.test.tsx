@@ -1,28 +1,27 @@
 import { renderHook } from "@testing-library/react";
 import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
+import { defaultHeight, defaultWeight, defaultGender, defaultAge } from "../utils/test-data";
 
-const defaultHeight = 180;
-const defaultWeight = 70;
-const defaultAge = 30;
-const defaultGender = 'man';
-
-const mockSubmittedValues = {
+const defaultSubmittedValues = {
   height: defaultHeight,
   weight: defaultWeight,
   age: defaultAge,
   gender: defaultGender
-}
+};
 
+const invalidHeight = [0, -170, NaN]
+const invalidWeight = [0, -70, NaN]
+const invalidAge = [0, -30, NaN]
+const invalidFactor = [0, -1, NaN]
+
+const mockSubmittedValues = jest.fn()
 jest.mock('@/contexts/BioInfoContext', () => ({
-  useBioInfo: () => ({ submittedValues: mockSubmittedValues })
+  useBioInfo: () => mockSubmittedValues()
 }))
 
 describe('useNutritionCalculations', () => {
   beforeEach(() => {
-    mockSubmittedValues.height = defaultHeight;
-    mockSubmittedValues.weight = defaultWeight;
-    mockSubmittedValues.age = defaultAge;
-    mockSubmittedValues.gender = defaultGender;
+    mockSubmittedValues.mockReturnValue({ submittedValues: defaultSubmittedValues });
   });
 
   describe('rounding', () => {
@@ -30,10 +29,11 @@ describe('useNutritionCalculations', () => {
       const { result } = renderHook(() => useNutritionCalculations());
 
       // Test rounding for different values
-      expect(result.current.rounding(2.3456, 0)).toBe(2);
-      expect(result.current.rounding(2.3456, 1)).toBe(2.3);
-      expect(result.current.rounding(2.3456, 2)).toBe(2.35);
-      expect(result.current.rounding(2.3456, 3)).toBe(2.346);
+      const testValue = 2.3456;
+      expect(result.current.rounding(testValue, 0)).toBe(2);
+      expect(result.current.rounding(testValue, 1)).toBe(2.3);
+      expect(result.current.rounding(testValue, 2)).toBe(2.35);
+      expect(result.current.rounding(testValue, 3)).toBe(2.346);
     });
   });
 
@@ -45,41 +45,21 @@ describe('useNutritionCalculations', () => {
       expect(result.current.bmi).toBe(21.6);
     });
 
-    test('returns 0 for invalid height (0)', () => {
-      mockSubmittedValues.height = 0;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.bmi).toBe(0);
-    });
+    test('returns 0 for invalid height', () => {
+      invalidHeight.forEach(height => {
+        mockSubmittedValues.mockReturnValue({ submittedValues: { ...defaultSubmittedValues, height } });
+        const { result } = renderHook(() => useNutritionCalculations());
+        expect(result.current.bmi).toBe(0);
+      });
+    })
 
-    test('returns 0 for invalid height (< 0)', () => {
-      mockSubmittedValues.height = -170;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.bmi).toBe(0);
-    });
-
-    test('returns 0 for invalid height (NaN)', () => {
-      mockSubmittedValues.height = NaN;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.bmi).toBe(0);
-    });
-
-    test('returns 0 for invalid weight (0)', () => {
-      mockSubmittedValues.weight = 0;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.bmi).toBe(0);
-    });
-
-    test('returns 0 for invalid weight (< 0)', () => {
-      mockSubmittedValues.weight = -70;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.bmi).toBe(0);
-    });
-
-    test('returns 0 for invalid weight (NaN)', () => {
-      mockSubmittedValues.weight = NaN;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.bmi).toBe(0);
-    });
+    test('returns 0 for invalid weight', () => {
+      invalidWeight.forEach(weight => {
+        mockSubmittedValues.mockReturnValue({ submittedValues: { ...defaultSubmittedValues, weight } });
+        const { result } = renderHook(() => useNutritionCalculations());
+        expect(result.current.bmi).toBe(0);
+      });
+    })
   });
 
   describe('ibw', () => {
@@ -90,23 +70,13 @@ describe('useNutritionCalculations', () => {
       expect(result.current.ibw).toBe(71);
     });
 
-    test('returns 0 for invalid height (0)', () => {
-      mockSubmittedValues.height = 0;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.ibw).toBe(0);
-    });
-
-    test('returns 0 for invalid height (< 0)', () => {
-      mockSubmittedValues.height = -170;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.ibw).toBe(0);
-    });
-
-    test('returns 0 for invalid height (NaN)', () => {
-      mockSubmittedValues.height = NaN;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.ibw).toBe(0);
-    });
+    test('returns 0 for invalid height', () => {
+      invalidHeight.forEach(height => {
+        mockSubmittedValues.mockReturnValue({ submittedValues: { ...defaultSubmittedValues, height } });
+        const { result } = renderHook(() => useNutritionCalculations());
+        expect(result.current.ibw).toBe(0);
+      });
+    })
   });
 
   describe('pbw', () => {
@@ -117,23 +87,13 @@ describe('useNutritionCalculations', () => {
       expect(result.current.pbw).toBe(70);
     });
 
-    test('returns 0 for invalid weight (0)', () => {
-      mockSubmittedValues.weight = 0;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.pbw).toBe(0);
-    });
-
-    test('returns 0 for invalid weight (< 0)', () => {
-      mockSubmittedValues.weight = -170;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.pbw).toBe(0);
-    });
-
-    test('returns 0 for invalid weight (NaN)', () => {
-      mockSubmittedValues.weight = NaN;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.pbw).toBe(0);
-    });
+    test('returns 0 for invalid weight', () => {
+      invalidWeight.forEach(weight => {
+        mockSubmittedValues.mockReturnValue({ submittedValues: { ...defaultSubmittedValues, weight } });
+        const { result } = renderHook(() => useNutritionCalculations());
+        expect(result.current.pbw).toBe(0);
+      });
+    })
   });
 
   describe('abw', () => {
@@ -144,41 +104,21 @@ describe('useNutritionCalculations', () => {
       expect(result.current.abw).toBe(71);
     });
 
-    test('returns 0 for invalid height (0)', () => {
-      mockSubmittedValues.height = 0;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.abw).toBe(0);
-    });
+    test('returns 0 for invalid height', () => {
+      invalidHeight.forEach(height => {
+        mockSubmittedValues.mockReturnValue({ submittedValues: { ...defaultSubmittedValues, height } });
+        const { result } = renderHook(() => useNutritionCalculations());
+        expect(result.current.abw).toBe(0);
+      });
+    })
 
-    test('returns 0 for invalid height (< 0)', () => {
-      mockSubmittedValues.height = -170;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.abw).toBe(0);
-    });
-
-    test('returns 0 for invalid height (NaN)', () => {
-      mockSubmittedValues.height = NaN;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.abw).toBe(0);
-    });
-
-    test('returns 0 for invalid weight (0)', () => {
-      mockSubmittedValues.weight = 0;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.abw).toBe(0);
-    });
-
-    test('returns 0 for invalid weight (< 0)', () => {
-      mockSubmittedValues.weight = -70;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.abw).toBe(0);
-    });
-
-    test('returns 0 for invalid weight (NaN)', () => {
-      mockSubmittedValues.weight = NaN;
-      const { result } = renderHook(() => useNutritionCalculations());
-      expect(result.current.abw).toBe(0);
-    });
+    test('returns 0 for invalid weight', () => {
+      invalidWeight.forEach(weight => {
+        mockSubmittedValues.mockReturnValue({ submittedValues: { ...defaultSubmittedValues, weight } });
+        const { result } = renderHook(() => useNutritionCalculations());
+        expect(result.current.abw).toBe(0);
+      });
+    })
   });
 
   describe('calculateTDEE', () => {
@@ -194,47 +134,29 @@ describe('useNutritionCalculations', () => {
     test('returns 0 for invalid parameters', () => {
       const { result } = renderHook(() => useNutritionCalculations())
 
-      expect(result.current.calculateTDEE(0)).toBe(0);
-      expect(result.current.calculateTDEE(-1)).toBe(0);
-      expect(result.current.calculateTDEE(NaN)).toBe(0);
+      invalidFactor.forEach(adjustedFactor => {
+        expect(result.current.calculateTDEE(adjustedFactor)).toBe(0);
+      });
     })
 
     test('returns 0 for invalid input values', () => {
-      const { result } = renderHook(() => useNutritionCalculations())
+      invalidHeight.forEach(height => {
+        mockSubmittedValues.mockReturnValue({ submittedValues: { ...defaultSubmittedValues, height } });
+        const { result } = renderHook(() => useNutritionCalculations())
+        expect(result.current.calculateTDEE(1.2)).toBe(0);
+      });
 
-      // Invalid height
-      mockSubmittedValues.height = 0;
-      expect(result.current.calculateTDEE(1.2)).toBe(0);
+      invalidWeight.forEach(weight => {
+        mockSubmittedValues.mockReturnValue({ submittedValues: { ...defaultSubmittedValues, weight } });
+        const { result } = renderHook(() => useNutritionCalculations())
+        expect(result.current.calculateTDEE(1.2)).toBe(0);
+      });
 
-      mockSubmittedValues.height = -170;
-      expect(result.current.calculateTDEE(1.2)).toBe(0);
-
-      mockSubmittedValues.height = NaN;
-      expect(result.current.calculateTDEE(1.2)).toBe(0);
-
-      // Reset height and make weight invalid
-      mockSubmittedValues.height = defaultHeight;
-
-      mockSubmittedValues.weight = 0;
-      expect(result.current.calculateTDEE(1.2)).toBe(0);
-
-      mockSubmittedValues.weight = -70;
-      expect(result.current.calculateTDEE(1.2)).toBe(0);
-
-      mockSubmittedValues.weight = NaN;
-      expect(result.current.calculateTDEE(1.2)).toBe(0);
-
-      // Reset weight and make age invalid
-      mockSubmittedValues.weight = defaultWeight;
-
-      mockSubmittedValues.age = 0;
-      expect(result.current.calculateTDEE(1.2)).toBe(0);
-
-      mockSubmittedValues.age = -30;
-      expect(result.current.calculateTDEE(1.2)).toBe(0);
-
-      mockSubmittedValues.age = NaN;
-      expect(result.current.calculateTDEE(1.2)).toBe(0);
+      invalidAge.forEach(age => {
+        mockSubmittedValues.mockReturnValue({ submittedValues: { ...defaultSubmittedValues, age } });
+        const { result } = renderHook(() => useNutritionCalculations())
+        expect(result.current.calculateTDEE(1.2)).toBe(0);
+      });
     });
   });
 
@@ -251,27 +173,17 @@ describe('useNutritionCalculations', () => {
     test('returns 0 for invalid protein factor', () => {
       const { result } = renderHook(() => useNutritionCalculations())
 
-      expect(result.current.calculateProtein(0)).toBe(0);
-      expect(result.current.calculateProtein(-1)).toBe(0);
-      expect(result.current.calculateProtein(NaN)).toBe(0);
+      invalidFactor.forEach(proteinFactor => {
+        expect(result.current.calculateProtein(proteinFactor)).toBe(0);
+      });
     })
 
-    test('returns 0 for invalid IBW (height = 0)', () => { 
-      mockSubmittedValues.height = 0;
-      const { result } = renderHook(() => useNutritionCalculations())
-      expect(result.current.calculateProtein(1)).toBe(0);
+    test('returns 0 for invalid IBW', () => {
+      invalidHeight.forEach(height => {
+        mockSubmittedValues.mockReturnValue({ submittedValues: { ...defaultSubmittedValues, height } });
+        const { result } = renderHook(() => useNutritionCalculations())
+        expect(result.current.calculateProtein(1)).toBe(0);
+      });
     })
-
-    test('returns 0 for invalid IBW (height = -170)', () => { 
-      mockSubmittedValues.height = -170;
-      const { result } = renderHook(() => useNutritionCalculations())
-      expect(result.current.calculateProtein(1)).toBe(0);
-    })  
-
-    test('returns 0 for invalid IBW (height = NaN)', () => { 
-      mockSubmittedValues.height = NaN;
-      const { result } = renderHook(() => useNutritionCalculations())
-      expect(result.current.calculateProtein(1)).toBe(0);
-    })  
   });
 });

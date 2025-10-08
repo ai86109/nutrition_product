@@ -1,16 +1,17 @@
 import { usePagination } from "@/hooks/usePagination";
 import { act, renderHook } from "@testing-library/react";
+import { largeScreenWidth, smallScreenWidth } from "../utils/test-data";
 
-let mockScreenWidth = 800;
-
+const mockScreenWidth = jest.fn();
 jest.mock("@/hooks/useScreenWidth", () => ({
-  useScreenWidth: () => ({ screenWidth: mockScreenWidth })
+  useScreenWidth: () => mockScreenWidth()
 }));
 
 
 describe('usePagination', () => {
   beforeEach(() => {
     jest.clearAllMocks()
+    mockScreenWidth.mockReturnValue({ screenWidth: smallScreenWidth });
   })
 
   test('should initialize with default values', () => {
@@ -21,8 +22,7 @@ describe('usePagination', () => {
   });
 
   test('resize to larger screen updates itemsPerPage', () => {
-    mockScreenWidth = 1800;
-
+    mockScreenWidth.mockReturnValue({ screenWidth: largeScreenWidth });
     const { result } = renderHook(() => usePagination());
 
     expect(result.current.itemsPerPage).toBe(10);
