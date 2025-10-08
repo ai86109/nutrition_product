@@ -1,10 +1,10 @@
 import { Card, CardContent } from "@/components/ui/card"
 import InfoPopover from "../info-popover"
 import ConditionalContent from "./conditional-content"
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
+import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations"
 
 export default function BmiCard() {
-  const { bmi } = useNutritionCalculations()
+  const { bmi } = useBioInfoCalculations()
   const isValidBMI = bmi > 0
   
   return (

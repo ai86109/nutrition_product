@@ -1,7 +1,7 @@
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
+import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations"
 
 export function CaloriesPerWeightInfo({ value }: { value: number }): React.ReactElement {
-  const { pbw, ibw, abw, rounding } = useNutritionCalculations()
+  const { pbw, ibw, abw, rounding } = useBioInfoCalculations()
 
   return (
     <div className="text-xs text-muted-foreground px-0">

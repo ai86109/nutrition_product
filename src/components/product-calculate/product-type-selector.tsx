@@ -7,7 +7,7 @@ import {
   SelectGroup,
   SelectLabel,
 } from "@/components/ui/select"
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
+import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations"
 import { SelectData, SelectOption } from "@/types/nutrition"
 import { CALC_UNIT_MAPPINGS } from "@/utils/constants"
 
@@ -16,7 +16,7 @@ interface GetSingleTypeBlockProps {
 }
 
 function GetSingleTypeBlock({ selectData }: GetSingleTypeBlockProps): React.ReactElement {
-  const { rounding } = useNutritionCalculations()
+  const { rounding } = useBioInfoCalculations()
   const { selectOptions } = selectData
   const { unit, products } = selectOptions[0]
   const { defaultAmount, volume } = products[0]
@@ -40,7 +40,7 @@ interface GetProductTypeBlockProps {
 }
 
 export function ProductTypeSelector({ selectData, handleValueChange, productId }: GetProductTypeBlockProps) {
-  const { rounding } = useNutritionCalculations()
+  const { rounding } = useBioInfoCalculations()
   const { selectedId, selectOptions } = selectData
 
   if(!isSelectBlock(selectOptions)) {

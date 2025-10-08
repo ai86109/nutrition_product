@@ -1,4 +1,4 @@
-import { useMealCalculation } from "@/hooks/useMealCalculation"
+import { useMealCalculation } from "@/hooks/product-calculate/useMealCalculation"
 import { act, renderHook } from "@testing-library/react"
 
 describe('useMealCalculation', () => {

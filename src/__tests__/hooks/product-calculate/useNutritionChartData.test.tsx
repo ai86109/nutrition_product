@@ -1,5 +1,5 @@
 import { renderHook } from "@testing-library/react";
-import { useNutritionChartData } from "@/hooks/useNutritionChartData";
+import { useNutritionChartData } from "@/hooks/product-calculate/useNutritionChartData";
 
 const mockUseBioInfo = jest.fn()
 jest.mock('@/contexts/BioInfoContext', () => ({

@@ -1,5 +1,5 @@
 import { ProteinEditDialog } from "@/components/dialogs/protein-edit-dialog"
-import { DEFAULT_PROTEIN_SETTINGS } from "@/hooks/useProteinSettings"
+import { DEFAULT_PROTEIN_SETTINGS } from "@/hooks/localStorage-related/useProteinSettings"
 import { render } from "@testing-library/react"
 
 describe('rendering', () => {

@@ -1,4 +1,4 @@
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
+import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations";
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import { ProductData, SelectData } from "@/types/nutrition";
 import { CALC_UNIT_MAPPINGS } from "@/utils/constants";
@@ -19,7 +19,7 @@ interface ProteinRangeBlockProps {
 }
 
 function ProteinRangeBlock({ proteinPerMeal, mealsPerDay }: ProteinRangeBlockProps): React.ReactElement | null {
-  const { rounding } = useNutritionCalculations()
+  const { rounding } = useBioInfoCalculations()
   const { proteinRange } = useBioInfo();
   const { min, max } = proteinRange
   const minValue = Number(Math.min(Number(min), Number(max)))
@@ -50,7 +50,7 @@ interface CalculateDailyServingsPerMealProps {
 }
 
 export function MealServingsCalculation({ mealsPerDay, item }: CalculateDailyServingsPerMealProps): React.ReactElement {
-  const { rounding } = useNutritionCalculations()
+  const { rounding } = useBioInfoCalculations()
   const { tdee } = useBioInfo();
 
   // get current ratio

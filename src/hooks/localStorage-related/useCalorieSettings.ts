@@ -1,4 +1,4 @@
-import { useLocalStorage } from "@/hooks/useLocalStorage";
+import { useLocalStorage } from "@/hooks/localStorage-related/useLocalStorage";
 import { CalorieFactorList } from "@/types";
 
 const STORAGE_KEY = "nutriapp.bio.calorie";

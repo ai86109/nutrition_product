@@ -1,8 +1,8 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import InfoPopover from "../info-popover";
 import { CalorieCountingEditDialog } from "../dialogs/calorie-counting-edit-dialog";
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
-import { useCalorieSettings } from "@/hooks/useCalorieSettings";
+import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations";
+import { useCalorieSettings } from "@/hooks/localStorage-related/useCalorieSettings";
 import { useBioInfo } from "@/contexts/BioInfoContext";
 import CalorieTypesBlock from "./calorie-types-block";
 import ConditionalContent from "./conditional-content";
@@ -11,7 +11,7 @@ import { CalorieFactorList } from "@/types";
 
 export default function CalorieCard() {
   const { calorieFactorLists, updateChecked: updateCalorieChecked, updateValue: updateCalorieValue }: { calorieFactorLists: CalorieFactorList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void } = useCalorieSettings();
-  const { pbw, ibw } = useNutritionCalculations()
+  const { pbw, ibw } = useBioInfoCalculations()
   const { calorieTypeLists } = useBioInfo()
 
   return (

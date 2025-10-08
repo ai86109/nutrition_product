@@ -1,18 +1,18 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import InfoPopover from "../info-popover";
 import { ProteinEditDialog } from "../dialogs/protein-edit-dialog";
-import { useProteinSettings } from "@/hooks/useProteinSettings"
 import { useBioInfo } from "@/contexts/BioInfoContext";
 import CalorieTypesBlock from "./calorie-types-block";
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
+import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations";
 import ConditionalContent from "./conditional-content";
 import CalculationTable from "./calculation-table";
 import { ProteinList } from "@/types";
+import { useProteinSettings } from "@/hooks/localStorage-related/useProteinSettings";
 
 export default function ProteinCard() {
   const { proteinList, updateChecked: updateProteinChecked, updateValue: updateProteinValue, resetToDefault }: { proteinList: ProteinList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void, resetToDefault: () => void } = useProteinSettings();
   const { calorieTypeLists } = useBioInfo()
-  const { pbw, ibw } = useNutritionCalculations()
+  const { pbw, ibw } = useBioInfoCalculations()
 
   return (
     <Card className="overflow-auto">

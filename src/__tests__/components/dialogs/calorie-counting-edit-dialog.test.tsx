@@ -1,5 +1,5 @@
 import { CalorieCountingEditDialog } from "@/components/dialogs/calorie-counting-edit-dialog"
-import { DEFAULT_CALORIE_SETTINGS } from "@/hooks/useCalorieSettings"
+import { DEFAULT_CALORIE_SETTINGS } from "@/hooks/localStorage-related/useCalorieSettings"
 import { render } from "@testing-library/react"
 
 describe('rendering', () => {

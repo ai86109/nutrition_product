@@ -1,5 +1,5 @@
-import { useLocalStorage } from "./useLocalStorage";
 import { ProteinList } from "@/types";
+import { useLocalStorage } from "./useLocalStorage";
 
 const STORAGE_KEY = "nutriapp.bio.protein"
 

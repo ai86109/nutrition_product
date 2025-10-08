@@ -8,11 +8,11 @@ import InfoPopover from "@/components/info-popover"
 import { NutritionBarChart } from "./nutrition-bar-chart"
 import { CaloriesPerWeightInfo } from "./calories-per-weight-info"
 import { useBioInfo } from "@/contexts/BioInfoContext"
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations"
+import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations"
 import { NUTRITION_CONFIG } from "@/utils/constants"
 import { NutritionConfig, IngredientsData } from "@/types"
 import { useMemo } from "react"
-import { useNutritionChartData } from "@/hooks/useNutritionChartData"
+import { useNutritionChartData } from "@/hooks/product-calculate/useNutritionChartData"
 
 function ProteinRangeBlock({ protein }: { protein: number }) {
   const { proteinRange } = useBioInfo()
@@ -57,7 +57,7 @@ const NutritionRow = ({
   config: NutritionConfig,
 }) => {
   const { getCaloriesChartData, getProteinChartData, isProteinRangeValid } = useNutritionChartData()
-  const { pbw } = useNutritionCalculations()
+  const { pbw } = useBioInfoCalculations()
   const { key, label, unit, hasChart, infoText } = config;
   const isShowCaloriesPerWeight = key === 'calories' && value > 0 && pbw > 0
   const isShowProteinRange = key === 'protein' && value > 0 && isProteinRangeValid 
@@ -98,7 +98,7 @@ const NutritionRow = ({
 }
 
 export function NutritionTable({ ingredientsData }: { ingredientsData: IngredientsData }) {
-  const { rounding } = useNutritionCalculations()
+  const { rounding } = useBioInfoCalculations()
 
   return (
     <Table className="min-w-[250px] max-w-[400px]">

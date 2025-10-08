@@ -1,15 +1,15 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import InfoPopover from "../info-popover";
 import { TDEEEditDialog } from "../dialogs/tdee-edit-dialog";
-import { useTdeeSettings } from "@/hooks/useTdeeSettings";
-import { useNutritionCalculations } from "@/hooks/useNutritionCalculations";
+import { useTdeeSettings } from "@/hooks/localStorage-related/useTdeeSettings";
+import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations";
 import { useBioInfo } from "@/contexts/BioInfoContext";
 import ConditionalContent from "./conditional-content";
 import { TDEEList } from "@/types";
 
 export default function TdeeCard() {
   const { tdeeList, addList, deleteList }: { tdeeList: TDEEList[], addList: (item: TDEEList) => void, deleteList: (index: number) => void } = useTdeeSettings();
-  const { pbw, calculateTDEE, rounding } = useNutritionCalculations()
+  const { pbw, calculateTDEE, rounding } = useBioInfoCalculations()
   const { submittedValues } = useBioInfo()
   const { height, age } = submittedValues
 

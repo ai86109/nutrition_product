@@ -1,9 +1,9 @@
 import { useCallback, useMemo } from "react"
-import { useNutritionCalculations } from "./useNutritionCalculations"
 import { useBioInfo } from "@/contexts/BioInfoContext"
+import { useBioInfoCalculations } from "../useBioInfoCalculations"
 
 export function useNutritionChartData() {
-  const { rounding } = useNutritionCalculations()
+  const { rounding } = useBioInfoCalculations()
   const { tdee, proteinRange } = useBioInfo()
 
   const safeProteinRange = proteinRange || { min: '0', max: '0' }

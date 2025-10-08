@@ -1,5 +1,5 @@
-import { useLocalStorage } from "./useLocalStorage";
 import { TDEEList } from "@/types";
+import { useLocalStorage } from "./useLocalStorage";
 
 const STORAGE_KEY = "nutriapp.bio.tdee"
 

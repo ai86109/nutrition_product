@@ -12,7 +12,7 @@ const rounding = (value: number, digits: number = 2): number => {
   return Math.round(value * multiplier) / multiplier
 }
 
-export function useNutritionCalculations(): NutritionCalculationsReturn {
+export function useBioInfoCalculations(): NutritionCalculationsReturn {
   const { submittedValues } = useBioInfo()
   const safeSubmittedValues = submittedValues || {}
 

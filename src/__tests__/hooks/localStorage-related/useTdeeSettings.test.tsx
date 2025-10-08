@@ -1,5 +1,5 @@
 import { act, renderHook } from "@testing-library/react";
-import { useTdeeSettings, DEFAULT_TDEE_SETTINGS } from "@/hooks/useTdeeSettings";
+import { useTdeeSettings, DEFAULT_TDEE_SETTINGS } from "@/hooks/localStorage-related/useTdeeSettings";
 
 const STORAGE_KEY = "nutriapp.bio.tdee"
 
