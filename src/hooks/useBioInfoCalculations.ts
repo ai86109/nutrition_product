@@ -25,7 +25,7 @@ export function useBioInfoCalculations(): NutritionCalculationsReturn {
 
     if (!isFinite(bmi) || isNaN(bmi)) return 0
     return rounding(bmi, 1)
-  }, [rounding, safeSubmittedValues])
+  }, [safeSubmittedValues])
 
   const ibw = useMemo((): number => {
     const { height } = safeSubmittedValues
@@ -34,20 +34,20 @@ export function useBioInfoCalculations(): NutritionCalculationsReturn {
     const idealWeight = (height / 100) ** 2 * 22
     if (!isFinite(idealWeight) || isNaN(idealWeight)) return 0
     return rounding(idealWeight, 0)
-  }, [rounding, safeSubmittedValues])
+  }, [safeSubmittedValues])
 
   const pbw = useMemo((): number => {
     const { weight } = safeSubmittedValues
     if (!weight || weight <= 0) return 0
 
     return rounding(weight, 0)
-  }, [rounding, safeSubmittedValues])
+  }, [safeSubmittedValues])
 
   const abw = useMemo((): number => {
     if (ibw <= 0 || pbw <= 0) return 0
 
     return rounding(ibw + 0.25 * (pbw - ibw), 0)
-  }, [rounding, ibw, pbw])
+  }, [ibw, pbw])
 
   // 沒有體重感覺也可以算
   const calculateTDEE = useCallback((adjustedFactor: number): number => {
@@ -64,7 +64,7 @@ export function useBioInfoCalculations(): NutritionCalculationsReturn {
 
     if (!isFinite(TDEE) || isNaN(TDEE)) return 0
     return rounding(TDEE, 0)
-  }, [rounding, safeSubmittedValues, pbw])
+  }, [safeSubmittedValues, pbw])
 
   const calculateProtein = useCallback((proteinFactor: number): number => {
     const idealWeight = ibw
@@ -72,7 +72,7 @@ export function useBioInfoCalculations(): NutritionCalculationsReturn {
     if (proteinFactor <= 0) return 0
 
     return rounding(proteinFactor * idealWeight, 1)
-  }, [rounding, ibw])
+  }, [ibw])
 
   return { 
     bmi,
