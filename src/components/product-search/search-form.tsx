@@ -9,6 +9,7 @@ import {
 } from "@/components/ui/select"
 import { TYPE_OPTIONS, CATEGORY_OPTIONS, OPERATOR_OPTIONS } from "@/utils/constants"
 import { useProduct } from "@/contexts/ProductContext";
+import { useSearch } from "@/contexts/SearchContext";
 import { SearchState } from "@/types";
 
 interface SearchInputProps {
@@ -93,19 +94,12 @@ const MultiSelect = ({ selectedCate, onChange }: MultiSelectProps) => {
   )
 }
 
-interface SearchFormProps {
-  formState: SearchState;
-  onUpdateField: (field: keyof SearchState, value: string | string[]) => void;
-  onSearch: () => void;
-  onReset: () => void;
-  handlePageChange: (page: number) => void;
-}
-
-export default function SearchForm({ formState, onUpdateField, onSearch, onReset, handlePageChange }: SearchFormProps) {
+export default function SearchForm({ handlePageChange }: { handlePageChange: (page: number) => void }) {
   const { brandOptions } = useProduct()
-  
+  const { formState, updateField, applySearch, reset } = useSearch()
+
   const handleSearchSubmit = (): void => {
-    onSearch()
+    applySearch()
     handlePageChange(1) // Reset to the first page after search
   }
 
@@ -114,22 +108,22 @@ export default function SearchForm({ formState, onUpdateField, onSearch, onReset
     const newCate = [...formState.selectedCate]
     newCate[index] = value
 
-    onUpdateField("selectedCate", newCate)
+    updateField("selectedCate", newCate)
   }
 
   return (
     <>
       <p className="text-sm mb-1">＊所有欄位皆為選填，請自由搭配</p>
       <div className="flex items-start flex-col max-w-[300px] gap-1 overflow-x-auto">
-        <SearchInput value={formState.searchValue} onChange={onUpdateField} />
+        <SearchInput value={formState.searchValue} onChange={updateField} />
 
-        <SingleSelect value={formState.selectedBrand} options={brandOptions} selectType="selectedBrand" placeholder="選擇品牌" onChange={onUpdateField} />
-        <SingleSelect value={formState.selectedType} options={TYPE_OPTIONS} selectType="selectedType" placeholder="選擇劑型" onChange={onUpdateField} />
+        <SingleSelect value={formState.selectedBrand} options={brandOptions} selectType="selectedBrand" placeholder="選擇品牌" onChange={updateField} />
+        <SingleSelect value={formState.selectedType} options={TYPE_OPTIONS} selectType="selectedType" placeholder="選擇劑型" onChange={updateField} />
         <MultiSelect selectedCate={formState.selectedCate} onChange={handleSelectCateChange} />
 
         <div className="flex gap-2 w-full mt-1">
           <Button className="flex-1 cursor-pointer" onClick={handleSearchSubmit}>搜尋</Button>
-          <Button className="w-[100px] cursor-pointer" variant="destructive" onClick={onReset}>重置所有設定</Button>
+          <Button className="w-[100px] cursor-pointer" variant="destructive" onClick={reset}>重置所有設定</Button>
         </div>
       </div>
     </>

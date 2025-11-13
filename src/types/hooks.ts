@@ -1,15 +1,3 @@
-export interface SearchState {
-  searchValue: string
-  selectedBrand: string
-  selectedType: string
-  selectedCate: string[]
-}
-
-export type SearchAction = 
-  | { type: 'SET_FIELD'; field: keyof SearchState; value: string | string[] }
-  | { type: 'RESET' }
-  | { type: 'APPLY_SEARCH' }
-
 export interface TDEEList {
   name: string
   activityFactor: string | number
