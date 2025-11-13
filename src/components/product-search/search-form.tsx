@@ -68,15 +68,15 @@ interface MultiSelectProps {
 
 const MultiSelect = ({ selectedCate, onChange }: MultiSelectProps) => {
   const selectors = [
-    { index: 0, value: selectedCate[0], placeholder: "選擇類別", options: CATEGORY_OPTIONS },
-    { index: 1, value: selectedCate[1], placeholder: "或", options: OPERATOR_OPTIONS },
-    { index: 2, value: selectedCate[2], placeholder: "選擇類別", options: CATEGORY_OPTIONS },
+    { index: 0, key: 'category-0', value: selectedCate[0], placeholder: "選擇類別", options: CATEGORY_OPTIONS },
+    { index: 1, key: 'operator-1', value: selectedCate[1], placeholder: "或", options: OPERATOR_OPTIONS },
+    { index: 2, key: 'category-2', value: selectedCate[2], placeholder: "選擇類別", options: CATEGORY_OPTIONS },
   ]
 
   return (
     <div className="flex space-x-2 w-full justify-between">
-      {selectors.map(({ index, value, placeholder, options }) => (
-        <Select key={index} value={value} onValueChange={(value) => onChange(value, index)}>
+      {selectors.map(({ key, index, value, placeholder, options }) => (
+        <Select key={key} value={value} onValueChange={(value) => onChange(value, index)}>
           <SelectTrigger className="w-full">
             <SelectValue placeholder={placeholder} />
           </SelectTrigger>

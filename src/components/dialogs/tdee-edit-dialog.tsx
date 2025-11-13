@@ -81,7 +81,7 @@ export function TDEEEditDialog({ tdeeList, addList, deleteList }: { tdeeList: TD
           </TableHeader>
           <TableBody>
             {tdeeList.length > 0 && tdeeList.map((factor, index) => (
-              <TableRow key={index}>
+              <TableRow key={`${factor.name}-${index}`}>
                 <TableCell className="max-w-[50px] text-wrap whitespace-normal sm:max-w-[100px]">{factor.name}</TableCell>
                 <TableCell>{factor.activityFactor}</TableCell>
                 <TableCell>{factor.stressFactor}</TableCell>
