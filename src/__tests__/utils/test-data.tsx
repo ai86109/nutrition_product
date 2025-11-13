@@ -1,6 +1,7 @@
 import { ApiProductData, ProductData } from "@/types";
 import { BioInfoProvider } from '@/contexts/BioInfoContext';
 import { ProductProvider } from "@/contexts/ProductContext";
+import { SearchProvider } from "@/contexts/SearchContext";
 
 // bio info input
 export const defaultHeight = 180;
@@ -373,4 +374,17 @@ export const createProductWrapper = (products: ApiProductData[] = mockProducts) 
     <ProductProvider allProducts={products}>{children}</ProductProvider>
   )
   return wrapper
+}
+
+// search context
+export function createSearchWrapper(products: ApiProductData[] = mockProducts) {
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return (
+      <ProductProvider allProducts={products}>
+        <SearchProvider>
+          {children}
+        </SearchProvider>
+      </ProductProvider>
+    )
+  }
 }
