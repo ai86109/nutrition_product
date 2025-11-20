@@ -115,20 +115,19 @@ function processInfoRow(row: string[], headers: string[]): Partial<ApiProductDat
       product[mappedField] = product[mappedField] || [];
       if (value) product[mappedField].push(value);
     } else {
-      (product as any)[mappedField] = value;
+      product[mappedField] = value;
     }
   })
   
   return product.id ? product : null
 }
 
-function mergeProductData(
-  infoData: Partial<ApiProductData>,
+const productMerger = (
   specMap: Map<string, ProcessedSpecData[]>,
   ingredientsMap: Map<string, IngredientsData[]>
-) {
+) => (infoData: Partial<ApiProductData>) => {
   const productId = infoData.id!
-      
+
   // spec
   const specResult = specMap.get(productId)
   const spec = specResult?.[0]?.spec || []
@@ -156,18 +155,31 @@ function mergeProductData(
   } as ApiProductData
 }
 
-function isValidProduct(product: ApiProductData): boolean {
-  // id, name, defaultAmount
-  if (!product.id || !product.name || !product.defaultAmount) return false
-
-  // spec 必須存在
-  if (!product.spec || product.spec.length <= 0) return false
-
-  // calories 必須存在且大於 0
-  if (!product.ingredients || product.ingredients?.calories <= 0) return false
-
-  return true
+const hasField = (field: keyof ApiProductData) => (product: ApiProductData) => {
+  return !!product[field]
 }
+
+const hasMinLength = (field: keyof ApiProductData) => (minLength: number) => (product: ApiProductData) => {
+  const value = product[field]
+  return Array.isArray(value) && value.length >= minLength
+}
+
+const hasMinValue = (field: keyof IngredientsData) => (minValue: number) => (product: ApiProductData) => {
+  const value = product?.ingredients?.[field]
+  return typeof value === 'number' && value > minValue
+}
+
+const allValidators = (...validators) => (item) => {
+  return validators.every((validator) => validator(item))
+}
+
+const isValidProduct = allValidators(
+  hasField('id'),
+  hasField('name'),
+  hasField('defaultAmount'),
+  hasMinLength('spec')(1),
+  hasMinValue('calories')(0)
+)
 
 function sanitizeProduct(product: ApiProductData): ApiProductData {
   const sanitized = { ...product }
@@ -201,11 +213,13 @@ export function combineSheetData(
     processIngredientsRow(row, ingredientsHeaders)
   )
 
+  const mergeProduct = productMerger(specMap, ingredientsMap)
+
   // 合併資料
   const combinedData: ApiProductData[] = infoRows
     .map((row) => processInfoRow(row, infoHeaders))
     .filter((product): product is Partial<ApiProductData> => product !== null)
-    .map((infoData) => mergeProductData(infoData, specMap, ingredientsMap))
+    .map(mergeProduct)
     .filter(isValidProduct)
     .map(sanitizeProduct)
 

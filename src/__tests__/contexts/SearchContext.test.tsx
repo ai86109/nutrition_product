@@ -1,7 +1,7 @@
 import { renderHook, act } from "@testing-library/react"
 import { useSearch } from "@/contexts/SearchContext"
 import { mockProducts, createSearchWrapper, productSearchHelper } from "../utils/test-data"
-import { SearchState } from "@/types"
+import { SearchState, ApiProductData } from "@/types"
 
 const { DEFAULT_FORM_STATE } = productSearchHelper
 
@@ -370,13 +370,13 @@ describe('SearchContext', () => {
     })
 
     test('filters products without categories', () => {
-      const productsWithoutCategories = [
+      const productsWithoutCategories: ApiProductData[] = [
         { ...mockProducts[0], categories: [] },
         { ...mockProducts[1], categories: undefined }
       ]
 
       const { result } = renderHook(() => useSearch(), {
-        wrapper: createSearchWrapper(productsWithoutCategories as any)
+        wrapper: createSearchWrapper(productsWithoutCategories)
       })
 
       updateField({
