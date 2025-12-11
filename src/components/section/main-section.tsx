@@ -1,3 +1,5 @@
+'use client';
+
 import BioInfoSection from "./bio-info-section";
 import BioResultSection from "./bio-result-section";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card"
@@ -21,10 +23,16 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import { useAuth } from "@/contexts/AuthContext";
+import Link from "next/link";
 
 export default function MainSection() {
+  const { user, loading } = useAuth();
+
   return (
     <>
+      <div>user: {user ? user.email : "not logged in"}</div>
+      <Link href="/auth">Go to Auth Page</Link>
       {/* mobile */}
       <div className="sm:hidden">
         <Accordion type="single" defaultValue="item-1" collapsible>

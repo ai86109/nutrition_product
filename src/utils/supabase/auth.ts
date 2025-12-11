@@ -2,6 +2,7 @@
 
 import { createClientForServer } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
+import { revalidatePath } from 'next/cache'
 
 const signInWith = provider => async () => {
   const supabase = await createClientForServer()
@@ -22,6 +23,17 @@ const signInWith = provider => async () => {
   redirect(data.url)
 }
 
-const signInWithGoogle = signInWith('google')
+export const signInWithGoogle = signInWith('google')
 
-export { signInWithGoogle }
+export const signOut = async () => {
+  const supabase = await createClientForServer()
+  const { error } = await supabase.auth.signOut()
+
+  if (error) {
+    console.error('Error during sign-out:', error)
+    throw error
+  }
+
+  revalidatePath('/', 'layout') // 清除整個 layout 的快取
+  redirect('/')
+}
