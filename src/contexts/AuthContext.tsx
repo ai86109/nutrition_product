@@ -6,37 +6,25 @@ import { createClient } from '@/utils/supabase/client'
 const AuthContext = createContext(undefined)
 
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null)
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
   const supabase = createClient()
 
   useEffect(() => {
-    // 獲取初始 session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    supabase.auth.getSession()
+      .then(({ data: { session } }) => setSession(session))
+      .catch((error) => console.error('Error fetching session:', error))
+      .finally(() => setLoading(false))
+
+    const { data } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
     })
 
-    // 監聽認證狀態變化
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
-    })
-
-    return () => subscription.unsubscribe()
-  }, [session])
+    return () => data.subscription.unsubscribe()
+  }, [])
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      loading,
-    }}>
+    <AuthContext.Provider value={{ session, setSession, loading }}>
       {children}
     </AuthContext.Provider>
   )

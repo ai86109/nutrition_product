@@ -5,7 +5,7 @@ import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations";
 import { useCalorieSettings } from "@/hooks/localStorage-related/useCalorieSettings";
 import { useBioInfo } from "@/contexts/BioInfoContext";
 import CalorieTypesBlock from "./calorie-types-block";
-import ConditionalContent from "./conditional-content";
+import ConditionalContent from "@/components/conditional-content";
 import CalculationTable from "./calculation-table";
 import { CalorieFactorList } from "@/types";
 

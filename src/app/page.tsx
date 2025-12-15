@@ -3,6 +3,7 @@ import { BioInfoProvider } from "@/contexts/BioInfoContext";
 import { ProductProvider } from "@/contexts/ProductContext";
 import { SearchProvider } from "@/contexts/SearchContext";
 import { getProductsFromSheets } from "@/lib/products-server";
+import Navigation from "@/components/navigation";
 
 export default async function Home() {
   const allProducts = await getProductsFromSheets();
@@ -11,6 +12,7 @@ export default async function Home() {
     <ProductProvider allProducts={allProducts}>
       <BioInfoProvider>
         <SearchProvider>
+          <Navigation />
           <MainSection />
         </SearchProvider>
       </BioInfoProvider>

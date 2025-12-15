@@ -2,7 +2,6 @@
 
 import { createClientForServer } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
-import { revalidatePath } from 'next/cache'
 
 const signInWith = provider => async () => {
   const supabase = await createClientForServer()
@@ -33,7 +32,4 @@ export const signOut = async () => {
     console.error('Error during sign-out:', error)
     throw error
   }
-
-  revalidatePath('/', 'layout') // 清除整個 layout 的快取
-  redirect('/')
 }

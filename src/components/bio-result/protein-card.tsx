@@ -4,7 +4,7 @@ import { ProteinEditDialog } from "../dialogs/protein-edit-dialog";
 import { useBioInfo } from "@/contexts/BioInfoContext";
 import CalorieTypesBlock from "./calorie-types-block";
 import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations";
-import ConditionalContent from "./conditional-content";
+import ConditionalContent from "@/components/conditional-content";
 import CalculationTable from "./calculation-table";
 import { ProteinList } from "@/types";
 import { useProteinSettings } from "@/hooks/localStorage-related/useProteinSettings";

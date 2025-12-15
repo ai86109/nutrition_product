@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card"
 import InfoPopover from "../info-popover"
-import ConditionalContent from "./conditional-content"
+import ConditionalContent from "@/components/conditional-content"
 import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations"
 
 export default function BioCard() {

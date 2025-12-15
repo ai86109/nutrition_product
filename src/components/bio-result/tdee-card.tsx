@@ -4,7 +4,7 @@ import { TDEEEditDialog } from "../dialogs/tdee-edit-dialog";
 import { useTdeeSettings } from "@/hooks/localStorage-related/useTdeeSettings";
 import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations";
 import { useBioInfo } from "@/contexts/BioInfoContext";
-import ConditionalContent from "./conditional-content";
+import ConditionalContent from "@/components/conditional-content";
 import { TDEEList } from "@/types";
 
 export default function TdeeCard() {
