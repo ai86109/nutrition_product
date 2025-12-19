@@ -15,7 +15,6 @@ export default function Navigation() {
   const { session, loading } = useAuth();
   const user = session?.user || null;
   const { name: userName, avatar_url: avatarUrl} = user?.user_metadata || {};
-  console.log("user:", user);
 
   return (
     <nav className="flex items-center gap-2 justify-end px-4 pt-2">
