@@ -1,19 +1,15 @@
 import { ProteinList } from "@/types";
-import { useLocalStorage } from "./useLocalStorage";
+// import { useLocalStorage } from "./useLocalStorage";
+import { DEFAULT_PROTEIN_SETTINGS } from "@/utils/constants";
+import { useState } from "react";
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
-const STORAGE_KEY = "nutriapp.bio.protein"
-
-export const DEFAULT_PROTEIN_SETTINGS: ProteinList[] = [
-  { id: 1, value: 0.6, checked: true },
-  { id: 2, value: 0.8, checked: true },
-  { id: 3, value: 1.0, checked: true },
-  { id: 4, value: 1.2, checked: true },
-  { id: 5, value: 1.5, checked: true },
-  { id: 6, value: 2.0, checked: true },
-]
+// const STORAGE_KEY = "nutriapp.bio.protein"
 
 export function useProteinSettings() {
-  const [proteinList, setProteinList] = useLocalStorage(STORAGE_KEY, DEFAULT_PROTEIN_SETTINGS);
+  // const [proteinList, setProteinList] = useLocalStorage(STORAGE_KEY, DEFAULT_PROTEIN_SETTINGS);
+  const { proteinFactors } = useUserPreferences()
+  const [proteinList, setProteinList] = useState(proteinFactors);
 
   const updateChecked = (checked: boolean, index: number): void => {
     setProteinList((prevList) => {
@@ -36,5 +32,5 @@ export function useProteinSettings() {
     setProteinList(DEFAULT_PROTEIN_SETTINGS);
   }
 
-  return { proteinList, updateChecked, updateValue, resetToDefault };
+  return { proteinList, setProteinList, updateChecked, updateValue, resetToDefault };
 }

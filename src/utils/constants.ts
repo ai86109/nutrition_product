@@ -1,4 +1,4 @@
-import { NutritionConfig, TDEEList, CalorieFactorList } from "@/types";
+import { NutritionConfig, TDEEList, CalorieFactorList, ProteinList } from "@/types";
 
 interface UnitMapping {
   [key: string]: string;
@@ -107,4 +107,13 @@ export const DEFAULT_CALORIE_SETTINGS: CalorieFactorList[] = [
   { id: 1, value: 25, checked: true },
   { id: 2, value: 30, checked: true },
   { id: 3, value: 35, checked: true },
+]
+
+export const DEFAULT_PROTEIN_SETTINGS: ProteinList[] = [
+  { id: 1, value: 0.6, checked: true },
+  { id: 2, value: 0.8, checked: true },
+  { id: 3, value: 1.0, checked: true },
+  { id: 4, value: 1.2, checked: true },
+  { id: 5, value: 1.5, checked: true },
+  { id: 6, value: 2.0, checked: true },
 ]

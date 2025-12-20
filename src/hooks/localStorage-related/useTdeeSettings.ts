@@ -1,5 +1,5 @@
 import { TDEEList } from "@/types";
-import { useLocalStorage } from "./useLocalStorage";
+// import { useLocalStorage } from "./useLocalStorage";
 import { DEFAULT_TDEE_SETTINGS } from "@/utils/constants";
 import { useState } from "react";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";

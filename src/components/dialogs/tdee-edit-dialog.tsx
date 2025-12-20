@@ -30,8 +30,7 @@ const DEFAULT_TDEE_ITEM: TDEEList = {
 }
 
 export function TDEEEditDialog() {
-  const { session } = useAuth();
-  const isLoggedIn = !!session;
+  const { isLoggedIn } = useAuth();
   const { tdeeFactors } = useUserPreferences()
   const { tdeeList, setTDEEList, addList, deleteList } = useTdeeSettings()
   const { updateSetting } = useUserSetting()
@@ -47,11 +46,8 @@ export function TDEEEditDialog() {
   }
 
   const checkLogin = () => {
-    if (!isLoggedIn) {
-      alert("此功能請登入後使用");
-      return false;
-    }
-    return true;
+    if (!isLoggedIn) alert("此功能請登入後使用");
+    return isLoggedIn;
   }
 
   const handleDelete = (index: number) => {

@@ -8,6 +8,7 @@ const AuthContext = createContext(undefined)
 export function AuthProvider({ children }) {
   const [session, setSession] = useState(null)
   const [loading, setLoading] = useState(true)
+  const isLoggedIn = !!session
   const supabase = createClient()
 
   useEffect(() => {
@@ -24,7 +25,7 @@ export function AuthProvider({ children }) {
   }, [])
 
   return (
-    <AuthContext.Provider value={{ session, setSession, loading }}>
+    <AuthContext.Provider value={{ session, setSession, loading, isLoggedIn }}>
       {children}
     </AuthContext.Provider>
   )

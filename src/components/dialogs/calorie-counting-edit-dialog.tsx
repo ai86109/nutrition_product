@@ -24,19 +24,15 @@ import { useUserSetting } from '@/hooks/useUserSetting'
 import { useAuth } from "@/contexts/AuthContext";
 
 export function CalorieCountingEditDialog() {
-  const { session } = useAuth();
-  const isLoggedIn = !!session;
+  const { isLoggedIn } = useAuth();
   const { updateSetting } = useUserSetting()
   const { calorieFactors } = useUserPreferences();
   const { calorieFactorLists, setCalorieFactorLists, updateChecked, updateValue } = useCalorieSettings();
   const [open, setOpen] = useState(false);
 
   const checkLogin = () => {
-    if (!isLoggedIn) {
-      alert("此功能請登入後使用");
-      return false;
-    }
-    return true;
+    if (!isLoggedIn) alert("此功能請登入後使用");
+    return isLoggedIn;
   }
 
   const handleCalorieSettingCheck = (checked: boolean, index: number): void => {
