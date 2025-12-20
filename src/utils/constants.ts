@@ -1,4 +1,4 @@
-import { NutritionConfig } from "@/types";
+import { NutritionConfig, TDEEList } from "@/types";
 
 interface UnitMapping {
   [key: string]: string;
@@ -93,5 +93,13 @@ export const NUTRITION_CONFIG: NutritionConfig[] = [
     label: '纖維',
     unit: 'g',
     hasChart: false,
+  }
+]
+
+export const DEFAULT_TDEE_SETTINGS: TDEEList[] = [
+  {
+    name: '預設',
+    activityFactor: 1.2,
+    stressFactor: 1.2,
   }
 ]

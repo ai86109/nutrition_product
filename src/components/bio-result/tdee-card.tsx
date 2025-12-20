@@ -1,14 +1,14 @@
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import InfoPopover from "../info-popover";
 import { TDEEEditDialog } from "../dialogs/tdee-edit-dialog";
-import { useTdeeSettings } from "@/hooks/localStorage-related/useTdeeSettings";
 import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations";
 import { useBioInfo } from "@/contexts/BioInfoContext";
 import ConditionalContent from "@/components/conditional-content";
 import { TDEEList } from "@/types";
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
 export default function TdeeCard() {
-  const { tdeeList, addList, deleteList }: { tdeeList: TDEEList[], addList: (item: TDEEList) => void, deleteList: (index: number) => void } = useTdeeSettings();
+  const { tdeeFactors } = useUserPreferences();
   const { pbw, calculateTDEE, rounding } = useBioInfoCalculations()
   const { submittedValues } = useBioInfo()
   const { height, age } = submittedValues
@@ -32,12 +32,12 @@ export default function TdeeCard() {
             <p className="text-sm font-bold">＊調整係數（括號中的數字）：壓力因子 * 活動因子</p>
           </InfoPopover>
         </CardTitle>
-        <TDEEEditDialog tdeeList={tdeeList} addList={addList} deleteList={deleteList} />
+        <TDEEEditDialog />
       </CardHeader>
       <CardContent>
         <ConditionalContent condition={pbw > 0 && height > 0 && age > 0} fallback="請先填寫數值來計算 TDEE">
-          <ConditionalContent condition={tdeeList.length > 0} fallback="尚未設定 TDEE 參數，請先設定">
-            {tdeeList.map((item, index) => (
+          <ConditionalContent condition={tdeeFactors.length > 0} fallback="尚未設定 TDEE 參數，請先設定">
+            {tdeeFactors.map((item, index) => (
               <div key={`${item.name}-${index}`}>
                 <span className="font-bold">- {item.name}（{adjustmentFactor(item)}）：</span>
                 <span>{calculateTDEE(adjustmentFactor(item))}</span>

@@ -18,6 +18,8 @@ import {
 } from "@/components/ui/table"
 import { useState } from "react"
 import { TDEEList } from "@/types"
+import { useUserSetting } from '@/hooks/useUserSetting'
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
 const DEFAULT_TDEE_ITEM: TDEEList = {
   name: '',
@@ -25,7 +27,9 @@ const DEFAULT_TDEE_ITEM: TDEEList = {
   stressFactor: '',
 }
 
-export function TDEEEditDialog({ tdeeList, addList, deleteList }: { tdeeList: TDEEList[], addList: (item: TDEEList) => void, deleteList: (index: number) => void }) {
+export function TDEEEditDialog() {
+  const { tdeeFactors } = useUserPreferences()
+  const { addSetting, deleteSetting } = useUserSetting()
   const [newTDEEFactors, setNewTDEEFactors] = useState(DEFAULT_TDEE_ITEM);
 
   const handleNewFactorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,7 +41,7 @@ export function TDEEEditDialog({ tdeeList, addList, deleteList }: { tdeeList: TD
   }
 
   const handleDelete = (index: number) => {
-    deleteList(index);
+    deleteSetting('tdee', index);
   }
 
   const handleAdd = () => {
@@ -50,10 +54,10 @@ export function TDEEEditDialog({ tdeeList, addList, deleteList }: { tdeeList: TD
     // add to list
     const newItem = {
       name: name.trim(),
-      activityFactor: activityFactor,
-      stressFactor: stressFactor,
+      activityFactor: Number(activityFactor),
+      stressFactor: Number(stressFactor),
     }
-    addList(newItem);
+    addSetting('tdee', newItem);
 
     // reset input fields
     setNewTDEEFactors(DEFAULT_TDEE_ITEM);
@@ -80,7 +84,7 @@ export function TDEEEditDialog({ tdeeList, addList, deleteList }: { tdeeList: TD
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tdeeList.length > 0 && tdeeList.map((factor, index) => (
+            {tdeeFactors.length > 0 && tdeeFactors.map((factor, index) => (
               <TableRow key={`${factor.name}-${index}`}>
                 <TableCell className="max-w-[50px] text-wrap whitespace-normal sm:max-w-[100px]">{factor.name}</TableCell>
                 <TableCell>{factor.activityFactor}</TableCell>
