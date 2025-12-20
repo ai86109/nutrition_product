@@ -1,4 +1,4 @@
-import { NutritionConfig, TDEEList } from "@/types";
+import { NutritionConfig, TDEEList, CalorieFactorList } from "@/types";
 
 interface UnitMapping {
   [key: string]: string;
@@ -102,4 +102,9 @@ export const DEFAULT_TDEE_SETTINGS: TDEEList[] = [
     activityFactor: 1.2,
     stressFactor: 1.2,
   }
+]
+export const DEFAULT_CALORIE_SETTINGS: CalorieFactorList[] = [
+  { id: 1, value: 25, checked: true },
+  { id: 2, value: 30, checked: true },
+  { id: 3, value: 35, checked: true },
 ]

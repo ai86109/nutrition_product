@@ -4,7 +4,7 @@ import { createClient } from '@/utils/supabase/client'
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserPreferences } from '@/lib/supabase/queries/user-preferences'
-import { DEFAULT_TDEE_SETTINGS } from '@/utils/constants'
+import { DEFAULT_CALORIE_SETTINGS, DEFAULT_TDEE_SETTINGS } from '@/utils/constants'
 
 const UserPreferencesContext = createContext(undefined)
 
@@ -12,13 +12,14 @@ export function UserPreferencesProvider({ children }) {
   const supabase = createClient()
   const { session } = useAuth()
   const { id: userId } = session?.user || {}
-  const [calorieFactors, setCalorieFactors] = useState([])
+  const [calorieFactors, setCalorieFactors] = useState(DEFAULT_CALORIE_SETTINGS)
   const [tdeeFactors, setTdeeFactors] = useState(DEFAULT_TDEE_SETTINGS)
   const [proteinFactors, setProteinFactors] = useState([])
 
   const loadUserPreferences = useCallback( async () => {
     if (!userId) {
       // 給預設值
+      setCalorieFactors(DEFAULT_CALORIE_SETTINGS)
       setTdeeFactors(DEFAULT_TDEE_SETTINGS)
       return 
     }
@@ -26,7 +27,7 @@ export function UserPreferencesProvider({ children }) {
     try {
       const data = await getUserPreferences(userId)
       if (data) {
-        setCalorieFactors(data.calorie_factors || [])
+        setCalorieFactors(data.calorie_factors || DEFAULT_CALORIE_SETTINGS)
         setTdeeFactors(data.tdee_factors || DEFAULT_TDEE_SETTINGS)
         setProteinFactors(data.protein_factors || [])
       }
