@@ -20,6 +20,8 @@ import { useState } from "react"
 import { TDEEList } from "@/types"
 import { useUserSetting } from '@/hooks/useUserSetting'
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+import { useTdeeSettings } from "@/hooks/localStorage-related/useTdeeSettings";
+import { useAuth } from "@/contexts/AuthContext";
 
 const DEFAULT_TDEE_ITEM: TDEEList = {
   name: '',
@@ -28,9 +30,13 @@ const DEFAULT_TDEE_ITEM: TDEEList = {
 }
 
 export function TDEEEditDialog() {
+  const { session } = useAuth();
+  const isLoggedIn = !!session;
   const { tdeeFactors } = useUserPreferences()
-  const { addSetting, deleteSetting } = useUserSetting()
+  const { tdeeList, setTDEEList, addList, deleteList } = useTdeeSettings()
+  const { updateSetting } = useUserSetting()
   const [newTDEEFactors, setNewTDEEFactors] = useState(DEFAULT_TDEE_ITEM);
+  const [open, setOpen] = useState(false);
 
   const handleNewFactorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value } = e.target;
@@ -40,11 +46,21 @@ export function TDEEEditDialog() {
     }));
   }
 
+  const checkLogin = () => {
+    if (!isLoggedIn) {
+      alert("此功能請登入後使用");
+      return false;
+    }
+    return true;
+  }
+
   const handleDelete = (index: number) => {
-    deleteSetting('tdee', index);
+    if (!checkLogin()) return;
+    deleteList(index);
   }
 
   const handleAdd = () => {
+    if (!checkLogin()) return;
     const { name, activityFactor, stressFactor } = newTDEEFactors;
     if (!name || !activityFactor || !stressFactor) {
       alert("欄位不能為空");
@@ -57,14 +73,22 @@ export function TDEEEditDialog() {
       activityFactor: Number(activityFactor),
       stressFactor: Number(stressFactor),
     }
-    addSetting('tdee', newItem);
+    addList(newItem);
 
     // reset input fields
     setNewTDEEFactors(DEFAULT_TDEE_ITEM);
   }
 
+  const handleDialogOpen = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen && isLoggedIn && JSON.stringify(tdeeList) !== JSON.stringify(tdeeFactors)) {
+      setTDEEList(tdeeFactors);
+    }
+    if (!isOpen && isLoggedIn) updateSetting('tdee', tdeeList);
+  }
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={handleDialogOpen}>
       <DialogTrigger asChild>
         <Button>Edit</Button>
       </DialogTrigger>
@@ -84,7 +108,7 @@ export function TDEEEditDialog() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tdeeFactors.length > 0 && tdeeFactors.map((factor, index) => (
+            {tdeeList.length > 0 && tdeeList.map((factor, index) => (
               <TableRow key={`${factor.name}-${index}`}>
                 <TableCell className="max-w-[50px] text-wrap whitespace-normal sm:max-w-[100px]">{factor.name}</TableCell>
                 <TableCell>{factor.activityFactor}</TableCell>

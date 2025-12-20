@@ -39,13 +39,17 @@ export function useUserSetting() {
     await refresh();
   }, [getCurrentSettings, refresh]);
 
-  const updateSetting = (field, newSettings) => {
+  const updateSetting = useCallback(async (field, newSettings) => {
     if (!userId) return alert("此功能請登入後使用");
-    return upsertUserPreferences(userId, { [`${field}_factors`]: newSettings });
-  }
+    if (JSON.stringify(newSettings) === JSON.stringify(getCurrentSettings(field))) return;
+
+    await upsertUserPreferences(userId, { [`${field}_factors`]: newSettings });
+    await refresh();
+  }, [userId, getCurrentSettings]);
 
   return {
     addSetting,
-    deleteSetting
+    deleteSetting,
+    updateSetting
   }
 }
