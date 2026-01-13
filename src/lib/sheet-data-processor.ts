@@ -27,13 +27,13 @@ const FIELD_MAPPINGS: FieldMappings = {
   },
   ingredients: {
     'calories': 'calories',
-    'carbohydrate': 'carbohydrate',
+    'carbohydrates': 'carbohydrates',
     'protein': 'protein',
     'fat': 'fat',
     'phosphorus': 'phosphorus',
     'potassium': 'potassium',
     'sodium': 'sodium',
-    'fiber': 'fiber'
+    'dietary_fiber': 'dietary_fiber'
   }
 }
 
@@ -135,16 +135,16 @@ const productMerger = (
 
   // ingredients
   const ingredientsResult = ingredientsMap.get(productId)
-  const { calories, carbohydrate, protein, fat, phosphorus, potassium, sodium, fiber } = ingredientsResult?.[0] || {}
+  const { calories, carbohydrates, protein, fat, phosphorus, potassium, sodium, dietary_fiber } = ingredientsResult?.[0] || {}
   const ingredients = {
     calories: Number(calories) || 0,
-    carbohydrate: Number(carbohydrate) || 0,
+    carbohydrates: Number(carbohydrates) || 0,
     protein: Number(protein) || 0,
     fat: Number(fat) || 0,
     phosphorus: Number(phosphorus) || 0,
     potassium: Number(potassium) || 0,
     sodium: Number(sodium) || 0,
-    fiber: Number(fiber) || 0
+    dietary_fiber: Number(dietary_fiber) || 0
   }
 
   return {

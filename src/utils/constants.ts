@@ -1,4 +1,4 @@
-import { NutritionConfig, TDEEList, CalorieFactorList, ProteinList } from "@/types";
+import { TDEEList, CalorieFactorList, ProteinList } from "@/types";
 
 interface UnitMapping {
   [key: string]: string;
@@ -43,58 +43,43 @@ export const OPERATOR_OPTIONS = [
   { id: "and", name: "和" },
 ]
 
-export const NUTRITION_CONFIG: NutritionConfig[] = [
-  {
-    key: 'calories',
-    label: '熱量',
-    unit: 'Kcal',
-    hasChart: true,
-    infoText: '百分比 = 營養品熱量 / 輸入的熱量'
-  },
-  {
-    key: 'protein',
-    label: '蛋白質',
-    unit: 'g',
-    hasChart: true,
-    infoText: '百分比 = 營養品蛋白質 / 輸入的最小蛋白質'
-  },
-  {
-    key: 'carbohydrate',
-    label: '碳水化合物',
-    unit: 'g',
-    hasChart: false,
-  },
-  {
-    key: 'fat',
-    label: '脂肪',
-    unit: 'g',
-    hasChart: false,
-  },
-  {
-    key: 'phosphorus',
-    label: '磷',
-    unit: 'mg',
-    hasChart: false,
-  },
-  {
-    key: 'potassium',
-    label: '鉀',
-    unit: 'mg',
-    hasChart: false,
-  },
-  {
-    key: 'sodium',
-    label: '鈉',
-    unit: 'mg',
-    hasChart: false,
-  },
-  {
-    key: 'fiber',
-    label: '纖維',
-    unit: 'g',
-    hasChart: false,
-  }
-]
+export const CORE_NUTRIENTS = [
+  'calories',
+  'protein',
+  'carbohydrates',
+  'fat',
+  'phosphorus',
+  'potassium',
+  'sodium',
+  'dietary_fiber'
+] as const
+
+export const NUTRIENT_LABELS = {
+  calories: '熱量',
+  carbohydrates: '碳水化合物',
+  protein: '蛋白質',
+  fat: '脂肪',
+  phosphorus: '磷',
+  potassium: '鉀',
+  sodium: '鈉',
+  dietary_fiber: '纖維',
+}
+
+export const NUTRIENT_UNITS = {
+  calories: 'Kcal',
+  carbohydrates: 'g',
+  protein: 'g',
+  fat: 'g',
+  phosphorus: 'mg',
+  potassium: 'mg',
+  sodium: 'mg',
+  dietary_fiber: 'g',
+}
+
+export const NUTRIENT_INFO_TEXTS = {
+  calories: '百分比 = 營養品熱量 / 輸入的熱量',
+  protein: '百分比 = 營養品蛋白質 / 輸入的最小蛋白質',
+}
 
 export const DEFAULT_TDEE_SETTINGS: TDEEList[] = [
   {

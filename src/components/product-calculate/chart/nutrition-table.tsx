@@ -9,10 +9,11 @@ import { NutritionBarChart } from "./nutrition-bar-chart"
 import { CaloriesPerWeightInfo } from "./calories-per-weight-info"
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations"
-import { NUTRITION_CONFIG } from "@/utils/constants"
-import { NutritionConfig, IngredientsData } from "@/types"
-import { useMemo } from "react"
+import { IngredientsData } from "@/types"
+import { useMemo, useState } from "react"
 import { useNutritionChartData } from "@/hooks/product-calculate/useNutritionChartData"
+import { CORE_NUTRIENTS, NUTRIENT_LABELS, NUTRIENT_UNITS, NUTRIENT_INFO_TEXTS } from "@/utils/constants"
+import { Switch } from "@/components/ui/switch"
 
 function ProteinRangeBlock({ protein }: { protein: number }) {
   const { proteinRange } = useBioInfo()
@@ -51,31 +52,31 @@ const NutritionTitle = ({ label, infoText }: { label: string; infoText?: string 
 }
 
 const NutritionRow = ({ 
-  value, config 
+  value, nutrient 
 }: { 
   value: number,
-  config: NutritionConfig,
+  nutrient: string,
 }) => {
   const { getCaloriesChartData, getProteinChartData, isProteinRangeValid } = useNutritionChartData()
   const { pbw } = useBioInfoCalculations()
-  const { key, label, unit, hasChart, infoText } = config;
-  const isShowCaloriesPerWeight = key === 'calories' && value > 0 && pbw > 0
-  const isShowProteinRange = key === 'protein' && value > 0 && isProteinRangeValid 
+  const isShowCaloriesPerWeight = nutrient === 'calories' && value > 0 && pbw > 0
+  const isShowProteinRange = nutrient === 'protein' && value > 0 && isProteinRangeValid
+  const hasChart = nutrient === 'calories' || nutrient === 'protein'
 
   const chartData = useMemo(() => {
-    if (key === 'calories') return getCaloriesChartData(value)
-    if (key === 'protein') return getProteinChartData(value)
+    if (nutrient === 'calories') return getCaloriesChartData(value)
+    if (nutrient === 'protein') return getProteinChartData(value)
     return []
-  }, [getCaloriesChartData, getProteinChartData, key, value])
+  }, [getCaloriesChartData, getProteinChartData, nutrient, value])
 
   return (
     <>
-      <TableRow key={key}>
-        <TableCell className={getNutritionTitleStyle(key)}>
-          <NutritionTitle label={label} infoText={infoText} />
+      <TableRow key={nutrient}>
+        <TableCell className={getNutritionTitleStyle(nutrient)}>
+          <NutritionTitle label={NUTRIENT_LABELS[nutrient] ?? nutrient} infoText={NUTRIENT_INFO_TEXTS[nutrient]} />
         </TableCell>
         <TableCell>
-          <p>{value} {unit}</p>
+          <p>{value} {NUTRIENT_UNITS[nutrient] ?? ''}</p>
           {isShowProteinRange && <ProteinRangeBlock protein={value} />}
         </TableCell>
         {hasChart && chartData.length > 0 && (
@@ -99,18 +100,46 @@ const NutritionRow = ({
 
 export function NutritionTable({ ingredientsData }: { ingredientsData: IngredientsData }) {
   const { rounding } = useBioInfoCalculations()
+  const [isShowDetail, setIsShowDetail] = useState(false)
+  // console.log('ingredientsData in NutritionTable', ingredientsData)
+
+  const { coreNutrientsList, otherNutrientsList } = useMemo(() => {
+    const validKeys = Object.keys(ingredientsData).filter(key => {
+      const value = ingredientsData[key]
+      return value !== undefined && value >=0
+    })
+
+    return {
+      coreNutrientsList: CORE_NUTRIENTS.filter(key => validKeys.includes(key)),
+      otherNutrientsList: validKeys.filter(key => !CORE_NUTRIENTS.includes(key)).sort(),
+    }
+  }, [ingredientsData])
 
   return (
-    <Table className="min-w-[250px] max-w-[400px]">
-      <TableBody>
-        {NUTRITION_CONFIG.map((item) => (
-          <NutritionRow
-            key={item.key}
-            value={rounding(ingredientsData[item.key])}
-            config={item}
-          />
-        ))}
-      </TableBody>
-    </Table>
+    <div className="flex flex-col space-y-4">
+      <div className="flex items-center space-x-2 font-medium text-sm">
+        <Switch value={isShowDetail} onCheckedChange={() => setIsShowDetail(!isShowDetail)} />
+        <span>顯示全部營養素</span>
+      </div>
+      
+      <Table className="min-w-[250px] max-w-[400px]">
+        <TableBody>
+          {coreNutrientsList.map((key) => (
+            <NutritionRow
+              key={key}
+              nutrient={key}
+              value={rounding(ingredientsData[key])}
+            />
+          ))}
+          {isShowDetail && otherNutrientsList.map((key) => (
+            <NutritionRow
+              key={key}
+              nutrient={key}
+              value={rounding(ingredientsData[key])}
+            />
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }

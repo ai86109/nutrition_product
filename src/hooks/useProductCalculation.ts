@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useState } from "react"
-import { SelectOption, ProductData, ApiProductData, UserInput } from "@/types"
+import { SelectOption, ProductData, ApiProductData, UserInput, IngredientsData, CoreNutrients } from "@/types"
 import { UNIT_MAPPINGS } from "@/utils/constants"
 import { useProduct } from "@/contexts/ProductContext"
+import { CORE_NUTRIENTS } from "@/utils/constants"
 
 export function useProductCalculation() {
   const { allProducts, productList } = useProduct()
@@ -59,6 +60,22 @@ export function useProductCalculation() {
     return selectOptions
   }
 
+  const processIngredients = (ingredients: IngredientsData): IngredientsData => {
+    const result: CoreNutrients = CORE_NUTRIENTS.reduce((acc, nutrient) => {
+      acc[nutrient] = 0
+      return acc
+    }, {} as CoreNutrients)
+
+    for (const [key, value] of Object.entries(ingredients)) {
+      const numValue = Number(value)
+      if (isNaN(numValue)) continue
+
+      result[key] = numValue
+    }
+
+    return result
+  }
+
   const transformProductFormat = useCallback((product: ApiProductData | undefined, productId: string) => {
     if (!product) return null
 
@@ -84,16 +101,7 @@ export function useProductCalculation() {
         selectedId: finalSelectedId,
         selectOptions,
       },
-      ingredients: {
-        calories: product.ingredients.calories,
-        carbohydrate: product.ingredients.carbohydrate,
-        protein: product.ingredients.protein,
-        fat: product.ingredients.fat,
-        phosphorus: product.ingredients.phosphorus,
-        potassium: product.ingredients.potassium,
-        sodium: product.ingredients.sodium,
-        fiber: product.ingredients.fiber,
-      },
+      ingredients: processIngredients(product.ingredients),
       categories: product.categories || [],
     }
   }, [userInputs])

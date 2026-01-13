@@ -8,13 +8,13 @@ describe('useIngredientCalculation', () => {
       const { result } = renderHook(() => useIngredientCalculation([]));
       expect(result.current.ingredientsData).toEqual({
         calories: 0,
-        carbohydrate: 0,
+        carbohydrates: 0,
         protein: 0,
         fat: 0,
         phosphorus: 0,
         potassium: 0,
         sodium: 0,
-        fiber: 0,
+        dietary_fiber: 0,
       });
     });
   });
@@ -24,13 +24,13 @@ describe('useIngredientCalculation', () => {
       const { result } = renderHook(() => useIngredientCalculation([mockListData[0]]))
       expect(result.current.ingredientsData).toEqual({
         calories: 382.8,
-        carbohydrate: 47.5,
+        carbohydrates: 47.5,
         protein: 16,
         fat: 14.8,
         phosphorus: 192,
         potassium: 450,
         sodium: 250,
-        fiber: 3,
+        dietary_fiber: 3,
       });
     });
 
@@ -38,13 +38,13 @@ describe('useIngredientCalculation', () => {
       const { result } = renderHook(() => useIngredientCalculation(mockListData))
       expect(result.current.ingredientsData).toEqual({
         calories: 773.0807017543859,
-        carbohydrate: 101.9578947368421,
+        carbohydrates: 101.9578947368421,
         protein: 33.27543859649123,
         fat: 27.85263157894737,
         phosphorus: 451,
         potassium: 1014.7017543859649,
         sodium: 633.3333333333334,
-        fiber: 9.733333333333333,
+        dietary_fiber: 9.733333333333333,
       });
     });
 
@@ -53,13 +53,13 @@ describe('useIngredientCalculation', () => {
       const { result } = renderHook(() => useIngredientCalculation([uncheckedProduct, mockListData[1]]))
       expect(result.current.ingredientsData).toEqual({
         calories: 289,
-        carbohydrate: 40.9,
+        carbohydrates: 40.9,
         protein: 13.2,
         fat: 9.3,
         phosphorus: 190,
         potassium: 438,
         sodium: 299,
-        fiber: 5.2,
+        dietary_fiber: 5.2,
       });
     });
 
@@ -68,13 +68,13 @@ describe('useIngredientCalculation', () => {
       const { result } = renderHook(() => useIngredientCalculation([zeroQuantityProduct, mockListData[1]]))
       expect(result.current.ingredientsData).toEqual({
         calories: 289,
-        carbohydrate: 40.9,
+        carbohydrates: 40.9,
         protein: 13.2,
         fat: 9.3,
         phosphorus: 190,
         potassium: 438,
         sodium: 299,
-        fiber: 5.2,
+        dietary_fiber: 5.2,
       });
     });
 
@@ -83,13 +83,13 @@ describe('useIngredientCalculation', () => {
       const { result } = renderHook(() => useIngredientCalculation([negativeQuantityProduct, mockListData[1]]))
       expect(result.current.ingredientsData).toEqual({
         calories: 289,
-        carbohydrate: 40.9,
+        carbohydrates: 40.9,
         protein: 13.2,
         fat: 9.3,
         phosphorus: 190,
         potassium: 438,
         sodium: 299,
-        fiber: 5.2,
+        dietary_fiber: 5.2,
       });
     });
 
@@ -98,13 +98,13 @@ describe('useIngredientCalculation', () => {
       const { result } = renderHook(() => useIngredientCalculation([invalidRatioProduct, mockListData[1]]))
       expect(result.current.ingredientsData).toEqual({
         calories: 289,
-        carbohydrate: 40.9,
+        carbohydrates: 40.9,
         protein: 13.2,
         fat: 9.3,
         phosphorus: 190,
         potassium: 438,
         sodium: 299,
-        fiber: 5.2,
+        dietary_fiber: 5.2,
       });
     });
   })

@@ -5,7 +5,7 @@ import { useMemo } from "react"
 import { LabelList, Pie, PieChart } from "recharts"
 
 const pieChartConfig: ChartConfig = {
-  carbohydrate: {
+  carbohydrates: {
     label: "Carbs",
     color: "red",
   },
@@ -21,15 +21,15 @@ const pieChartConfig: ChartConfig = {
 
 export function MacronutrientsPieChart({ ingredientsData }: { ingredientsData: IngredientsData }) {
   const pieChartData = useMemo(() => {
-    const { carbohydrate, protein, fat } = ingredientsData
+    const { carbohydrates = 0, protein = 0, fat = 0 } = ingredientsData
 
-    if (carbohydrate === 0 && protein === 0 && fat === 0) return []
-    const totalCalories = carbohydrate * 4 + protein * 4 + fat * 9
-    const carbohydratePercentage = ((carbohydrate * 4) / totalCalories) * 100
+    if (carbohydrates === 0 && protein === 0 && fat === 0) return []
+    const totalCalories = carbohydrates * 4 + protein * 4 + fat * 9
+    const carbohydratesPercentage = ((carbohydrates * 4) / totalCalories) * 100
     const proteinPercentage = ((protein * 4) / totalCalories) * 100
     const fatPercentage = ((fat * 9) / totalCalories) * 100
     return [
-      { macronutrients: "carbohydrate", percentage: carbohydratePercentage, fill: "#765337" },
+      { macronutrients: "carbohydrates", percentage: carbohydratesPercentage, fill: "#765337" },
       { macronutrients: "protein", percentage: proteinPercentage, fill: "#8f633d" },
       { macronutrients: "fat", percentage: fatPercentage, fill: "#ad7c48" },
     ]
