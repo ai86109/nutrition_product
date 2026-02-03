@@ -1,3 +1,5 @@
+import { NUTRIENT_UNITS } from '@/utils/constants'
+
 const categoryMap = {
   'balanced': '均衡配方',
   'concentrated': '濃縮配方',
@@ -20,12 +22,40 @@ const categoryProcessor = (categories) => {
   })
 }
 
+const normalizeDefaultUnit = (unit) => {
+  if (unit.includes('µg')) return 'ug'
+  if (unit.includes('mg')) return 'mg'
+  return unit.trim().toLowerCase()
+}
+
+const UNIT_CONVERSIONS = {
+  'g': 1,
+  'mg': 1000,
+  'ug': 1000000,
+}
+
+const convertToStandardUnit = (value, fromUnit, toUnit) => {
+  const normalizedFrom = UNIT_CONVERSIONS[fromUnit] || 1
+  const normalizedTo = UNIT_CONVERSIONS[toUnit] || 1
+
+  if (normalizedFrom === normalizedTo) return value
+
+  const factor = normalizedTo / normalizedFrom
+  return value * factor
+}
+
 const ingredientsProcessor = (ingredients, factor) => {
   if (!factor || factor <= 0) return ingredients
 
   const processedIngredients = {}
   for (const [key, value] of Object.entries(ingredients)) {
-    processedIngredients[key] = Number((value.value * factor).toFixed(2))
+    const defaultUnit = normalizeDefaultUnit(NUTRIENT_UNITS[key]) || ''
+    const unit = value.unit || ''
+    let convertedValue = Number(value.value) || 0
+    if (unit !== defaultUnit) {
+      convertedValue = convertToStandardUnit(convertedValue, unit, defaultUnit)
+    }
+    processedIngredients[key] = Number((convertedValue * factor).toFixed(2))
   }
 
   return processedIngredients

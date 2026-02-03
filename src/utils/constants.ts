@@ -136,7 +136,7 @@ export const NUTRIENT_LABELS = {
 }
 
 export const NUTRIENT_UNITS = {
-  calories: 'Kcal',
+  calories: 'kcal',
   carbohydrates: 'g',
   protein: 'g',
   fat: 'g',
@@ -157,7 +157,7 @@ export const NUTRIENT_UNITS = {
   magnesium: 'mg',
   manganese: 'mg',
   molybdenum: 'µg',
-  niacin: 'µg NE',
+  niacin: 'mg NE',
   pantothenic_acid: 'mg',
   selenium: 'µg',
   taurine: 'mg',
@@ -210,7 +210,7 @@ export const NUTRIENT_UNITS = {
   mcfa: 'g',
   mufa: 'g',
   pufa: 'g',
-  omega_3_fatty_acid: 'g',
+  omega_3_fatty_acid: 'mg',
   omega_6_fatty_acid: 'g',
   omega_9_fatty_acid: 'g',
   fructooligosaccharides: 'g',
