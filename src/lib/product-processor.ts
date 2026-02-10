@@ -23,6 +23,7 @@ const categoryProcessor = (categories) => {
 }
 
 const normalizeDefaultUnit = (unit) => {
+  if (!unit) return ''
   if (unit.includes('µg')) return 'ug'
   if (unit.includes('mg')) return 'mg'
   return unit.trim().toLowerCase()
