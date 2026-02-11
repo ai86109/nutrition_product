@@ -5,19 +5,19 @@ import { DRIS } from "@/utils/constants"
 export function useDRIsCalculation(
   nutrient: string,
   nutrientValue: number,
-  state: null | { type: 'pregnancy' | 'lactation', pregnancyState: number | null },
+  state: null | { type: 'pregnancy' | 'lactation', pregnancyState: string | null },
   caloriesValue?: number,
 ) {
   const { submittedValues } = useBioInfo()
   const { gender, age } = submittedValues
 
-  const drisContent = useMemo(() => {
+  const drisContent: { item: string, value: number }[] | null = useMemo(() => {
     const drisForNutrient = DRIS[nutrient]
     if (!drisForNutrient) return null
 
     let ageGroup = 0
     Object.keys(drisForNutrient.age).forEach(ageScope => {
-      if (ageScope <= age) ageGroup = ageScope
+      if (Number(ageScope) <= age) ageGroup = Number(ageScope)
     })
 
     const ageGroupData = drisForNutrient.age[ageGroup]
@@ -74,13 +74,13 @@ export function useDRIsCalculation(
     return range
   }, [drisContent])
 
-  const calculatedValue = useMemo(() => {
+  const calculatedValue: number = useMemo(() => {
     if (!drisContent) return nutrientValue
 
     const hasAMDR = drisContent.some(({ item }) => item === 'amdr')
 
     if (hasAMDR && caloriesValue && caloriesValue > 0) {
-      return Number((nutrientValue * 9 / caloriesValue) * 100).toFixed(1)
+      return Number(((nutrientValue * 9 / caloriesValue) * 100).toFixed(1))
     }
 
     return nutrientValue

@@ -43,7 +43,7 @@ export const OPERATOR_OPTIONS = [
   { id: "and", name: "和" },
 ]
 
-export const CORE_NUTRIENTS = [
+export const CORE_NUTRIENTS: readonly string[] = [
   'calories',
   'protein',
   'carbohydrates',
@@ -54,7 +54,7 @@ export const CORE_NUTRIENTS = [
   'dietary_fiber'
 ] as const
 
-export const NUTRIENT_LABELS = {
+export const NUTRIENT_LABELS: { [key: string]: string } = {
   calories: '熱量',
   carbohydrates: '碳水化合物',
   protein: '蛋白質',
@@ -137,7 +137,7 @@ export const NUTRIENT_LABELS = {
   lutein: '葉黃素',
 }
 
-export const NUTRIENT_UNITS = {
+export const NUTRIENT_UNITS: { [key: string]: string } = {
   calories: 'kcal',
   carbohydrates: 'g',
   protein: 'g',
@@ -220,7 +220,7 @@ export const NUTRIENT_UNITS = {
   lutein: 'mg'
 }
 
-export const NUTRIENT_INFO_TEXTS = {
+export const NUTRIENT_INFO_TEXTS: { [key: string]: string } = {
   calories: '百分比 = 營養品熱量 / 輸入的熱量',
   protein: '百分比 = 營養品蛋白質 / 輸入的最小蛋白質',
 }
@@ -247,7 +247,7 @@ export const DEFAULT_PROTEIN_SETTINGS: ProteinList[] = [
   { id: 6, value: 2.0, checked: true },
 ]
 
-export const DRIS = {
+export const DRIS: { [key: string]: any } = {
   calories: {
     age: {
       1: {

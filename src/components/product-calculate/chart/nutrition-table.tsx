@@ -16,6 +16,9 @@ import { CORE_NUTRIENTS, NUTRIENT_LABELS, NUTRIENT_UNITS, NUTRIENT_INFO_TEXTS, D
 import { Switch } from "@/components/ui/switch"
 import { useDRIsCalculation } from "@/hooks/useDRIsCalculation"
 import { WomanStateSelector } from "@/components/product-calculate/chart/woman-state-selector"
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button"
+import { redirect } from 'next/navigation'
 
 function ProteinRangeBlock({ protein }: { protein: number }) {
   const { proteinRange } = useBioInfo()
@@ -65,20 +68,26 @@ const DRIsBlock = ({
   )
 }
 
-const DRIsCell = ({ nutrientValue, nutrient, state, caloriesValue }: { nutrientValue: number, nutrient: string, state: null | { type: 'pregnancy' | 'lactation', pregnancyState: number | null }, caloriesValue?: number }) => {
-  const { drisContent, markColor, calculatedValue } = useDRIsCalculation(nutrient, nutrientValue, state, caloriesValue)
-  
-  if (!drisContent || drisContent.length === 0) return null
-  
+const LoggedInDRIsCell = ({ 
+  drisContent,
+  markColor, 
+  calculatedValue, 
+  nutrient 
+}: { 
+  drisContent: { item: string, value: number }[], 
+  markColor: string, 
+  calculatedValue: number, 
+  nutrient: string 
+}) => {
   const unit = NUTRIENT_UNITS[nutrient] || ''
   const isProtein = nutrient === 'protein'
-  
+
   return (
     <div className="text-xs text-muted-foreground flex items-center justify-between">
       <div className="flex items-center">
         <div className="w-[1px] h-[20px] bg-gray-300 mr-2"></div>
         <div>
-          {drisContent.map(({ item, value }) => {
+          {drisContent.map(({ item, value }: { item: string, value: number }) => {
             const isAMDR = item === 'amdr'
             const isMeetStandard = calculatedValue >= (Array.isArray(value) ? value[0] : value)
 
@@ -109,19 +118,68 @@ const DRIsCell = ({ nutrientValue, nutrient, state, caloriesValue }: { nutrientV
   )
 }
 
+const LoggedOutDRIsCell = ({ drisContent }: { drisContent: { item: string, value: number }[] }) => {
+  return (
+    <div className="text-xs text-muted-foreground flex items-center justify-between opacity-70">
+      <div className="flex items-center">
+        <div className="w-[1px] h-[20px] bg-gray-300 mr-2"></div>
+        <div>
+          {drisContent.map(({ item }: { item: string }) => (
+              <DRIsBlock key={item} isMeetStandard={false}>
+                {item === 'amdr' && (
+                  <p className="font-bold text-black">-</p>
+                )}
+                <p>
+                  <span className="uppercase">{item}:</span>
+                  <span className="ml-1">-</span>
+                </p>
+              </DRIsBlock>
+            )
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const DRIsCell = ({ nutrientValue, nutrient, state, caloriesValue }: { nutrientValue: number, nutrient: string, state: null | { type: 'pregnancy' | 'lactation', pregnancyState: string | null }, caloriesValue?: number }) => {
+  const { drisContent, markColor, calculatedValue } = useDRIsCalculation(nutrient, nutrientValue, state, caloriesValue)
+  const { isLoggedIn } = useAuth();
+
+  if (!drisContent || drisContent.length === 0) return null
+  
+  const unit = NUTRIENT_UNITS[nutrient] || ''
+  const isProtein = nutrient === 'protein'
+  
+  return (
+    <>
+      {isLoggedIn
+        ? <LoggedInDRIsCell 
+            nutrient={nutrient} 
+            drisContent={drisContent} 
+            markColor={markColor} 
+            calculatedValue={calculatedValue} 
+          /> 
+        : <LoggedOutDRIsCell drisContent={drisContent} />}
+    </>
+  )
+}
+
 const NutritionRow = ({ 
   value, nutrient, state = null, caloriesValue = 0
 }: { 
   value: number,
   nutrient: string,
-  state: null | { type: 'pregnancy' | 'lactation', pregnancyState: number | null }
+  state: null | { type: 'pregnancy' | 'lactation', pregnancyState: string | null }
   caloriesValue?: number
 }) => {
+  const { isLoggedIn } = useAuth();
   const { getCaloriesChartData, getProteinChartData, isProteinRangeValid } = useNutritionChartData()
   const { pbw } = useBioInfoCalculations()
   const isShowCaloriesPerWeight = nutrient === 'calories' && value > 0 && pbw > 0
   const isShowProteinRange = nutrient === 'protein' && value > 0 && isProteinRangeValid
-  const hasChart = nutrient === 'calories' || nutrient === 'protein'
+  const isCaloriesOrProtein = ['calories', 'protein'].includes(nutrient)
+  const hasChart = isCaloriesOrProtein
   
   const chartData = useMemo(() => {
     if (nutrient === 'calories') return getCaloriesChartData(value)
@@ -132,8 +190,9 @@ const NutritionRow = ({
   const hasDRIs = useMemo(() => DRIS[nutrient] !== undefined, [nutrient])
   const { submittedValues } = useBioInfo()
   const { gender, age } = submittedValues
-  const isShowDRIs = hasDRIs && gender && age > 0 && !['calories', 'protein'].includes(nutrient)
-  const isShowProteinDRIs = nutrient === 'protein' && gender && age > 0
+  const hasGenderAndAge = gender && age > 0
+  const isShowDRIs = hasDRIs && hasGenderAndAge && !isCaloriesOrProtein
+  const isShowProteinDRIs = nutrient === 'protein' && hasGenderAndAge
 
   return (
     <>
@@ -148,11 +207,13 @@ const NutritionRow = ({
           </p>
           {isShowProteinRange && <ProteinRangeBlock protein={value} />}
         </TableCell>
+
         {hasChart && chartData.length > 0 && (
-          <TableCell>
+          <TableCell className="min-w-[120px] min-h-[40px]">
             <NutritionBarChart data={chartData} />
           </TableCell>
         )}
+
         {isShowDRIs && (
           <TableCell>
             <DRIsCell nutrientValue={value} nutrient={nutrient} state={state} caloriesValue={caloriesValue} />
@@ -166,7 +227,7 @@ const NutritionRow = ({
           <TableCell>
             <CaloriesPerWeightInfo value={value} />
           </TableCell>
-          {gender && age > 0 && (
+          {isLoggedIn && hasGenderAndAge && (
             <TableCell>
               <DRIsCell nutrientValue={value} nutrient={nutrient} state={state} caloriesValue={caloriesValue} />
             </TableCell>
@@ -179,7 +240,14 @@ const NutritionRow = ({
           <TableCell></TableCell>
           <TableCell></TableCell>
           <TableCell>
-            <DRIsCell nutrientValue={value} nutrient={nutrient} state={state} caloriesValue={caloriesValue} />
+            {isLoggedIn ? (
+              <DRIsCell nutrientValue={value} nutrient={nutrient} state={state} caloriesValue={caloriesValue} />
+            ) : (
+              <Button className="cursor-pointer" onClick={() => redirect('/auth')}>
+                <span className="material-icons" style={{ fontSize: '14px', height: '14px' }}>lock</span>
+                <span className="text-xs font-bold">登入後查看 DRIs</span>
+              </Button>
+            )}
           </TableCell>
         </TableRow>
       )}
@@ -247,7 +315,7 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
             <NutritionRow
               key={key}
               nutrient={key}
-              value={rounding(ingredientsData[key])}
+              value={rounding(Number(ingredientsData[key]))}
               state={state}
               caloriesValue={caloriesValue}
             />
@@ -256,7 +324,7 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
             <NutritionRow
               key={key}
               nutrient={key}
-              value={rounding(ingredientsData[key])}
+              value={rounding(Number(ingredientsData[key]))}
               state={state}
               caloriesValue={caloriesValue}
             />
