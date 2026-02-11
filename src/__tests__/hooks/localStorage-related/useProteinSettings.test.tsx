@@ -1,5 +1,6 @@
 import { act, renderHook } from "@testing-library/react";
-import { useProteinSettings, DEFAULT_PROTEIN_SETTINGS } from "@/hooks/localStorage-related/useProteinSettings";
+import { useProteinSettings } from "@/hooks/localStorage-related/useProteinSettings";
+import { DEFAULT_PROTEIN_SETTINGS } from "@/utils/constants";
 import { flushSync } from "react-dom";
 
 const STORAGE_KEY = "nutriapp.bio.protein"

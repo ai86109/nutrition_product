@@ -1,16 +1,15 @@
-import { useLocalStorage } from "@/hooks/localStorage-related/useLocalStorage";
-import { CalorieFactorList } from "@/types";
+// import { useLocalStorage } from "@/hooks/localStorage-related/useLocalStorage";
+// import { CalorieFactorList } from "@/types";
+import { useState } from "react";
+// import { DEFAULT_CALORIE_SETTINGS } from "@/utils/constants";
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
-const STORAGE_KEY = "nutriapp.bio.calorie";
-
-export const DEFAULT_CALORIE_SETTINGS: CalorieFactorList[] = [
-  { id: 1, value: 25, checked: true },
-  { id: 2, value: 30, checked: true },
-  { id: 3, value: 35, checked: true },
-]
+// const STORAGE_KEY = "nutriapp.bio.calorie";
 
 export function useCalorieSettings() {
-  const [calorieFactorLists, setCalorieFactorLists] = useLocalStorage<CalorieFactorList[]>(STORAGE_KEY, DEFAULT_CALORIE_SETTINGS);
+  // const [calorieFactorLists, setCalorieFactorLists] = useLocalStorage<CalorieFactorList[]>(STORAGE_KEY, DEFAULT_CALORIE_SETTINGS);
+  const { calorieFactors } = useUserPreferences()
+  const [calorieFactorLists, setCalorieFactorLists] = useState(calorieFactors);
 
   const updateChecked = (checked: boolean, index: number): void => {
     setCalorieFactorLists((prevList) => {
@@ -31,5 +30,5 @@ export function useCalorieSettings() {
     });
   };
 
-  return { calorieFactorLists, updateChecked, updateValue };
+  return { calorieFactorLists, setCalorieFactorLists, updateChecked, updateValue };
 }

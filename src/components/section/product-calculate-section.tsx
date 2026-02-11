@@ -10,7 +10,7 @@ import ProductTable from "../product-calculate/product-table";
 import { useProductCalculation } from "@/hooks/useProductCalculation";
 import { useIngredientCalculation } from "@/hooks/product-calculate/useIngredientCalaculation";
 import { useMealCalculation } from "@/hooks/product-calculate/useMealCalculation";
-import ConditionalContent from "../bio-result/conditional-content"
+import ConditionalContent from "@/components/conditional-content"
 
 
 export default function ProductCalculateSection() {

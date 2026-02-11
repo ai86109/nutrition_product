@@ -17,28 +17,45 @@ import {
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
-import { CalorieFactorList } from "@/types"
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+import { useCalorieSettings } from "@/hooks/localStorage-related/useCalorieSettings";
+import { useState } from "react";
+import { useUserSetting } from '@/hooks/useUserSetting'
+import { useAuth } from "@/contexts/AuthContext";
 
-export function CalorieCountingEditDialog({ 
-  calorieFactorLists,
-  updateChecked,
-  updateValue 
-}: { 
-  calorieFactorLists: CalorieFactorList[],
-  updateChecked: (checked: boolean, index: number) => void,
-  updateValue: (id: string, value: string) => void
-}) {
+export function CalorieCountingEditDialog() {
+  const { isLoggedIn } = useAuth();
+  const { updateSetting } = useUserSetting()
+  const { calorieFactors } = useUserPreferences();
+  const { calorieFactorLists, setCalorieFactorLists, updateChecked, updateValue } = useCalorieSettings();
+  const [open, setOpen] = useState(false);
+
+  const checkLogin = () => {
+    if (!isLoggedIn) alert("此功能請登入後使用");
+    return isLoggedIn;
+  }
+
   const handleCalorieSettingCheck = (checked: boolean, index: number): void => {
+    if (!checkLogin()) return;
     updateChecked(checked, index);
   }
 
   const handleCalorieSettingValueChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    if (!checkLogin()) return;
     const { id, value } = e.target;
     updateValue(id, value);
   }
 
+  const handleDialogOpen = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen && isLoggedIn && JSON.stringify(calorieFactorLists) !== JSON.stringify(calorieFactors)) {
+      setCalorieFactorLists(calorieFactors);
+    }
+    if (!isOpen && isLoggedIn) updateSetting('calorie', calorieFactorLists);
+  }
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={handleDialogOpen}>
       <DialogTrigger asChild>
         <Button>Edit</Button>
       </DialogTrigger>

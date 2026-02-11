@@ -12,15 +12,19 @@ export interface SelectData {
   selectOptions: SelectOption[]
 }
 
-export interface IngredientsData {
+export interface CoreNutrients {
   calories: number
-  carbohydrate: number
+  carbohydrates: number
   protein: number
   fat: number
   phosphorus: number
   potassium: number
   sodium: number
-  fiber: number
+  dietary_fiber: number
+}
+
+export interface IngredientsData extends CoreNutrients {
+  [key: string]: number | undefined
 }
 
 export interface ProductData {
@@ -36,10 +40,22 @@ export interface ProductData {
   categories: string[]
 }
 
-export interface NutritionConfig {
-  key: keyof IngredientsData
-  label: string
-  unit: string
-  hasChart: boolean
-  infoText?: string
+export interface DRISData {
+  [key: string]: {
+    age: {
+      [key: number]: {
+        [key: string]: number | number[] | { [key: string]: number }
+      }
+    },
+    state?: {
+      pregnancy?: {
+        [key: string]: {
+          [key: string]: number
+        }
+      },
+      lactation?: {
+        [key: string]: number
+      }
+    }
+  }
 }

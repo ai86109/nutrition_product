@@ -1,6 +1,7 @@
 import { ApiProductData, ProductData } from "@/types";
 import { BioInfoProvider } from '@/contexts/BioInfoContext';
 import { ProductProvider } from "@/contexts/ProductContext";
+import { SearchProvider } from "@/contexts/SearchContext";
 
 // bio info input
 export const defaultHeight = 180;
@@ -40,13 +41,13 @@ export const mockListData: ProductData[] = [
     },
     "ingredients": {
       "calories": 382.8,
-      "carbohydrate": 47.5,
+      "carbohydrates": 47.5,
       "protein": 16,
       "fat": 14.8,
       "phosphorus": 192,
       "potassium": 450,
       "sodium": 250,
-      "fiber": 3
+      "dietary_fiber": 3
     },
     "categories": [
       "均衡配方",
@@ -78,13 +79,13 @@ export const mockListData: ProductData[] = [
     },
     "ingredients": {
       "calories": 289,
-      "carbohydrate": 40.9,
+      "carbohydrates": 40.9,
       "protein": 13.2,
       "fat": 9.3,
       "phosphorus": 190,
       "potassium": 438,
       "sodium": 299,
-      "fiber": 5.2
+      "dietary_fiber": 5.2
     },
     "categories": [
       "均衡配方",
@@ -146,13 +147,13 @@ export const mockListData: ProductData[] = [
     },
     "ingredients": {
       "calories": 251,
-      "carbohydrate": 33.6,
+      "carbohydrates": 33.6,
       "protein": 10.1,
       "fat": 9.3,
       "phosphorus": 171,
       "potassium": 314,
       "sodium": 209,
-      "fiber": 3.8
+      "dietary_fiber": 3.8
     },
     "categories": [
       "均衡配方"
@@ -183,13 +184,13 @@ export const mockProducts: ApiProductData[] = [
     "defaultAmount": "250",
     "ingredients": {
       "calories": 382.8,
-      "carbohydrate": 47.5,
+      "carbohydrates": 47.5,
       "protein": 16,
       "fat": 14.8,
       "phosphorus": 192,
       "potassium": 450,
       "sodium": 250,
-      "fiber": 3
+      "dietary_fiber": 3
     }
   },
   {
@@ -214,13 +215,13 @@ export const mockProducts: ApiProductData[] = [
     "defaultAmount": "237",
     "ingredients": {
       "calories": 289,
-      "carbohydrate": 40.9,
+      "carbohydrates": 40.9,
       "protein": 13.2,
       "fat": 9.3,
       "phosphorus": 190,
       "potassium": 438,
       "sodium": 299,
-      "fiber": 5.2
+      "dietary_fiber": 5.2
     }
   },
   {
@@ -274,13 +275,13 @@ export const mockProducts: ApiProductData[] = [
     "defaultAmount": "57",
     "ingredients": {
       "calories": 251,
-      "carbohydrate": 33.6,
+      "carbohydrates": 33.6,
       "protein": 10.1,
       "fat": 9.3,
       "phosphorus": 171,
       "potassium": 314,
       "sodium": 209,
-      "fiber": 3.8
+      "dietary_fiber": 3.8
     }
   }
 ]
@@ -315,7 +316,7 @@ export const mockSpecData = [
 ]
 
 export const mockIngredientsData = [
-  ['許可證字號', '中文品名', 'calories', 'carbohydrate', 'protein', 'fat', 'phosphorus', 'potassium', 'sodium', 'fiber'],
+  ['許可證字號', '中文品名', 'calories', 'carbohydrates', 'protein', 'fat', 'phosphorus', 'potassium', 'sodium', 'dietary_fiber'],
   ['1139091114', '測試產品', '100', '20', '5', '0', '0', '0', '0', '0']
 ]
 
@@ -338,11 +339,11 @@ export const formattedMockFetchData = {
     calories: 100,
     protein: 5,
     fat: 0,
-    carbohydrate: 20,
+    carbohydrates: 20,
     phosphorus: 0,
     potassium: 0,
     sodium: 0,
-    fiber: 0
+    dietary_fiber: 0
   }
 }
 
@@ -373,4 +374,17 @@ export const createProductWrapper = (products: ApiProductData[] = mockProducts) 
     <ProductProvider allProducts={products}>{children}</ProductProvider>
   )
   return wrapper
+}
+
+// search context
+export function createSearchWrapper(products: ApiProductData[] = mockProducts) {
+  return function Wrapper({ children }: { children: ReactNode }) {
+    return (
+      <ProductProvider allProducts={products}>
+        <SearchProvider>
+          {children}
+        </SearchProvider>
+      </ProductProvider>
+    )
+  }
 }

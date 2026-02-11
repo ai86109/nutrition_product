@@ -1,7 +1,8 @@
-import { useMemo, useReducer, useState } from "react"
-import { ApiProductData } from "@/types"
+"use client"
+
+import { useMemo, useContext, useReducer, useState, createContext } from "react"
 import { useProduct } from "@/contexts/ProductContext"
-import { SearchState, SearchAction } from "@/types"
+import { ApiProductData, SearchState, SearchAction } from "@/types"
 
 const ALL_TEXT = "全部"
 
@@ -82,7 +83,17 @@ const filterProducts = (products: ApiProductData[], searchState: SearchState) =>
   })
 }
 
-export function useProductSearch() {
+interface SearchContextType {
+  formState: SearchState
+  filteredData: ApiProductData[]
+  updateField: (field: keyof SearchState, value: string | string[]) => void
+  applySearch: () => void
+  reset: () => void
+}
+
+const SearchContext = createContext<SearchContextType | undefined>(undefined)
+
+export function SearchProvider({ children }) {
   const { allProducts } = useProduct()
   const [formState, dispatch] = useReducer(searchReducer, initialState)
   const [appliedState, setAppliedState] = useState<SearchState>(initialState)
@@ -103,11 +114,23 @@ export function useProductSearch() {
     dispatch({ type: 'RESET' })
   }
 
-  return {
-    formState,
-    filteredData,
-    updateField,
-    applySearch,
-    reset,
+  return (
+    <SearchContext.Provider value={{
+      formState,
+      filteredData,
+      updateField,
+      applySearch,
+      reset,
+    }}>
+      {children}
+    </SearchContext.Provider>
+  )
+}
+
+export function useSearch(): SearchContextType {
+  const context = useContext(SearchContext)
+  if (context === undefined) {
+    throw new Error('useSearch must be used within a SearchProvider')
   }
+  return context
 }

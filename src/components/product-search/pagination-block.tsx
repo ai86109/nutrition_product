@@ -7,8 +7,8 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import { ApiProductData } from "@/types/api";
 import { useMemo } from "react";
+import { useSearch } from "@/contexts/SearchContext";
 
 const truncateLength = 5
 
@@ -29,16 +29,15 @@ function calculatePaginationPages(totalPages: number, currentPage: number): (num
 }
 
 export default function PaginationBlock({ 
-  filteredData,
   currentPage,
   handlePageChange,
   itemsPerPage
 }: {
-  filteredData: ApiProductData[],
   currentPage: number,
   handlePageChange: (page: number) => void,
   itemsPerPage: number
 }) {
+  const { filteredData } = useSearch()
   const totalPages = Math.ceil(filteredData.length / itemsPerPage)
 
   const paginationPages = useMemo(() => {

@@ -2,14 +2,14 @@
 
 import { CardContent } from "@/components/ui/card"
 import { useMemo } from "react";
-import { useProductSearch } from "@/hooks/useProductSearch"
 import SearchForm from "../product-search/search-form"
 import ProductTable from "../product-search/product-table"
 import PaginationBlock from "../product-search/pagination-block";
 import { usePagination } from "@/hooks/usePagination";
+import { useSearch } from "@/contexts/SearchContext";
 
 export default function ProductSearchSection() {
-  const { formState, filteredData, updateField, applySearch, reset } = useProductSearch()
+  const { filteredData } = useSearch()
   const { currentPage, setCurrentPage, itemsPerPage } = usePagination()
 
   const currentPageData = useMemo(() => {
@@ -24,13 +24,7 @@ export default function ProductSearchSection() {
 
   return (
     <CardContent>
-      <SearchForm
-        formState={formState}
-        onUpdateField={updateField}
-        onSearch={applySearch}
-        onReset={reset}
-        handlePageChange={handlePageChange}
-      />
+      <SearchForm handlePageChange={handlePageChange} />
 
       <div className="mt-4">
         {currentPageData.length > 0 && (
@@ -38,7 +32,6 @@ export default function ProductSearchSection() {
             <ProductTable currentPageData={currentPageData} />
 
             <PaginationBlock
-              filteredData={filteredData}
               currentPage={currentPage}
               handlePageChange={handlePageChange}
               itemsPerPage={itemsPerPage}

@@ -17,20 +17,50 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ProteinList } from "@/types"
+import { useState } from "react"
+import { useProteinSettings } from "@/hooks/localStorage-related/useProteinSettings";
+import { useAuth } from "@/contexts/AuthContext";
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+import { useUserSetting } from '@/hooks/useUserSetting'
 
-export function ProteinEditDialog({ proteinList, updateChecked, updateValue, resetToDefault }: { proteinList: ProteinList[], updateChecked: (checked: boolean, index: number) => void, updateValue: (id: string, value: string) => void, resetToDefault: () => void }) {
+export function ProteinEditDialog() {
+  const { isLoggedIn } = useAuth();
+  const { updateSetting } = useUserSetting()
+  const { proteinFactors } = useUserPreferences()
+  const { proteinList, setProteinList, updateChecked, updateValue, resetToDefault } = useProteinSettings();
+  const [open, setOpen] = useState(false);
+
+  const checkLogin = () => {
+    if (!isLoggedIn) alert("此功能請登入後使用");
+    return isLoggedIn;
+  }
+
   const handleProteinSettingCheck = (checked: boolean, index: number): void => {
+    if (!checkLogin()) return;
     updateChecked(checked, index);
   }
 
   const handleProteinSettingValueChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    if (!checkLogin()) return;
     const { id, value } = e.target;
     updateValue(id, value);
   }
 
+  const handleReset = (): void => {
+    if (!checkLogin()) return;
+    resetToDefault();
+  }
+
+  const handleDialogOpen = (isOpen: boolean) => {
+    setOpen(isOpen);
+    if (isOpen && isLoggedIn && JSON.stringify(proteinList) !== JSON.stringify(proteinFactors)) {
+      setProteinList(proteinFactors);
+    }
+    if (!isOpen && isLoggedIn) updateSetting('protein', proteinList);
+  }
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={handleDialogOpen}>
       <DialogTrigger asChild>
         <Button>Edit</Button>
       </DialogTrigger>
@@ -61,7 +91,7 @@ export function ProteinEditDialog({ proteinList, updateChecked, updateValue, res
           </TableBody>
         </Table>
 
-        <Button className="w-[100px]" variant="destructive" onClick={resetToDefault}>重置為預設</Button>
+        <Button className="w-[100px]" variant="destructive" onClick={handleReset}>重置為預設</Button>
       </DialogContent>
     </Dialog>
   );

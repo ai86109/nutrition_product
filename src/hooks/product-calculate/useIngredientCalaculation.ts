@@ -1,4 +1,5 @@
-import { IngredientsData, ProductData } from "@/types";
+import { IngredientsData, ProductData, CoreNutrients } from "@/types";
+import { CORE_NUTRIENTS } from "@/utils/constants"
 import { useMemo } from "react";
 
 export function useIngredientCalculation(listData: ProductData[]) {
@@ -16,35 +17,47 @@ export function useIngredientCalculation(listData: ProductData[]) {
     }
     return ratio
   }
+
+  const getAllNutrientKeys = (data) => {
+    const keysSet = new Set<string>()
+
+    CORE_NUTRIENTS.forEach(nutrient => keysSet.add(nutrient))
+
+    data.forEach(item => {
+      if (item.ingredients) {
+        Object.keys(item.ingredients).forEach(key => keysSet.add(key))
+      }
+    })
+
+    return Array.from(keysSet)
+  }
   
   const ingredientsData = useMemo((): IngredientsData => {
+    const allNutrientKeys = getAllNutrientKeys(listData)
+
+    const initialData: CoreNutrients = CORE_NUTRIENTS.reduce((acc, nutrient) => {
+      acc[nutrient] = 0
+      return acc
+    }, {} as CoreNutrients)
+
     return listData.reduce((acc: IngredientsData, item: ProductData) => {
       if (!item.checked) return acc;
       
       const { ingredients } = item
       const quantity = Number(item.quantity) > 0 ? Number(item.quantity) : 0
       const ratio = calculateRatio(item)
-      
-      return {
-        calories: acc.calories + (quantity * ratio * ingredients.calories),
-        carbohydrate: acc.carbohydrate + (quantity * ratio * ingredients.carbohydrate),
-        protein: acc.protein + (quantity * ratio * ingredients.protein),
-        fat: acc.fat + (quantity * ratio * ingredients.fat),
-        phosphorus: acc.phosphorus + (quantity * ratio * ingredients.phosphorus),
-        potassium: acc.potassium + (quantity * ratio * ingredients.potassium),
-        sodium: acc.sodium + (quantity * ratio * ingredients.sodium),
-        fiber: acc.fiber + (quantity * ratio * ingredients.fiber),
-      }
-    }, {
-      calories: 0,
-      carbohydrate: 0,
-      protein: 0,
-      fat: 0,
-      phosphorus: 0,
-      potassium: 0,
-      sodium: 0,
-      fiber: 0,
-    })
+
+      allNutrientKeys.forEach((key) => {
+        const value = ingredients[key] || 0
+        const calculatedValue = quantity * ratio * value
+
+        if (isFinite(calculatedValue) && !isNaN(calculatedValue)) {
+          acc[key] = (acc[key] || 0) + calculatedValue
+        }
+      })
+
+      return acc
+    }, initialData)
   }, [listData])
 
   return { ingredientsData };

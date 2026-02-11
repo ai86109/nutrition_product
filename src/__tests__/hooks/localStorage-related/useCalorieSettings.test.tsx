@@ -1,4 +1,5 @@
-import { DEFAULT_CALORIE_SETTINGS, useCalorieSettings } from "@/hooks/localStorage-related/useCalorieSettings"
+import { useCalorieSettings } from "@/hooks/localStorage-related/useCalorieSettings"
+import { DEFAULT_CALORIE_SETTINGS } from "@/utils/constants"
 import { renderHook } from "@testing-library/react"
 import { act } from "react";
 
