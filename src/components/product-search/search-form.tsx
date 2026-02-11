@@ -103,13 +103,13 @@ export default function SearchForm({ handlePageChange }: { handlePageChange: (pa
     handlePageChange(1) // Reset to the first page after search
   }
 
-  const handleSelectCateChange = (value: string, index: number): void => {
-    if (index < 0 || index >= formState.selectedCate.length) return;
-    const newCate = [...formState.selectedCate]
-    newCate[index] = value
+  // const handleSelectCateChange = (value: string, index: number): void => {
+  //   if (index < 0 || index >= formState.selectedCate.length) return;
+  //   const newCate = [...formState.selectedCate]
+  //   newCate[index] = value
 
-    updateField("selectedCate", newCate)
-  }
+  //   updateField("selectedCate", newCate)
+  // }
 
   return (
     <>
@@ -119,7 +119,7 @@ export default function SearchForm({ handlePageChange }: { handlePageChange: (pa
 
         <SingleSelect value={formState.selectedBrand} options={brandOptions} selectType="selectedBrand" placeholder="選擇品牌" onChange={updateField} />
         <SingleSelect value={formState.selectedType} options={TYPE_OPTIONS} selectType="selectedType" placeholder="選擇劑型" onChange={updateField} />
-        <MultiSelect selectedCate={formState.selectedCate} onChange={handleSelectCateChange} />
+        {/* <MultiSelect selectedCate={formState.selectedCate} onChange={handleSelectCateChange} /> */}
 
         <div className="flex gap-2 w-full mt-1">
           <Button className="flex-1 cursor-pointer" onClick={handleSearchSubmit}>搜尋</Button>
