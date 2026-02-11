@@ -8,7 +8,7 @@ export default function BioCard() {
   const isValidBMI = bmi > 0
   
   return (
-    <Card className="max-h-[120px]">
+    <Card className="max-h-[160px]">
       <CardContent>
         <div className="flex items-center gap-1">
           <ConditionalContent condition={isValidBMI} fallback="請填寫身高、體重來計算 BMI">
