@@ -39,3 +39,23 @@ export interface ProductData {
   ingredients: IngredientsData
   categories: string[]
 }
+
+export interface DRISData {
+  [key: string]: {
+    age: {
+      [key: number]: {
+        [key: string]: number | number[] | { [key: string]: number }
+      }
+    },
+    state?: {
+      pregnancy?: {
+        [key: string]: {
+          [key: string]: number
+        }
+      },
+      lactation?: {
+        [key: string]: number
+      }
+    }
+  }
+}

@@ -1,5 +1,5 @@
 // import { useLocalStorage } from "@/hooks/localStorage-related/useLocalStorage";
-import { CalorieFactorList } from "@/types";
+// import { CalorieFactorList } from "@/types";
 import { useState } from "react";
 // import { DEFAULT_CALORIE_SETTINGS } from "@/utils/constants";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";

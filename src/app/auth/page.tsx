@@ -1,6 +1,5 @@
 'use client'
 
-import AuthForm from "@/components/auth-form";
 import { useAuth } from "@/contexts/AuthContext";
 import { signInWithGoogle, signOut } from "@/utils/supabase/auth"
 import { Button } from "@/components/ui/button"

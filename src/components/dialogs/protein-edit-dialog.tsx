@@ -17,7 +17,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
-import { ProteinList } from "@/types"
 import { useState } from "react"
 import { useProteinSettings } from "@/hooks/localStorage-related/useProteinSettings";
 import { useAuth } from "@/contexts/AuthContext";

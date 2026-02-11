@@ -147,10 +147,7 @@ const DRIsCell = ({ nutrientValue, nutrient, state, caloriesValue }: { nutrientV
   const { isLoggedIn } = useAuth();
 
   if (!drisContent || drisContent.length === 0) return null
-  
-  const unit = NUTRIENT_UNITS[nutrient] || ''
-  const isProtein = nutrient === 'protein'
-  
+    
   return (
     <>
       {isLoggedIn

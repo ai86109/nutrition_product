@@ -1,6 +1,5 @@
 'use client'
 
-import { createClient } from '@/utils/supabase/client'
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserPreferences } from '@/lib/supabase/queries/user-preferences'
@@ -9,7 +8,6 @@ import { DEFAULT_CALORIE_SETTINGS, DEFAULT_TDEE_SETTINGS, DEFAULT_PROTEIN_SETTIN
 const UserPreferencesContext = createContext(undefined)
 
 export function UserPreferencesProvider({ children }) {
-  const supabase = createClient()
   const { session } = useAuth()
   const { id: userId } = session?.user || {}
   const [calorieFactors, setCalorieFactors] = useState(DEFAULT_CALORIE_SETTINGS)

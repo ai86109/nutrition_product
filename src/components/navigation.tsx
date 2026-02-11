@@ -3,11 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button"
 import { redirect } from 'next/navigation'
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar"
+import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import ConditionalContent from "@/components/conditional-content";
 import { Skeleton } from "@/components/ui/skeleton"
 

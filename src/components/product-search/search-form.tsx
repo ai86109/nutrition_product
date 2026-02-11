@@ -7,7 +7,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { TYPE_OPTIONS, CATEGORY_OPTIONS, OPERATOR_OPTIONS } from "@/utils/constants"
+import { TYPE_OPTIONS } from "@/utils/constants"
 import { useProduct } from "@/contexts/ProductContext";
 import { useSearch } from "@/contexts/SearchContext";
 import { SearchState } from "@/types";
@@ -62,37 +62,37 @@ const SingleSelect = ({ value, options, selectType, placeholder, onChange }: Sin
   )
 }
 
-interface MultiSelectProps {
-  selectedCate: string[];
-  onChange: (value: string, index: number) => void;
-}
+// interface MultiSelectProps {
+//   selectedCate: string[];
+//   onChange: (value: string, index: number) => void;
+// }
 
-const MultiSelect = ({ selectedCate, onChange }: MultiSelectProps) => {
-  const selectors = [
-    { index: 0, key: 'category-0', value: selectedCate[0], placeholder: "選擇類別", options: CATEGORY_OPTIONS },
-    { index: 1, key: 'operator-1', value: selectedCate[1], placeholder: "或", options: OPERATOR_OPTIONS },
-    { index: 2, key: 'category-2', value: selectedCate[2], placeholder: "選擇類別", options: CATEGORY_OPTIONS },
-  ]
+// const MultiSelect = ({ selectedCate, onChange }: MultiSelectProps) => {
+//   const selectors = [
+//     { index: 0, key: 'category-0', value: selectedCate[0], placeholder: "選擇類別", options: CATEGORY_OPTIONS },
+//     { index: 1, key: 'operator-1', value: selectedCate[1], placeholder: "或", options: OPERATOR_OPTIONS },
+//     { index: 2, key: 'category-2', value: selectedCate[2], placeholder: "選擇類別", options: CATEGORY_OPTIONS },
+//   ]
 
-  return (
-    <div className="flex space-x-2 w-full justify-between">
-      {selectors.map(({ key, index, value, placeholder, options }) => (
-        <Select key={key} value={value} onValueChange={(value) => onChange(value, index)}>
-          <SelectTrigger className="w-full">
-            <SelectValue placeholder={placeholder} />
-          </SelectTrigger>
-          <SelectContent>
-            {options.map((option) => (
-              <SelectItem key={option.id} value={option.id}>
-                {option.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      ))}
-    </div>
-  )
-}
+//   return (
+//     <div className="flex space-x-2 w-full justify-between">
+//       {selectors.map(({ key, index, value, placeholder, options }) => (
+//         <Select key={key} value={value} onValueChange={(value) => onChange(value, index)}>
+//           <SelectTrigger className="w-full">
+//             <SelectValue placeholder={placeholder} />
+//           </SelectTrigger>
+//           <SelectContent>
+//             {options.map((option) => (
+//               <SelectItem key={option.id} value={option.id}>
+//                 {option.name}
+//               </SelectItem>
+//             ))}
+//           </SelectContent>
+//         </Select>
+//       ))}
+//     </div>
+//   )
+// }
 
 export default function SearchForm({ handlePageChange }: { handlePageChange: (page: number) => void }) {
   const { brandOptions } = useProduct()

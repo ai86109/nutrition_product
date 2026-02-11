@@ -19,7 +19,7 @@ export async function getProductsFromSheets(): Promise<ApiProductData[]> {
 export async function getProductFromSupabase() {
   try {
     const supabase = await createClientForServer()
-    let { data: products, error } = await supabase
+    const { data: products, error } = await supabase
       .from('products')
       .select(`*, product_variants (*)`)
 

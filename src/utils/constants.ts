@@ -1,4 +1,4 @@
-import { TDEEList, CalorieFactorList, ProteinList } from "@/types";
+import { TDEEList, CalorieFactorList, ProteinList, DRISData } from "@/types";
 
 interface UnitMapping {
   [key: string]: string;
@@ -247,7 +247,7 @@ export const DEFAULT_PROTEIN_SETTINGS: ProteinList[] = [
   { id: 6, value: 2.0, checked: true },
 ]
 
-export const DRIS: { [key: string]: any } = {
+export const DRIS: DRISData = {
   calories: {
     age: {
       1: {
@@ -620,7 +620,7 @@ export const DRIS: { [key: string]: any } = {
         rda: { man: 100, woman: 100 },
         ul: { man: 1800, woman: 1800 }
       },
-      13: {
+      19: {
         rda: { man: 100, woman: 100 },
         ul: { man: 2000, woman: 2000 }
       }

@@ -1,4 +1,3 @@
-import { ProteinList } from "@/types";
 // import { useLocalStorage } from "./useLocalStorage";
 import { DEFAULT_PROTEIN_SETTINGS } from "@/utils/constants";
 import { useState } from "react";

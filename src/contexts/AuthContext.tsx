@@ -22,7 +22,7 @@ export function AuthProvider({ children }) {
     })
 
     return () => data.subscription.unsubscribe()
-  }, [])
+  }, [supabase.auth])
 
   return (
     <AuthContext.Provider value={{ session, setSession, loading, isLoggedIn }}>

@@ -6,7 +6,6 @@ import CalorieTypesBlock from "./calorie-types-block";
 import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations";
 import ConditionalContent from "@/components/conditional-content";
 import CalculationTable from "./calculation-table";
-import { ProteinList } from "@/types";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 
 export default function ProteinCard() {
