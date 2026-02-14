@@ -1,8 +1,7 @@
 import { useCallback, useMemo, useState } from "react"
-import { SelectOption, ProductData, ApiProductData, UserInput, IngredientsData, CoreNutrients } from "@/types"
+import { SelectOption, ProductData, ApiProductData, UserInput, IngredientsData } from "@/types"
 import { UNIT_MAPPINGS } from "@/utils/constants"
 import { useProduct } from "@/contexts/ProductContext"
-import { CORE_NUTRIENTS } from "@/utils/constants"
 
 export function useProductCalculation() {
   const { allProducts, productList } = useProduct()
@@ -61,10 +60,7 @@ export function useProductCalculation() {
   }
 
   const processIngredients = (ingredients: IngredientsData): IngredientsData => {
-    const result: CoreNutrients = CORE_NUTRIENTS.reduce((acc, nutrient) => {
-      acc[nutrient] = 0
-      return acc
-    }, {} as CoreNutrients)
+    const result = {} as IngredientsData
 
     for (const [key, value] of Object.entries(ingredients)) {
       const numValue = Number(value)

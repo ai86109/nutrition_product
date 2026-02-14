@@ -12,18 +12,7 @@ export interface SelectData {
   selectOptions: SelectOption[]
 }
 
-export interface CoreNutrients {
-  calories: number
-  carbohydrates: number
-  protein: number
-  fat: number
-  phosphorus: number
-  potassium: number
-  sodium: number
-  dietary_fiber: number
-}
-
-export interface IngredientsData extends CoreNutrients {
+export interface IngredientsData {
   [key: string]: number | undefined
 }
 

@@ -1,5 +1,4 @@
-import { IngredientsData, ProductData, CoreNutrients } from "@/types";
-import { CORE_NUTRIENTS } from "@/utils/constants"
+import { IngredientsData, ProductData } from "@/types";
 import { useMemo } from "react";
 
 export function useIngredientCalculation(listData: ProductData[]) {
@@ -18,10 +17,8 @@ export function useIngredientCalculation(listData: ProductData[]) {
     return ratio
   }
 
-  const getAllNutrientKeys = (data) => {
+  const getAllNutrientKeys = (data: ProductData[]) => {
     const keysSet = new Set<string>()
-
-    CORE_NUTRIENTS.forEach(nutrient => keysSet.add(nutrient))
 
     data.forEach(item => {
       if (item.ingredients) {
@@ -34,11 +31,7 @@ export function useIngredientCalculation(listData: ProductData[]) {
   
   const ingredientsData = useMemo((): IngredientsData => {
     const allNutrientKeys = getAllNutrientKeys(listData)
-
-    const initialData: CoreNutrients = CORE_NUTRIENTS.reduce((acc, nutrient) => {
-      acc[nutrient] = 0
-      return acc
-    }, {} as CoreNutrients)
+    const initialData = {} as IngredientsData
 
     return listData.reduce((acc: IngredientsData, item: ProductData) => {
       if (!item.checked) return acc;

@@ -43,44 +43,84 @@ export const OPERATOR_OPTIONS = [
   { id: "and", name: "和" },
 ]
 
-export const CORE_NUTRIENTS: readonly string[] = [
+export const NUTRIENTS_GROUP: {[key: string]: string} = {
+  macroNutrients: '巨量營養素',
+  macroMinerals: '巨量礦物質',
+  traceMinerals: '微量礦物質',
+  vitamins: '維生素',
+  others: '其他',
+} as const
+
+export const MACRO_NUTRIENTS: readonly string[] = [
   'calories',
   'protein',
   'carbohydrates',
   'fat',
-  'phosphorus',
-  'potassium',
-  'sodium',
   'dietary_fiber'
 ] as const
 
+export const MACRO_MINERALS: readonly string[] = [
+  'phosphorus',
+  'potassium',
+  'sodium',
+  'calcium',
+  'magnesium',
+  'iron',
+  'chloride',
+  'copper',
+  'zinc',
+] as const
+
+export const TRACE_MINERALS: readonly string[] = [
+  'chromium',
+  'iodine',
+  'manganese',
+  'molybdenum',
+  'fluorine',
+  'selenium',
+]
+
+export const VITAMINS: readonly string[] = [
+  'vitamin_a',
+  'vitamin_b1',
+  'vitamin_b2',
+  'vitamin_b6',
+  'vitamin_b12',
+  'vitamin_c',
+  'vitamin_d',
+  'vitamin_e',
+  'vitamin_k',
+  'biotin',
+  'folic_acid',
+  'niacin',
+  'pantothenic_acid',
+] as const
+
 export const NUTRIENT_LABELS: { [key: string]: string } = {
+  // MACRO_NUTRIENTS
   calories: '熱量',
   carbohydrates: '碳水化合物',
   protein: '蛋白質',
   fat: '脂肪',
+  dietary_fiber: '膳食纖維',
+  // MACRO_MINERALS
   phosphorus: '磷',
   potassium: '鉀',
   sodium: '鈉',
-  dietary_fiber: '膳食纖維',
-  // tier 2 nutrients
-  biotin: '生物素',
   calcium: '鈣',
-  chloride: '氯',
-  choline: '膽素',
-  chromium: '鉻',
-  copper: '銅',
-  folic_acid: '葉酸',
-  iodine: '碘',
-  iron: '鐵',
   magnesium: '鎂',
+  iron: '鐵',
+  chloride: '氯',
+  copper: '銅',
+  zinc: '鋅',
+  // TRACE_MINERALS
+  chromium: '鉻',
+  iodine: '碘',
   manganese: '錳',
   molybdenum: '鉬',
   fluorine: '氟',
-  niacin: '菸鹼素',
-  pantothenic_acid: '泛酸',
   selenium: '硒',
-  taurine: '牛磺酸',
+  // VITAMINS
   vitamin_a: '維生素A',
   vitamin_b1: '維生素B1',
   vitamin_b2: '維生素B2',
@@ -90,7 +130,13 @@ export const NUTRIENT_LABELS: { [key: string]: string } = {
   vitamin_d: '維生素D',
   vitamin_e: '維生素E',
   vitamin_k: '維生素K',
-  zinc: '鋅',
+  biotin: '生物素',
+  folic_acid: '葉酸',
+  niacin: '菸鹼素',
+  pantothenic_acid: '泛酸',
+  // others
+  choline: '膽素',
+  taurine: '牛磺酸',
   trans_fat: '反式脂肪',
   saturated_fat: '飽和脂肪',
   cholesterol: '膽固醇',
@@ -139,32 +185,30 @@ export const NUTRIENT_LABELS: { [key: string]: string } = {
 }
 
 export const NUTRIENT_UNITS: { [key: string]: string } = {
+  // MACRO_NUTRIENTS
   calories: 'kcal',
   carbohydrates: 'g',
   protein: 'g',
   fat: 'g',
+  dietary_fiber: 'g',
+  // MACRO_MINERALS
   phosphorus: 'mg',
   potassium: 'mg',
   sodium: 'mg',
-  dietary_fiber: 'g',
-  // tier 2 nutrients
-  biotin: 'µg',
   calcium: 'mg',
-  chloride: 'mg',
-  choline: 'mg',
-  chromium: 'µg',
-  copper: 'mg',
-  folic_acid: 'µg',
-  iodine: 'µg',
-  iron: 'mg',
   magnesium: 'mg',
+  iron: 'mg',
+  chloride: 'mg',
+  copper: 'mg',
+  zinc: 'mg',
+  // TRACE_MINERALS
+  chromium: 'µg',
+  iodine: 'µg',
   manganese: 'mg',
   molybdenum: 'µg',
   fluorine: 'mg',
-  niacin: 'mg NE',
-  pantothenic_acid: 'mg',
   selenium: 'µg',
-  taurine: 'mg',
+  // VITAMINS
   vitamin_a: 'µg RE',
   vitamin_b1: 'mg',
   vitamin_b2: 'mg',
@@ -174,10 +218,16 @@ export const NUTRIENT_UNITS: { [key: string]: string } = {
   vitamin_d: 'µg',
   vitamin_e: 'mg α-TE',
   vitamin_k: 'µg',
+  biotin: 'µg',
+  folic_acid: 'µg',
+  niacin: 'mg NE',
+  pantothenic_acid: 'mg',
+  // others
+  choline: 'mg',
+  taurine: 'mg',
   trans_fat: 'g',
   saturated_fat: 'g',
   cholesterol: 'mg',
-  zinc: 'mg',
   inositol: 'mg',
   lactose: 'g',
   fructose: 'g',

@@ -10,9 +10,9 @@ import { CaloriesPerWeightInfo } from "./calories-per-weight-info"
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations"
 import { IngredientsData } from "@/types"
-import { useMemo, useState } from "react"
+import { Fragment, useMemo, useState } from "react"
 import { useNutritionChartData } from "@/hooks/product-calculate/useNutritionChartData"
-import { CORE_NUTRIENTS, NUTRIENT_LABELS, NUTRIENT_UNITS, NUTRIENT_INFO_TEXTS, DRIS } from "@/utils/constants"
+import { NUTRIENTS_GROUP, MACRO_NUTRIENTS, MACRO_MINERALS, TRACE_MINERALS, VITAMINS, NUTRIENT_LABELS, NUTRIENT_UNITS, NUTRIENT_INFO_TEXTS, DRIS } from "@/utils/constants"
 import { Switch } from "@/components/ui/switch"
 import { useDRIsCalculation } from "@/hooks/useDRIsCalculation"
 import { WomanStateSelector } from "@/components/product-calculate/chart/woman-state-selector"
@@ -276,17 +276,34 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
     }
   }, [isShowWomanStateOptions, womanState, pregnancyState])
 
-  const { coreNutrientsList, otherNutrientsList } = useMemo(() => {
+  const { macroNutrientsList, macroMineralsList, traceMineralsList, vitaminsList, otherNutrientsList } = useMemo(() => {
     const validKeys = Object.keys(ingredientsData).filter(key => {
       const value = ingredientsData[key]
       return value !== undefined && value >=0
     })
 
+    const othersList = validKeys.filter(key => !MACRO_NUTRIENTS.includes(key) && !MACRO_MINERALS.includes(key) && !TRACE_MINERALS.includes(key) && !VITAMINS.includes(key))
+
     return {
-      coreNutrientsList: CORE_NUTRIENTS.filter(key => validKeys.includes(key)),
-      otherNutrientsList: validKeys.filter(key => !CORE_NUTRIENTS.includes(key)).sort(),
+      macroNutrientsList: MACRO_NUTRIENTS.filter(key => validKeys.includes(key)),
+      macroMineralsList: MACRO_MINERALS.filter(key => validKeys.includes(key)),
+      traceMineralsList: TRACE_MINERALS.filter(key => validKeys.includes(key)),
+      vitaminsList: VITAMINS.filter(key => validKeys.includes(key)),
+      otherNutrientsList: othersList.sort(),
     }
   }, [ingredientsData])
+
+  const orderedGroups = useMemo(() => {
+    const groups = [
+      { key: "macroNutrients", items: macroNutrientsList },
+      { key: "macroMinerals", items: macroMineralsList },
+      { key: "traceMinerals", items: traceMineralsList },
+      { key: "vitamins", items: vitaminsList },
+      { key: "others", items: otherNutrientsList }
+    ]
+
+    return groups.filter(group => group.items.length > 0)
+  }, [macroNutrientsList, macroMineralsList, traceMineralsList, vitaminsList, otherNutrientsList])
 
   const handleWomanStateToggle = (state: 'pregnancy' | 'lactation') => {
     setWomanState(prev => prev === state ? 'none' : state)
@@ -312,16 +329,22 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
       
       <Table className="min-w-[250px] max-w-[400px]">
         <TableBody>
-          {coreNutrientsList.map((key) => (
-            <NutritionRow
-              key={key}
-              nutrient={key}
-              value={rounding(Number(ingredientsData[key]))}
-              state={state}
-              caloriesValue={caloriesValue}
-            />
+          {isShowDetail && orderedGroups.flatMap(group => (
+            <Fragment key={group.key}>
+              <p className="font-bold mt-2 text-amber-800">{NUTRIENTS_GROUP[group.key]}</p>
+              {group.items.map((key) => (
+                <NutritionRow
+                  key={key}
+                  nutrient={key}
+                  value={rounding(Number(ingredientsData[key]))}
+                  state={state}
+                  caloriesValue={caloriesValue}
+                />
+              ))}
+            </Fragment>
           ))}
-          {isShowDetail && otherNutrientsList.map((key) => (
+          
+          {!isShowDetail && macroNutrientsList.map((key) => (
             <NutritionRow
               key={key}
               nutrient={key}
