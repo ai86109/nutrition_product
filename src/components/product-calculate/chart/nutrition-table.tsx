@@ -64,7 +64,7 @@ const DRIsBlock = ({
   children: React.ReactNode
 }) => {
   return (
-    <div className={isMeetStandard ? 'font-bold text-black' : ''}>{children}</div>
+    <div className={`mb-1 ${isMeetStandard ? 'font-bold text-black' : ''}`}>{children}</div>
   )
 }
 
@@ -81,6 +81,7 @@ const LoggedInDRIsCell = ({
 }) => {
   const unit = NUTRIENT_UNITS[nutrient] || ''
   const isProtein = nutrient === 'protein'
+  const isCalories = nutrient === 'calories'
 
   return (
     <div className="text-xs text-muted-foreground flex items-center justify-between">
@@ -89,7 +90,9 @@ const LoggedInDRIsCell = ({
         <div>
           {drisContent.map(({ item, value }: { item: string, value: number }) => {
             const isAMDR = item === 'amdr'
-            const isMeetStandard = calculatedValue >= (Array.isArray(value) ? value[0] : value)
+            const isAiOrRda = ['ai', 'rda'].includes(item)
+            const meetStandardPercentage = (calculatedValue / (Array.isArray(value) ? value[0] : value)) * 100
+            const isMeetStandard = meetStandardPercentage >= 100 || false
 
             return (
               <DRIsBlock key={item} isMeetStandard={isMeetStandard}>
@@ -106,14 +109,15 @@ const LoggedInDRIsCell = ({
                         : `${value} ${unit}`
                     }
                   </span>
-                  {isProtein && (<span> / kg</span>)}
+                  {isProtein && (<span> / 天</span>)}
                 </p>
+                <p>{isAiOrRda && (<span>({meetStandardPercentage.toFixed(1)}%)</span>)}</p>
               </DRIsBlock>
             )
           })}
         </div>
       </div>
-      <div className={`material-icons ml-2 ${markColor} drop-shadow-md`}>circle</div>
+      {!isCalories && <div className={`material-icons ml-2 ${markColor} drop-shadow-md`}>circle</div>}
     </div>
   )
 }

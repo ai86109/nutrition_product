@@ -21,13 +21,14 @@ const pieChartConfig: ChartConfig = {
 
 export function MacronutrientsPieChart({ ingredientsData }: { ingredientsData: IngredientsData }) {
   const pieChartData = useMemo(() => {
-    const { carbohydrates = 0, protein = 0, fat = 0 } = ingredientsData
+    const { calories = 0, carbohydrates = 0, protein = 0, fat = 0, dietary_fiber = 0 } = ingredientsData
 
+    if (calories === 0) return []
     if (carbohydrates === 0 && protein === 0 && fat === 0) return []
-    const totalCalories = carbohydrates * 4 + protein * 4 + fat * 9
-    const carbohydratesPercentage = ((carbohydrates * 4) / totalCalories) * 100
-    const proteinPercentage = ((protein * 4) / totalCalories) * 100
-    const fatPercentage = ((fat * 9) / totalCalories) * 100
+    const adjustedCarbohydrates = carbohydrates - dietary_fiber
+    const carbohydratesPercentage = ((adjustedCarbohydrates * 4 + dietary_fiber * 2) / calories) * 100
+    const proteinPercentage = ((protein * 4) / calories) * 100
+    const fatPercentage = ((fat * 9) / calories) * 100
     return [
       { macronutrients: "carbohydrates", percentage: carbohydratesPercentage, fill: "#765337" },
       { macronutrients: "protein", percentage: proteinPercentage, fill: "#8f633d" },

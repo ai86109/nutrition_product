@@ -62,7 +62,7 @@ export const NUTRIENT_LABELS: { [key: string]: string } = {
   phosphorus: '磷',
   potassium: '鉀',
   sodium: '鈉',
-  dietary_fiber: '纖維',
+  dietary_fiber: '膳食纖維',
   // tier 2 nutrients
   biotin: '生物素',
   calcium: '鈣',
@@ -76,6 +76,7 @@ export const NUTRIENT_LABELS: { [key: string]: string } = {
   magnesium: '鎂',
   manganese: '錳',
   molybdenum: '鉬',
+  fluorine: '氟',
   niacin: '菸鹼素',
   pantothenic_acid: '泛酸',
   selenium: '硒',
@@ -159,6 +160,7 @@ export const NUTRIENT_UNITS: { [key: string]: string } = {
   magnesium: 'mg',
   manganese: 'mg',
   molybdenum: 'µg',
+  fluorine: 'mg',
   niacin: 'mg NE',
   pantothenic_acid: 'mg',
   selenium: 'µg',
@@ -251,47 +253,81 @@ export const DRIS: DRISData = {
   calories: {
     age: {
       1: {
-        rda: { man: 1350, woman: 1350 },
+        稍低: { man: 1150, woman: 1150 },
+        適度: { man: 1350, woman: 1350 },
       },
       4: {
-        rda: { man: 1800, woman: 1650 },
+        稍低: { man: 1550, woman: 1400 },
+        適度: { man: 1800, woman: 1650 },
       },
       7: {
-        rda: { man: 2100, woman: 1900 },
+        稍低: { man: 1800, woman: 1650 },
+        適度: { man: 2100, woman: 1900 },
       },
       10: {
-        rda: { man: 2350, woman: 2250 },
+        稍低: { man: 2050, woman: 1950 },
+        適度: { man: 2350, woman: 2250 },
       },
       13: {
-        rda: { man: 2800, woman: 2350 },
+        稍低: { man: 2400, woman: 2050 },
+        適度: { man: 2800, woman: 2350 },
       },
       16: {
-        rda: { man: 2900, woman: 2250 },
+        低: { man: 2150, woman: 1650 },
+        稍低: { man: 2500, woman: 1900 },
+        適度: { man: 2900, woman: 2250 },
+        高: { man: 3350, woman: 2550 },
       },
       19: {
-        rda: { man: 2400, woman: 1900 },
+        低: { man: 1850, woman: 1450 },
+        稍低: { man: 2150, woman: 1650 },
+        適度: { man: 2400, woman: 1900 },
+        高: { man: 2700, woman: 2100 },
+      },
+      31: {
+        低: { man: 1800, woman: 1450 },
+        稍低: { man: 2100, woman: 1650 },
+        適度: { man: 2400, woman: 1900 },
+        高: { man: 2650, woman: 2100 },
       },
       51: {
-        rda: { man: 2250, woman: 1800 },
+        低: { man: 1700, woman: 1400 },
+        稍低: { man: 1950, woman: 1600 },
+        適度: { man: 2250, woman: 1800 },
+        高: { man: 2500, woman: 2000 },
       },
       71: {
-        rda: { man: 2150, woman: 1700 },
+        低: { man: 1650, woman: 1300 },
+        稍低: { man: 1900, woman: 1500 },
+        適度: { man: 2150, woman: 1700 },
       },
     },
     state: {
       pregnancy: {
         state1: {
-          rda: 0,
+          低: 0,
+          稍低: 0,
+          適度: 0,
+          高: 0,
         },
         state2: {
-          rda: 300,
+          低: 300,
+          稍低: 300,
+          適度: 300,
+          高: 300,
         },
         state3: {
-          rda: 300,
+          低: 300,
+          稍低: 300,
+          適度: 300,
+          高: 300,
         }
       },
       lactation: {
-        rda: 500,
+        低: 500,
+        稍低: 500,
+        適度: 500,
+        高: 500,
       }
     }
   },
@@ -1451,6 +1487,54 @@ export const DRIS: DRISData = {
       lactation: {
         rda: 15,
         ul: 400
+      }
+    }
+  },
+  fluorine: {
+    age: {
+      0: {
+        ai: { man: 0.1, woman: 0.1 },
+        ul: { man: 0.7, woman: 0.7 }
+      },
+      1: {
+        ai: { man: 0.7, woman: 0.7 },
+        ul: { man: 1.3, woman: 1.3 }
+      },
+      4: {
+        ai: { man: 1, woman: 1 },
+        ul: { man: 2, woman: 2 }
+      },
+      7: {
+        ai: { man: 1.5, woman: 1.5 },
+        ul: { man: 3, woman: 3 }
+      },
+      10: {
+        ai: { man: 2, woman: 2 },
+        ul: { man: 10, woman: 10 }
+      },
+      13: {
+        ai: { man: 3, woman: 3 },
+        ul: { man: 10, woman: 10 }
+      },
+    },
+    state: {
+      pregnancy: {
+        state1: {
+          ai: 0,
+          ul: 10
+        },
+        state2: {
+          ai: 0,
+          ul: 10
+        },
+        state3: {
+          ai: 0,
+          ul: 10
+        }
+      },
+      lactation: {
+        ai: 0,
+        ul: 10
       }
     }
   },
