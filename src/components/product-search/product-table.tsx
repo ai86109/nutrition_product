@@ -12,15 +12,20 @@ import { Badge } from "@/components/ui/badge"
 import { ApiProductData } from "@/types"
 import { getLinkPath } from "@/utils/external-links"
 import { useProduct } from "@/contexts/ProductContext"
+import { useHistorySettings } from "@/hooks/localStorage-related/useHistorySettings"
 
 export default function ProductTable({ currentPageData }: { currentPageData: ApiProductData[] }) {
   const { productList, setProductList } = useProduct()
+  const { addList } = useHistorySettings()
 
   const handleAddToCalculate = (productId: string): void => {
     const existingProduct = productList.includes(productId)
     if (existingProduct) return
 
     setProductList((prevData: string[]) => [...prevData, productId])
+
+    // Add to history
+    addList(productId)
   }
 
   return (

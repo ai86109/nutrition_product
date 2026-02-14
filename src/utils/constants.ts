@@ -299,6 +299,8 @@ export const DEFAULT_PROTEIN_SETTINGS: ProteinList[] = [
   { id: 6, value: 2.0, checked: true },
 ]
 
+export const DEFAULT_HISTORY_SETTINGS: string[] = []
+
 export const DRIS: DRISData = {
   calories: {
     age: {
