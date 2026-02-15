@@ -38,9 +38,9 @@ function ProteinRangeBlock({ protein }: { protein: number }) {
 }
 
 const getNutritionTitleStyle = (key: string) => {
-  const baseStyle = "font-bold"
+  const baseStyle = "w-full font-bold text-pretty whitespace-normal"
   if (key === 'calories' || key === 'protein') return baseStyle
-  return `${baseStyle} max-w-[100px] overflow-hidden text-ellipsis sm:max-w-auto`
+  return `${baseStyle} max-w-[120px] min-w-[50px]`
 }
 
 const NutritionTitle = ({ label, infoText }: { label: string; infoText?: string }) => {
@@ -314,7 +314,7 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
   return (
     <div className="flex flex-col space-y-4 w-full max-w-[400px]">
       <div className="flex items-center space-x-2 font-medium text-sm">
-        <Switch checked={isShowDetail} onCheckedChange={setIsShowDetail} />
+        <Switch checked={isShowDetail} onCheckedChange={setIsShowDetail} className="cursor-pointer" />
         <span>顯示全部營養素</span>
       </div>
 

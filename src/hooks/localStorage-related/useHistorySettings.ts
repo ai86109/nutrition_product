@@ -8,7 +8,7 @@ export function useHistorySettings() {
   const addList = (newItem: string) => {
     if (history.includes(newItem)) return
 
-    const newHistoryList = [...history, newItem];
+    const newHistoryList = [...history, newItem].slice(-5);
     updateSetting('history', newHistoryList);
   }
 

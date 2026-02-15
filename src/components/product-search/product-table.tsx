@@ -13,8 +13,10 @@ import { ApiProductData } from "@/types"
 import { getLinkPath } from "@/utils/external-links"
 import { useProduct } from "@/contexts/ProductContext"
 import { useHistorySettings } from "@/hooks/localStorage-related/useHistorySettings"
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function ProductTable({ currentPageData }: { currentPageData: ApiProductData[] }) {
+  const { isLoggedIn } = useAuth();
   const { productList, setProductList } = useProduct()
   const { addList } = useHistorySettings()
 
@@ -25,7 +27,7 @@ export default function ProductTable({ currentPageData }: { currentPageData: Api
     setProductList((prevData: string[]) => [...prevData, productId])
 
     // Add to history
-    addList(productId)
+    if (isLoggedIn) addList(productId)
   }
 
   return (
@@ -55,7 +57,7 @@ export default function ProductTable({ currentPageData }: { currentPageData: Api
             <TableCell>{item.brand}</TableCell>
             <TableCell>{item.type}</TableCell>
             <TableCell>
-              <Button variant={productList.includes(item.id) ? "secondary" : "outline"} onClick={() => handleAddToCalculate(item.id)}>
+              <Button className="cursor-pointer" variant={productList.includes(item.id) ? "secondary" : "outline"} onClick={() => handleAddToCalculate(item.id)}>
                 {productList.includes(item.id) ? '已加入' : '加入'}
               </Button>
             </TableCell>

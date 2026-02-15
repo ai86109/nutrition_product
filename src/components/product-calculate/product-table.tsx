@@ -59,7 +59,7 @@ export default function ProductTable({
                 />
               </TableCell>
               <TableCell>
-                <Button variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
+                <Button className="cursor-pointer" variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
               </TableCell>
             </TableRow>
 
