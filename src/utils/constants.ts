@@ -182,6 +182,7 @@ export const NUTRIENT_LABELS: { [key: string]: string } = {
   omega_9_fatty_acid: 'Omega-9 脂肪酸',
   fructooligosaccharides: '果寡糖',
   lutein: '葉黃素',
+  glutamine: '麩醯胺酸',
 }
 
 export const NUTRIENT_UNITS: { [key: string]: string } = {
@@ -269,7 +270,8 @@ export const NUTRIENT_UNITS: { [key: string]: string } = {
   omega_6_fatty_acid: 'g',
   omega_9_fatty_acid: 'g',
   fructooligosaccharides: 'g',
-  lutein: 'mg'
+  lutein: 'mg',
+  glutamine: 'g',
 }
 
 export const NUTRIENT_INFO_TEXTS: { [key: string]: string } = {
