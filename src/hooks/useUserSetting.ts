@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export function useUserSetting() {
-  const { calorieFactors, tdeeFactors, proteinFactors, refresh } = useUserPreferences();
+  const { calorieFactors, tdeeFactors, proteinFactors, history, refresh } = useUserPreferences();
   const { session } = useAuth();
   const { id: userId } = session?.user || {};
 
@@ -12,16 +12,18 @@ export function useUserSetting() {
     const currentSettings = {
       calorie: calorieFactors,
       tdee: tdeeFactors,
-      protein: proteinFactors
+      protein: proteinFactors,
+      history
     };
     return currentSettings[field] || [];
-  }, [calorieFactors, tdeeFactors, proteinFactors]);
+  }, [calorieFactors, tdeeFactors, proteinFactors, history]);
 
   const updateSetting = useCallback(async (field, newSettings) => {
     if (!userId) return alert("此功能請登入後使用");
     if (JSON.stringify(newSettings) === JSON.stringify(getCurrentSettings(field))) return;
 
-    await upsertUserPreferences(userId, { [`${field}_factors`]: newSettings });
+    const fieldName = field === 'history' ? 'search_history' : `${field}_factors`;
+    await upsertUserPreferences(userId, { [fieldName]: newSettings });
     await refresh();
   }, [userId, getCurrentSettings, refresh]);
 

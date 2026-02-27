@@ -12,20 +12,20 @@ export function WomanStateSelector({
       <p>生理狀態</p>
       <div className="mt-2 space-y-2">
         <div className="space-x-2 font-medium text-sm flex items-center">
-          <Switch checked={womanState === 'pregnancy'} onCheckedChange={() => handleWomanStateToggle('pregnancy')} />
+          <Switch className="cursor-pointer" checked={womanState === 'pregnancy'} onCheckedChange={() => handleWomanStateToggle('pregnancy')} />
           <span>懷孕</span>
           <RadioGroup defaultValue="state1" value={pregnancyState} onValueChange={setPregnancyState}>
             <div className="flex items-center space-x-2 font-normal">
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="state1" id="s1" />
+                <RadioGroupItem className="cursor-pointer" value="state1" id="s1" />
                 <span>第一期</span>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="state2" id="s2" />
+                <RadioGroupItem className="cursor-pointer" value="state2" id="s2" />
                 <span>第二期</span>
               </div>
               <div className="flex items-center space-x-2">
-                <RadioGroupItem value="state3" id="s3" />
+                <RadioGroupItem className="cursor-pointer" value="state3" id="s3" />
                 <span>第三期</span>
               </div>
             </div>
@@ -33,7 +33,7 @@ export function WomanStateSelector({
         </div>
       </div>
       <div className="mt-2 space-x-2 font-medium text-sm flex items-center">
-        <Switch checked={womanState === 'lactation'} onCheckedChange={() => handleWomanStateToggle('lactation')} />
+        <Switch className="cursor-pointer" checked={womanState === 'lactation'} onCheckedChange={() => handleWomanStateToggle('lactation')} />
         <span>哺乳</span>
       </div>
     </div>

@@ -43,43 +43,84 @@ export const OPERATOR_OPTIONS = [
   { id: "and", name: "和" },
 ]
 
-export const CORE_NUTRIENTS: readonly string[] = [
+export const NUTRIENTS_GROUP: {[key: string]: string} = {
+  macroNutrients: '巨量營養素',
+  macroMinerals: '巨量礦物質',
+  traceMinerals: '微量礦物質',
+  vitamins: '維生素',
+  others: '其他',
+} as const
+
+export const MACRO_NUTRIENTS: readonly string[] = [
   'calories',
   'protein',
   'carbohydrates',
   'fat',
-  'phosphorus',
-  'potassium',
-  'sodium',
   'dietary_fiber'
 ] as const
 
+export const MACRO_MINERALS: readonly string[] = [
+  'phosphorus',
+  'potassium',
+  'sodium',
+  'calcium',
+  'magnesium',
+  'iron',
+  'chloride',
+  'copper',
+  'zinc',
+] as const
+
+export const TRACE_MINERALS: readonly string[] = [
+  'chromium',
+  'iodine',
+  'manganese',
+  'molybdenum',
+  'fluorine',
+  'selenium',
+]
+
+export const VITAMINS: readonly string[] = [
+  'vitamin_a',
+  'vitamin_b1',
+  'vitamin_b2',
+  'vitamin_b6',
+  'vitamin_b12',
+  'vitamin_c',
+  'vitamin_d',
+  'vitamin_e',
+  'vitamin_k',
+  'biotin',
+  'folic_acid',
+  'niacin',
+  'pantothenic_acid',
+] as const
+
 export const NUTRIENT_LABELS: { [key: string]: string } = {
+  // MACRO_NUTRIENTS
   calories: '熱量',
   carbohydrates: '碳水化合物',
   protein: '蛋白質',
   fat: '脂肪',
+  dietary_fiber: '膳食纖維',
+  // MACRO_MINERALS
   phosphorus: '磷',
   potassium: '鉀',
   sodium: '鈉',
-  dietary_fiber: '纖維',
-  // tier 2 nutrients
-  biotin: '生物素',
   calcium: '鈣',
-  chloride: '氯',
-  choline: '膽素',
-  chromium: '鉻',
-  copper: '銅',
-  folic_acid: '葉酸',
-  iodine: '碘',
-  iron: '鐵',
   magnesium: '鎂',
+  iron: '鐵',
+  chloride: '氯',
+  copper: '銅',
+  zinc: '鋅',
+  // TRACE_MINERALS
+  chromium: '鉻',
+  iodine: '碘',
   manganese: '錳',
   molybdenum: '鉬',
-  niacin: '菸鹼素',
-  pantothenic_acid: '泛酸',
+  fluorine: '氟',
   selenium: '硒',
-  taurine: '牛磺酸',
+  // VITAMINS
   vitamin_a: '維生素A',
   vitamin_b1: '維生素B1',
   vitamin_b2: '維生素B2',
@@ -89,7 +130,13 @@ export const NUTRIENT_LABELS: { [key: string]: string } = {
   vitamin_d: '維生素D',
   vitamin_e: '維生素E',
   vitamin_k: '維生素K',
-  zinc: '鋅',
+  biotin: '生物素',
+  folic_acid: '葉酸',
+  niacin: '菸鹼素',
+  pantothenic_acid: '泛酸',
+  // others
+  choline: '膽素',
+  taurine: '牛磺酸',
   trans_fat: '反式脂肪',
   saturated_fat: '飽和脂肪',
   cholesterol: '膽固醇',
@@ -135,34 +182,34 @@ export const NUTRIENT_LABELS: { [key: string]: string } = {
   omega_9_fatty_acid: 'Omega-9 脂肪酸',
   fructooligosaccharides: '果寡糖',
   lutein: '葉黃素',
+  glutamine: '麩醯胺酸',
 }
 
 export const NUTRIENT_UNITS: { [key: string]: string } = {
+  // MACRO_NUTRIENTS
   calories: 'kcal',
   carbohydrates: 'g',
   protein: 'g',
   fat: 'g',
+  dietary_fiber: 'g',
+  // MACRO_MINERALS
   phosphorus: 'mg',
   potassium: 'mg',
   sodium: 'mg',
-  dietary_fiber: 'g',
-  // tier 2 nutrients
-  biotin: 'µg',
   calcium: 'mg',
-  chloride: 'mg',
-  choline: 'mg',
-  chromium: 'µg',
-  copper: 'mg',
-  folic_acid: 'µg',
-  iodine: 'µg',
-  iron: 'mg',
   magnesium: 'mg',
+  iron: 'mg',
+  chloride: 'mg',
+  copper: 'mg',
+  zinc: 'mg',
+  // TRACE_MINERALS
+  chromium: 'µg',
+  iodine: 'µg',
   manganese: 'mg',
   molybdenum: 'µg',
-  niacin: 'mg NE',
-  pantothenic_acid: 'mg',
+  fluorine: 'mg',
   selenium: 'µg',
-  taurine: 'mg',
+  // VITAMINS
   vitamin_a: 'µg RE',
   vitamin_b1: 'mg',
   vitamin_b2: 'mg',
@@ -172,10 +219,16 @@ export const NUTRIENT_UNITS: { [key: string]: string } = {
   vitamin_d: 'µg',
   vitamin_e: 'mg α-TE',
   vitamin_k: 'µg',
+  biotin: 'µg',
+  folic_acid: 'µg',
+  niacin: 'mg NE',
+  pantothenic_acid: 'mg',
+  // others
+  choline: 'mg',
+  taurine: 'mg',
   trans_fat: 'g',
   saturated_fat: 'g',
   cholesterol: 'mg',
-  zinc: 'mg',
   inositol: 'mg',
   lactose: 'g',
   fructose: 'g',
@@ -217,7 +270,8 @@ export const NUTRIENT_UNITS: { [key: string]: string } = {
   omega_6_fatty_acid: 'g',
   omega_9_fatty_acid: 'g',
   fructooligosaccharides: 'g',
-  lutein: 'mg'
+  lutein: 'mg',
+  glutamine: 'g',
 }
 
 export const NUTRIENT_INFO_TEXTS: { [key: string]: string } = {
@@ -247,51 +301,87 @@ export const DEFAULT_PROTEIN_SETTINGS: ProteinList[] = [
   { id: 6, value: 2.0, checked: true },
 ]
 
+export const DEFAULT_HISTORY_SETTINGS: string[] = []
+
 export const DRIS: DRISData = {
   calories: {
     age: {
       1: {
-        rda: { man: 1350, woman: 1350 },
+        稍低: { man: 1150, woman: 1150 },
+        適度: { man: 1350, woman: 1350 },
       },
       4: {
-        rda: { man: 1800, woman: 1650 },
+        稍低: { man: 1550, woman: 1400 },
+        適度: { man: 1800, woman: 1650 },
       },
       7: {
-        rda: { man: 2100, woman: 1900 },
+        稍低: { man: 1800, woman: 1650 },
+        適度: { man: 2100, woman: 1900 },
       },
       10: {
-        rda: { man: 2350, woman: 2250 },
+        稍低: { man: 2050, woman: 1950 },
+        適度: { man: 2350, woman: 2250 },
       },
       13: {
-        rda: { man: 2800, woman: 2350 },
+        稍低: { man: 2400, woman: 2050 },
+        適度: { man: 2800, woman: 2350 },
       },
       16: {
-        rda: { man: 2900, woman: 2250 },
+        低: { man: 2150, woman: 1650 },
+        稍低: { man: 2500, woman: 1900 },
+        適度: { man: 2900, woman: 2250 },
+        高: { man: 3350, woman: 2550 },
       },
       19: {
-        rda: { man: 2400, woman: 1900 },
+        低: { man: 1850, woman: 1450 },
+        稍低: { man: 2150, woman: 1650 },
+        適度: { man: 2400, woman: 1900 },
+        高: { man: 2700, woman: 2100 },
+      },
+      31: {
+        低: { man: 1800, woman: 1450 },
+        稍低: { man: 2100, woman: 1650 },
+        適度: { man: 2400, woman: 1900 },
+        高: { man: 2650, woman: 2100 },
       },
       51: {
-        rda: { man: 2250, woman: 1800 },
+        低: { man: 1700, woman: 1400 },
+        稍低: { man: 1950, woman: 1600 },
+        適度: { man: 2250, woman: 1800 },
+        高: { man: 2500, woman: 2000 },
       },
       71: {
-        rda: { man: 2150, woman: 1700 },
+        低: { man: 1650, woman: 1300 },
+        稍低: { man: 1900, woman: 1500 },
+        適度: { man: 2150, woman: 1700 },
       },
     },
     state: {
       pregnancy: {
         state1: {
-          rda: 0,
+          低: 0,
+          稍低: 0,
+          適度: 0,
+          高: 0,
         },
         state2: {
-          rda: 300,
+          低: 300,
+          稍低: 300,
+          適度: 300,
+          高: 300,
         },
         state3: {
-          rda: 300,
+          低: 300,
+          稍低: 300,
+          適度: 300,
+          高: 300,
         }
       },
       lactation: {
-        rda: 500,
+        低: 500,
+        稍低: 500,
+        適度: 500,
+        高: 500,
       }
     }
   },
@@ -1451,6 +1541,54 @@ export const DRIS: DRISData = {
       lactation: {
         rda: 15,
         ul: 400
+      }
+    }
+  },
+  fluorine: {
+    age: {
+      0: {
+        ai: { man: 0.1, woman: 0.1 },
+        ul: { man: 0.7, woman: 0.7 }
+      },
+      1: {
+        ai: { man: 0.7, woman: 0.7 },
+        ul: { man: 1.3, woman: 1.3 }
+      },
+      4: {
+        ai: { man: 1, woman: 1 },
+        ul: { man: 2, woman: 2 }
+      },
+      7: {
+        ai: { man: 1.5, woman: 1.5 },
+        ul: { man: 3, woman: 3 }
+      },
+      10: {
+        ai: { man: 2, woman: 2 },
+        ul: { man: 10, woman: 10 }
+      },
+      13: {
+        ai: { man: 3, woman: 3 },
+        ul: { man: 10, woman: 10 }
+      },
+    },
+    state: {
+      pregnancy: {
+        state1: {
+          ai: 0,
+          ul: 10
+        },
+        state2: {
+          ai: 0,
+          ul: 10
+        },
+        state3: {
+          ai: 0,
+          ul: 10
+        }
+      },
+      lactation: {
+        ai: 0,
+        ul: 10
       }
     }
   },

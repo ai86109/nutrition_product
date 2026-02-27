@@ -7,9 +7,12 @@ import ProductTable from "../product-search/product-table"
 import PaginationBlock from "../product-search/pagination-block";
 import { usePagination } from "@/hooks/usePagination";
 import { useSearch } from "@/contexts/SearchContext";
+import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+import HistoryBlock from "../product-search/history-block";
 
 export default function ProductSearchSection() {
   const { filteredData } = useSearch()
+  const { history } = useUserPreferences()
   const { currentPage, setCurrentPage, itemsPerPage } = usePagination()
 
   const currentPageData = useMemo(() => {
@@ -25,6 +28,7 @@ export default function ProductSearchSection() {
   return (
     <CardContent>
       <SearchForm handlePageChange={handlePageChange} />
+      {history && history.length > 0 && <HistoryBlock />}
 
       <div className="mt-4">
         {currentPageData.length > 0 && (
