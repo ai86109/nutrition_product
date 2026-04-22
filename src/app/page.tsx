@@ -6,9 +6,7 @@ import { getProductFromSupabase } from "@/lib/products-server";
 import Navigation from "@/components/navigation";
 
 export default async function Home() {
-  // const allProducts = await getProductsFromSheets();
   const products = await getProductFromSupabase();
-  // console.log('Products from Supabase:', products);
 
   return (
     <ProductProvider allProducts={products}>
