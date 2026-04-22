@@ -1,5 +1,5 @@
 import { mockListData } from "@/__tests__/utils/test-data";
-import { useIngredientCalculation } from "@/hooks/product-calculate/useIngredientCalaculation";
+import { useIngredientCalculation } from "@/hooks/product-calculate/useIngredientCalculation";
 import { renderHook } from "@testing-library/react";
 
 describe('useIngredientCalculation', () => {

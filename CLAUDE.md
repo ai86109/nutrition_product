@@ -56,7 +56,7 @@ src/
 │   ├── useProductCalculationEvents.ts  # 產品計算事件
 │   ├── useNutritionChartData.ts        # 圖表資料轉換
 │   ├── useDRIsCalculation.ts           # DRIs 百分比計算
-│   ├── useIngredientCalaculation.ts    # 成分計算 (檔名有 typo)
+│   ├── useIngredientCalculation.ts     # 成分計算
 │   ├── usePagination.ts               # 分頁邏輯
 │   ├── useScreenWidth.ts              # 螢幕寬度偵測
 │   ├── useLocalStorage.ts             # 通用 localStorage hook

@@ -8,7 +8,7 @@ import BioSettings from "../product-calculate/bio-settings";
 import MealCalculationSettings from "../product-calculate/meal-calculation-settings";
 import ProductTable from "../product-calculate/product-table";
 import { useProductCalculation } from "@/hooks/useProductCalculation";
-import { useIngredientCalculation } from "@/hooks/product-calculate/useIngredientCalaculation";
+import { useIngredientCalculation } from "@/hooks/product-calculate/useIngredientCalculation";
 import { useMealCalculation } from "@/hooks/product-calculate/useMealCalculation";
 import ConditionalContent from "@/components/conditional-content"
 
