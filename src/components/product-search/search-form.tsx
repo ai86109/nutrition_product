@@ -94,13 +94,20 @@ const SingleSelect = ({ value, options, selectType, placeholder, onChange }: Sin
 //   )
 // }
 
-export default function SearchForm({ handlePageChange }: { handlePageChange: (page: number) => void }) {
+export default function SearchForm({
+  handlePageChange,
+  onSearchSubmit,
+}: {
+  handlePageChange: (page: number) => void
+  onSearchSubmit?: () => void
+}) {
   const { brandOptions } = useProduct()
   const { formState, updateField, applySearch, reset } = useSearch()
 
   const handleSearchSubmit = (): void => {
     applySearch()
     handlePageChange(1) // Reset to the first page after search
+    onSearchSubmit?.()
   }
 
   // const handleSelectCateChange = (value: string, index: number): void => {
