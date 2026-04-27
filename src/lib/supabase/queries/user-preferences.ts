@@ -1,8 +1,8 @@
 import { createClient } from '@/utils/supabase/client'
 
 export async function getUserPreferences(userId: string) {
-  const supabse = createClient()
-  const { data, error } = await supabse
+  const supabase = createClient()
+  const { data, error } = await supabase
     .from('user_preferences')
     .select('*')
     .eq('user_id', userId)

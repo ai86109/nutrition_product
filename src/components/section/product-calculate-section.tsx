@@ -2,30 +2,34 @@
 
 import { CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
+import { Skeleton } from "@/components/ui/skeleton"
 import ChartSection from "@/components/product-calculate/chart-section"
 import { useBioInfo } from "@/contexts/BioInfoContext"
+import { useProduct } from "@/contexts/ProductContext"
 import BioSettings from "../product-calculate/bio-settings";
 import MealCalculationSettings from "../product-calculate/meal-calculation-settings";
 import ProductTable from "../product-calculate/product-table";
 import { useProductCalculation } from "@/hooks/useProductCalculation";
-import { useIngredientCalculation } from "@/hooks/product-calculate/useIngredientCalaculation";
+import { useIngredientCalculation } from "@/hooks/product-calculate/useIngredientCalculation";
 import { useMealCalculation } from "@/hooks/product-calculate/useMealCalculation";
 import ConditionalContent from "@/components/conditional-content"
 
 
 export default function ProductCalculateSection() {
   const { listData, setUserInputs } = useProductCalculation()
+  const { loadingProductIds, productList } = useProduct()
   const { ingredientsData } = useIngredientCalculation(listData)
   const { mealsPerDay, isCalculateServings, setIsCalculateServings, handleMealsInputChange } = useMealCalculation()
   const { tdee } = useBioInfo();
-    
+
   const isServingsCanBeUsed = Number(tdee) > 0 && listData.filter((item) => item.checked).length === 1
   const isShowServings = isCalculateServings && typeof mealsPerDay == 'number' && mealsPerDay > 0 && Number(tdee) > 0
+  const hasAnyProduct = productList.length > 0
 
   return (
     <div className="flex flex-col items-center mt-4 p-2">
       <ConditionalContent
-        condition={listData.length > 0}
+        condition={hasAnyProduct}
         fallback={
           <p className="text-sm">
             請先至少
@@ -48,18 +52,38 @@ export default function ProductCalculateSection() {
             />
             <Separator className="my-4" />
 
-            <ProductTable 
-              listData={listData}
-              isServingsCanBeUsed={isServingsCanBeUsed}
-              isShowServings={isShowServings}
-              mealsPerDay={mealsPerDay}
-              setUserInputs={setUserInputs}
-            />
+            {/* 正在載入的產品顯示 skeleton */}
+            {loadingProductIds.size > 0 && (
+              <div className="mb-3 space-y-2">
+                {Array.from(loadingProductIds).map((id) => (
+                  <div key={id} className="flex items-center gap-3 px-1">
+                    <Skeleton className="h-4 w-4 rounded" />
+                    <Skeleton className="h-4 flex-1 rounded" />
+                    <Skeleton className="h-8 w-20 rounded" />
+                    <Skeleton className="h-8 w-24 rounded" />
+                    <Skeleton className="h-8 w-12 rounded" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {listData.length > 0 && (
+              <ProductTable
+                listData={listData}
+                isServingsCanBeUsed={isServingsCanBeUsed}
+                isShowServings={isShowServings}
+                mealsPerDay={mealsPerDay}
+                setUserInputs={setUserInputs}
+              />
+            )}
           </CardContent>
 
-          <Separator className="my-4" />
-
-          <ChartSection ingredientsData={ingredientsData} />
+          {listData.length > 0 && (
+            <>
+              <Separator className="my-4" />
+              <ChartSection ingredientsData={ingredientsData} />
+            </>
+          )}
         </div>
       </ConditionalContent>
     </div>

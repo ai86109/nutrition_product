@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/client'
 
-export async function upsertUserPreferences(userId, preferences) {
+export async function upsertUserPreferences(userId: string, preferences: Record<string, unknown>) {
   const supabase = createClient()
 
   const { data, error } = await supabase
@@ -23,7 +23,7 @@ export async function upsertUserPreferences(userId, preferences) {
   return data
 }
 
-export async function updateUserPreferences(userId, preferences) {
+export async function updateUserPreferences(userId: string, preferences: Record<string, unknown>) {
   const supabase = createClient()
   
   const { data, error } = await supabase

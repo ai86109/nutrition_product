@@ -74,7 +74,7 @@ const LoggedInDRIsCell = ({
   calculatedValue, 
   nutrient 
 }: { 
-  drisContent: { item: string, value: number }[], 
+  drisContent: { item: string, value: number | number[] }[],
   markColor: string, 
   calculatedValue: number, 
   nutrient: string 
@@ -88,7 +88,7 @@ const LoggedInDRIsCell = ({
       <div className="flex items-center">
         <div className="w-[1px] h-[20px] bg-gray-300 mr-2"></div>
         <div>
-          {drisContent.map(({ item, value }: { item: string, value: number }) => {
+          {drisContent.map(({ item, value }: { item: string, value: number | number[] }) => {
             const isAMDR = item === 'amdr'
             const isAiOrRda = ['ai', 'rda'].includes(item)
             const meetStandardPercentage = (calculatedValue / (Array.isArray(value) ? value[0] : value)) * 100
@@ -122,7 +122,7 @@ const LoggedInDRIsCell = ({
   )
 }
 
-const LoggedOutDRIsCell = ({ drisContent }: { drisContent: { item: string, value: number }[] }) => {
+const LoggedOutDRIsCell = ({ drisContent }: { drisContent: { item: string, value: number | number[] }[] }) => {
   return (
     <div className="text-xs text-muted-foreground flex items-center justify-between opacity-70">
       <div className="flex items-center">

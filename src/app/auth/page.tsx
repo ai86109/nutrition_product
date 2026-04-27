@@ -4,18 +4,19 @@ import { useAuth } from "@/contexts/AuthContext";
 import { signInWithGoogle, signOut } from "@/utils/supabase/auth"
 import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { redirect } from 'next/navigation'
 import { Skeleton } from "@/components/ui/skeleton"
 import ConditionalContent from "@/components/conditional-content";
+import { useRouter } from 'next/navigation'
 
 export default function Page() {
-  const { session, setSession, loading } = useAuth();
+  const { session, clearAuth, loading } = useAuth();
+  const router = useRouter();
   const user = session?.user || null;
 
   const handleSignOut = async () => {
     await signOut();
-    setSession(null);
-    redirect('/')
+    await clearAuth();
+    router.push('/')
   }
 
   return (

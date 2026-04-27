@@ -3,18 +3,26 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react'
 import { useAuth } from '@/contexts/AuthContext'
 import { getUserPreferences } from '@/lib/supabase/queries/user-preferences'
-import { DEFAULT_CALORIE_SETTINGS, DEFAULT_TDEE_SETTINGS, DEFAULT_PROTEIN_SETTINGS, DEFAULT_HISTORY_SETTINGS } from '@/utils/constants'
+import {
+  DEFAULT_CALORIE_SETTINGS,
+  DEFAULT_TDEE_SETTINGS,
+  DEFAULT_PROTEIN_SETTINGS,
+  DEFAULT_HISTORY_SETTINGS,
+  DEFAULT_FAVORITE_SETTINGS,
+} from '@/utils/constants'
 
 type CalorieFactors = typeof DEFAULT_CALORIE_SETTINGS
 type TdeeFactors = typeof DEFAULT_TDEE_SETTINGS
 type ProteinFactors = typeof DEFAULT_PROTEIN_SETTINGS
 type HistoryList = typeof DEFAULT_HISTORY_SETTINGS
+type FavoriteList = typeof DEFAULT_FAVORITE_SETTINGS
 
 type UserPreferencesContextValue = {
   calorieFactors: CalorieFactors
   tdeeFactors: TdeeFactors
   proteinFactors: ProteinFactors
   history: HistoryList
+  favorites: FavoriteList
   refresh: () => Promise<void>
 }
 
@@ -27,6 +35,7 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
   const [tdeeFactors, setTdeeFactors] = useState(DEFAULT_TDEE_SETTINGS)
   const [proteinFactors, setProteinFactors] = useState(DEFAULT_PROTEIN_SETTINGS)
   const [history, setHistory] = useState(DEFAULT_HISTORY_SETTINGS)
+  const [favorites, setFavorites] = useState(DEFAULT_FAVORITE_SETTINGS)
 
   const loadUserPreferences = useCallback( async () => {
     if (!userId) {
@@ -34,7 +43,8 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
       setTdeeFactors(DEFAULT_TDEE_SETTINGS)
       setProteinFactors(DEFAULT_PROTEIN_SETTINGS)
       setHistory(DEFAULT_HISTORY_SETTINGS)
-      return 
+      setFavorites(DEFAULT_FAVORITE_SETTINGS)
+      return
     }
 
     try {
@@ -44,6 +54,7 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
         setTdeeFactors(data.tdee_factors || DEFAULT_TDEE_SETTINGS)
         setProteinFactors(data.protein_factors || DEFAULT_PROTEIN_SETTINGS)
         setHistory(data.search_history || DEFAULT_HISTORY_SETTINGS)
+        setFavorites(data.favorites || DEFAULT_FAVORITE_SETTINGS)
       }
     } catch (error) {
       console.error('Error loading user preferences:', error)
@@ -60,6 +71,7 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
       tdeeFactors,
       proteinFactors,
       history,
+      favorites,
       refresh: loadUserPreferences,
     }}>
       {children}

@@ -141,11 +141,16 @@ export const NUTRIENT_LABELS: { [key: string]: string } = {
   saturated_fat: '飽和脂肪',
   cholesterol: '膽固醇',
   inositol: '肌醇',
+  glucose: '葡萄糖',
+  maltose: '麥芽糖',
+  maltitol: '麥芽糖醇',
+  galactose: '半乳糖',
   lactose: '乳糖',
   fructose: '果糖',
   sucrose: '蔗糖',
   inulin: '菊糖',
   sugar: '糖',
+  fructooligosaccharides: '果寡醣',
   beta_glucan: 'β-聚葡萄糖',
   soluble_dietary_fiber: '水溶性膳食纖維',
   insoluble_dietary_fiber: '非水溶性膳食纖維',
@@ -180,9 +185,15 @@ export const NUTRIENT_LABELS: { [key: string]: string } = {
   omega_3_fatty_acid: 'Omega-3 脂肪酸',
   omega_6_fatty_acid: 'Omega-6 脂肪酸',
   omega_9_fatty_acid: 'Omega-9 脂肪酸',
-  fructooligosaccharides: '果寡糖',
   lutein: '葉黃素',
   glutamine: '麩醯胺酸',
+  whey_protein: '乳清蛋白',
+  dha_algal_oil: 'DHA藻油',
+  nucleotides: '核苷酸',
+  casein_phosphopeptides: '酪蛋白磷酸胜肽(CPPs)',
+  lactic_acid_bacteria: '乳酸菌',
+  lactoferrin: '乳鐵蛋白',
+  coenzyme_q10: '輔酵素Q10',
 }
 
 export const NUTRIENT_UNITS: { [key: string]: string } = {
@@ -230,11 +241,16 @@ export const NUTRIENT_UNITS: { [key: string]: string } = {
   saturated_fat: 'g',
   cholesterol: 'mg',
   inositol: 'mg',
+  glucose: 'g',
+  maltose: 'g',
+  maltitol: 'g',
+  galactose: 'g',
   lactose: 'g',
   fructose: 'g',
   sucrose: 'g',
   inulin: 'g',
   sugar: 'g',
+  fructooligosaccharides: 'g',
   beta_glucan: 'g',
   soluble_dietary_fiber: 'g',
   insoluble_dietary_fiber: 'g',
@@ -269,9 +285,15 @@ export const NUTRIENT_UNITS: { [key: string]: string } = {
   omega_3_fatty_acid: 'g',
   omega_6_fatty_acid: 'g',
   omega_9_fatty_acid: 'g',
-  fructooligosaccharides: 'g',
   lutein: 'mg',
   glutamine: 'g',
+  whey_protein: 'g',
+  dha_algal_oil: 'mg',
+  nucleotides: 'mg',
+  casein_phosphopeptides: 'mg',
+  lactic_acid_bacteria: 'CFU',
+  lactoferrin: 'mg',
+  coenzyme_q10: 'mg',
 }
 
 export const NUTRIENT_INFO_TEXTS: { [key: string]: string } = {
@@ -302,6 +324,8 @@ export const DEFAULT_PROTEIN_SETTINGS: ProteinList[] = [
 ]
 
 export const DEFAULT_HISTORY_SETTINGS: string[] = []
+
+export const DEFAULT_FAVORITE_SETTINGS: string[] = []
 
 export const DRIS: DRISData = {
   calories: {

@@ -2,15 +2,17 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button"
-import { redirect } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import ConditionalContent from "@/components/conditional-content";
 import { Skeleton } from "@/components/ui/skeleton"
 
 export default function Navigation() {
-  const { session, loading } = useAuth();
+  const { session, loading, role } = useAuth();
+  const isAdmin = role === 'admin';
   const user = session?.user || null;
   const { name: userName, avatar_url: avatarUrl} = user?.user_metadata || {};
+  const router = useRouter();
 
   return (
     <nav className="flex items-center gap-2 justify-end px-4 pt-2">
@@ -26,7 +28,12 @@ export default function Navigation() {
             <AvatarImage src={avatarUrl} alt="avatar" />
           </Avatar>
         )}
-        <Button className="cursor-pointer" onClick={() => redirect('/auth')}>{user ? "登出" : "註冊 / 登入"}</Button>
+        {isAdmin && (
+          <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/admin')}>
+            管理後台
+          </Button>
+        )}
+        <Button className="cursor-pointer" onClick={() => router.push('/auth')}>{user ? "登出" : "註冊 / 登入"}</Button>
       </ConditionalContent>
     </nav>
   )

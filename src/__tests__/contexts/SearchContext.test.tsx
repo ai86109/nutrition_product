@@ -372,7 +372,7 @@ describe('SearchContext', () => {
     test('filters products without categories', () => {
       const productsWithoutCategories: ApiProductData[] = [
         { ...mockProducts[0], categories: [] },
-        { ...mockProducts[1], categories: undefined }
+        { ...mockProducts[1], categories: [] as string[] }
       ]
 
       const { result } = renderHook(() => useSearch(), {

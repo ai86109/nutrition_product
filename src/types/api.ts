@@ -18,6 +18,18 @@ export interface ProcessedSpecData {
   spec: ProcessedSpec[];
 }
 
+// 清單用（初始載入，不含 nutrition 資料）
+export interface ApiProductListData {
+  id: string;
+  name: string;
+  engName: string;
+  brand: string;
+  type: string;
+  reviewStatus: string;
+  categories: string[];
+}
+
+// 詳細資料（使用者加入計算後才 fetch）
 export interface ApiProductData {
   id: string;
   name: string;

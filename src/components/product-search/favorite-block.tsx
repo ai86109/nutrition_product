@@ -1,14 +1,14 @@
 import { useMemo } from "react"
-import { History } from "lucide-react"
-import { useAuth } from "@/contexts/AuthContext"
+import { Star } from "lucide-react"
 import { useUserPreferences } from "@/contexts/UserPreferencesContext"
+import { useAuth } from "@/contexts/AuthContext"
 import { useProduct } from "@/contexts/ProductContext"
 import ProductListItem from "./product-list-item"
 import { ApiProductData } from "@/types"
 
-export default function HistoryBlock() {
+export default function FavoriteBlock() {
   const { isLoggedIn } = useAuth()
-  const { history } = useUserPreferences()
+  const { favorites } = useUserPreferences()
   const { allProducts } = useProduct()
 
   const productMap = useMemo(
@@ -16,38 +16,38 @@ export default function HistoryBlock() {
     [allProducts]
   )
 
-  // Reverse so that the most recently added items appear first
-  const historyList = useMemo(
+  // Most recently favorited appears first
+  const favoriteList = useMemo(
     () =>
-      [...history]
+      [...favorites]
         .reverse()
         .map((id) => productMap.get(id))
         .filter((item): item is ApiProductData => Boolean(item)),
-    [history, productMap]
+    [favorites, productMap]
   )
 
   if (!isLoggedIn) {
     return (
       <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
-        <History className="h-8 w-8 text-muted-foreground/50" />
-        <p className="text-sm">登入後即可使用最近使用功能</p>
+        <Star className="h-8 w-8 text-muted-foreground/50" />
+        <p className="text-sm">登入後即可使用收藏功能</p>
       </div>
     )
   }
 
-  if (historyList.length === 0) {
+  if (favoriteList.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center py-10 text-muted-foreground gap-2">
-        <History className="h-8 w-8 text-muted-foreground/50" />
-        <p className="text-sm">尚無最近使用紀錄</p>
-        <p className="text-xs">加入過的營養品會顯示在這裡</p>
+        <Star className="h-8 w-8 text-muted-foreground/50" />
+        <p className="text-sm">尚未收藏任何營養品</p>
+        <p className="text-xs">點擊產品旁的 ★ 加入收藏</p>
       </div>
     )
   }
 
   return (
     <div className="flex flex-col">
-      {historyList.map((item) => (
+      {favoriteList.map((item) => (
         <ProductListItem key={item.id} item={item} />
       ))}
     </div>
