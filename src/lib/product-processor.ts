@@ -1,28 +1,59 @@
 import { NUTRIENT_UNITS } from '@/utils/constants'
 
+type CategoryMapKey = keyof typeof categoryMap
+type FormMapKey = keyof typeof formMap
+type UnitMapKey = keyof typeof unitMap
+type UnitConversionKey = keyof typeof UNIT_CONVERSIONS
+
 const categoryMap = {
   'balanced': '均衡配方',
   'concentrated': '濃縮配方',
-}
+} as const
 
 const formMap = {
   'powder': '粉劑',
   'liquid': '液劑',
-}
+} as const
 
 const unitMap = {
   "spoon": "匙",
   "pack": "包",
-  "can": "罐"
+  "can": "罐",
+} as const
+
+// Raw Supabase row shapes
+interface RawVariant {
+  is_default?: boolean
+  volume?: number
+  quantity?: number | string
+  unit?: string
 }
 
-const categoryProcessor = (categories) => {
+interface RawIngredientEntry {
+  unit?: string
+  value?: unknown
+}
+
+interface RawProduct {
+  license_no: string
+  name_zh: string
+  name_en: string
+  brand: string
+  form?: string
+  standard_weight?: number
+  is_approved?: string | boolean
+  categories?: string[]
+  nutrition_facts?: Record<string, RawIngredientEntry>
+  product_variants?: RawVariant[]
+}
+
+const categoryProcessor = (categories: string[]): string[] => {
   return categories.map((cate) => {
-    return categoryMap[cate] || cate
+    return categoryMap[cate as CategoryMapKey] || cate
   })
 }
 
-const normalizeDefaultUnit = (unit) => {
+const normalizeDefaultUnit = (unit: string | undefined): string => {
   if (!unit) return ''
   if (unit.includes('µg')) return 'ug'
   if (unit.includes('mg')) return 'mg'
@@ -33,11 +64,11 @@ const UNIT_CONVERSIONS = {
   'g': 1,
   'mg': 1000,
   'ug': 1000000,
-}
+} as const
 
-const convertToStandardUnit = (value, fromUnit, toUnit) => {
-  const normalizedFrom = UNIT_CONVERSIONS[fromUnit] || 1
-  const normalizedTo = UNIT_CONVERSIONS[toUnit] || 1
+const convertToStandardUnit = (value: number, fromUnit: string, toUnit: string): number => {
+  const normalizedFrom = UNIT_CONVERSIONS[fromUnit as UnitConversionKey] || 1
+  const normalizedTo = UNIT_CONVERSIONS[toUnit as UnitConversionKey] || 1
 
   if (normalizedFrom === normalizedTo) return value
 
@@ -45,14 +76,17 @@ const convertToStandardUnit = (value, fromUnit, toUnit) => {
   return value * factor
 }
 
-const ingredientsProcessor = (ingredients, factor) => {
-  if (!factor || factor <= 0) return ingredients
+const ingredientsProcessor = (
+  ingredients: Record<string, RawIngredientEntry>,
+  factor: number
+): Record<string, number> => {
+  if (!factor || factor <= 0) return {}
 
-  const processedIngredients = {}
-  for (const [key, value] of Object.entries(ingredients)) {
+  const processedIngredients: Record<string, number> = {}
+  for (const [key, entry] of Object.entries(ingredients)) {
     const defaultUnit = normalizeDefaultUnit(NUTRIENT_UNITS[key]) || ''
-    const unit = value.unit || ''
-    let convertedValue = Number(value.value) || 0
+    const unit = entry.unit || ''
+    let convertedValue = Number(entry.value) || 0
     if (unit !== defaultUnit) {
       convertedValue = convertToStandardUnit(convertedValue, unit, defaultUnit)
     }
@@ -62,10 +96,14 @@ const ingredientsProcessor = (ingredients, factor) => {
   return processedIngredients
 }
 
-const isValidProduct = (product) => {
-  // check defaultAmount
+const hasValidDefaultAmount = (product: RawProduct): boolean => {
   const defaultAmount = product.product_variants?.find(variant => variant.is_default)?.volume || null
-  if (!defaultAmount) return false;
+  return !!defaultAmount
+}
+
+const isValidProduct = (product: RawProduct): boolean => {
+  // check defaultAmount
+  if (!hasValidDefaultAmount(product)) return false;
 
   // check nutrition_facts
   if (!product.nutrition_facts || Object.keys(product.nutrition_facts).length === 0) return false;
@@ -73,27 +111,76 @@ const isValidProduct = (product) => {
   return true;
 }
 
-export const formatProductData = (products) => {
+// 清單用的 validator：nutrition_facts 已在 DB 端過濾，這邊只檢查 defaultAmount
+const isValidProductListItem = hasValidDefaultAmount
+
+// 清單格式（不含 ingredients / spec / defaultAmount）
+export const formatProductList = (products: RawProduct[]) => {
+  return products
+    .filter(isValidProductListItem)
+    .map((product) => {
+      const { is_approved, categories: rawCate, form } = product
+      const categories = is_approved ? categoryProcessor(rawCate || []) : []
+      const type = formMap[form as FormMapKey] || form || ''
+
+      return {
+        id: product.license_no,
+        name: product.name_zh,
+        engName: product.name_en,
+        brand: product.brand,
+        type,
+        categories,
+        reviewStatus: String(is_approved ?? ''),
+      }
+    })
+}
+
+// 詳細格式（含完整 nutrition 資料，單筆使用）
+export const formatProductDetail = (product: RawProduct) => {
+  if (!isValidProduct(product)) return null
+
+  const { is_approved, categories: rawCate, product_variants, form, standard_weight } = product
+  const categories = is_approved ? categoryProcessor(rawCate || []) : []
+  const defaultAmount = product_variants?.find(variant => variant.is_default)?.volume || null
+  const type = formMap[form as FormMapKey] || form || ''
+  const factor = defaultAmount && standard_weight ? defaultAmount / standard_weight : 1
+  const ingredients = ingredientsProcessor(product.nutrition_facts ?? {}, factor)
+  const spec = (product_variants ?? []).map(variant => ({
+    defaultAmount: variant.quantity,
+    unit: unitMap[variant.unit as UnitMapKey] || variant.unit,
+    volume: variant.volume,
+  }))
+
+  return {
+    id: product.license_no,
+    name: product.name_zh,
+    engName: product.name_en,
+    brand: product.brand,
+    type,
+    categories,
+    defaultAmount,
+    ingredients,
+    spec,
+    reviewStatus: is_approved,
+  }
+}
+
+// 保留舊函式，供既有測試相容
+export const formatProductData = (products: RawProduct[]) => {
   return products
     .filter(isValidProduct)
     .map((product) => {
       const { is_approved, categories: rawCate, product_variants, form, standard_weight } = product
       const categories = is_approved ? categoryProcessor(rawCate || []) : []
-
       const defaultAmount = product_variants?.find(variant => variant.is_default)?.volume || null
-
-      const type = formMap[form] || form
-
-      const factor = defaultAmount / standard_weight || 1
-      const ingredients = ingredientsProcessor(product.nutrition_facts, factor)
-
-      const spec = product_variants.map(variant => {
-        return {
-          defaultAmount: variant.quantity,
-          unit: unitMap[variant.unit] || variant.unit,
-          volume: variant.volume,
-        }
-      })
+      const type = formMap[form as FormMapKey] || form || ''
+      const factor = defaultAmount && standard_weight ? defaultAmount / standard_weight : 1
+      const ingredients = ingredientsProcessor(product.nutrition_facts ?? {}, factor)
+      const spec = (product_variants ?? []).map(variant => ({
+        defaultAmount: variant.quantity,
+        unit: unitMap[variant.unit as UnitMapKey] || variant.unit,
+        volume: variant.volume,
+      }))
 
       return {
         brand: product.brand,

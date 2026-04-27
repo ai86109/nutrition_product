@@ -2,7 +2,7 @@
 
 import { useMemo, useContext, useReducer, useState, createContext } from "react"
 import { useProduct } from "@/contexts/ProductContext"
-import { ApiProductData, SearchState, SearchAction } from "@/types"
+import { ApiProductListData, SearchState, SearchAction } from "@/types"
 
 const ALL_TEXT = "全部"
 
@@ -25,7 +25,7 @@ function searchReducer(state: SearchState, action: SearchAction): SearchState {
 }
 
 const searchFilter = {
-  name: (item: ApiProductData, searchValue: string): boolean => {
+  name: (item: ApiProductListData, searchValue: string): boolean => {
     if (!searchValue) return true
 
     const textInput = searchValue.toLowerCase();
@@ -34,15 +34,15 @@ const searchFilter = {
 
     return nameMatches || engNameMatches
   },
-  brand: (item: ApiProductData, selectedBrand: string): boolean => {
+  brand: (item: ApiProductListData, selectedBrand: string): boolean => {
     if (!selectedBrand || selectedBrand === ALL_TEXT) return true
     return item.brand === selectedBrand;
   },
-  type: (item: ApiProductData, selectedType: string): boolean => {
+  type: (item: ApiProductListData, selectedType: string): boolean => {
     if (!selectedType || selectedType === ALL_TEXT) return true
     return item.type === selectedType;
   },
-  category: (item: ApiProductData, selectedCate: string[]): boolean => {
+  category: (item: ApiProductListData, selectedCate: string[]): boolean => {
     // if selected 全部, return true
     if (selectedCate.some(cate => cate === ALL_TEXT)) return true
 
@@ -68,10 +68,10 @@ const searchFilter = {
   }
 }
 
-const filterProducts = (products: ApiProductData[], searchState: SearchState) => {
+const filterProducts = (products: ApiProductListData[], searchState: SearchState) => {
   if (!products || !products.length) return []
 
-  return products.filter((item: ApiProductData) => {
+  return products.filter((item: ApiProductListData) => {
     const { searchValue, selectedBrand, selectedType, selectedCate } = searchState
 
     return (
@@ -85,7 +85,7 @@ const filterProducts = (products: ApiProductData[], searchState: SearchState) =>
 
 interface SearchContextType {
   formState: SearchState
-  filteredData: ApiProductData[]
+  filteredData: ApiProductListData[]
   updateField: (field: keyof SearchState, value: string | string[]) => void
   applySearch: () => void
   reset: () => void
@@ -93,7 +93,7 @@ interface SearchContextType {
 
 const SearchContext = createContext<SearchContextType | undefined>(undefined)
 
-export function SearchProvider({ children }) {
+export function SearchProvider({ children }: { children: React.ReactNode }) {
   const { allProducts } = useProduct()
   const [formState, dispatch] = useReducer(searchReducer, initialState)
   const [appliedState, setAppliedState] = useState<SearchState>(initialState)

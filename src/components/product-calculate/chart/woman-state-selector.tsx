@@ -1,12 +1,19 @@
 import { Switch } from "@/components/ui/switch"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
+interface WomanStateSelectorProps {
+  womanState: string | null
+  pregnancyState: string | null
+  handleWomanStateToggle: (state: 'pregnancy' | 'lactation') => void
+  setPregnancyState: (state: string) => void
+}
+
 export function WomanStateSelector({
   womanState,
   pregnancyState,
   handleWomanStateToggle,
   setPregnancyState,
-}) {
+}: WomanStateSelectorProps) {
   return (
     <div className="bg-gray-100 p-4 rounded-md">
       <p>生理狀態</p>

@@ -64,9 +64,9 @@ export function MealServingsCalculation({ mealsPerDay, item }: CalculateDailySer
   const ratio = currentAmount / defaultAmount
 
   // calculate servings per meal
-  const servingsPerMeal = ((Number(tdee)) / Number(mealsPerDay)) / (ingredients.calories * ratio)
+  const servingsPerMeal = ((Number(tdee)) / Number(mealsPerDay)) / ((ingredients.calories ?? 0) * ratio)
   const unit = getProductUnit(select)
-  const proteinPerMeal = (ingredients.protein * ratio) * servingsPerMeal
+  const proteinPerMeal = ((ingredients.protein ?? 0) * ratio) * servingsPerMeal
 
   return (
     <div className="bg-blue-50 p-2 rounded w-[200px] text-wrap lg:w-auto">

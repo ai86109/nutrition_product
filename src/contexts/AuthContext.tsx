@@ -1,14 +1,24 @@
 'use client'
 
-import { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, useMemo, type Dispatch, type SetStateAction } from 'react'
+import type { Session } from '@supabase/supabase-js'
 import { createClient } from '@/utils/supabase/client'
 import { getUserRole } from '@/lib/supabase/queries/user-roles'
 import type { UserRole } from '@/lib/supabase/queries/user-roles'
 
-const AuthContext = createContext(undefined)
+interface AuthContextType {
+  session: Session | null
+  setSession: Dispatch<SetStateAction<Session | null>>
+  loading: boolean
+  isLoggedIn: boolean
+  role: UserRole | null
+  clearAuth: () => void
+}
 
-export function AuthProvider({ children }) {
-  const [session, setSession] = useState(null)
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null)
   const [loading, setLoading] = useState(true)
   const [role, setRole] = useState<UserRole | null>(null)
   const isLoggedIn = !!session

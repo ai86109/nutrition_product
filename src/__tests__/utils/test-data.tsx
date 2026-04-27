@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { ApiProductData, ProductData } from "@/types";
 import { BioInfoProvider } from '@/contexts/BioInfoContext';
 import { ProductProvider } from "@/contexts/ProductContext";

@@ -115,7 +115,7 @@ function processInfoRow(row: string[], headers: string[]): Partial<ApiProductDat
       product[mappedField] = product[mappedField] || [];
       if (value) product[mappedField].push(value);
     } else {
-      product[mappedField] = value;
+      (product as Record<string, unknown>)[mappedField] = value;
     }
   })
   
@@ -169,7 +169,7 @@ const hasMinValue = (field: keyof IngredientsData) => (minValue: number) => (pro
   return typeof value === 'number' && value > minValue
 }
 
-const allValidators = (...validators) => (item) => {
+const allValidators = (...validators: Array<(item: ApiProductData) => boolean>) => (item: ApiProductData) => {
   return validators.every((validator) => validator(item))
 }
 

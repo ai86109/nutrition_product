@@ -4,7 +4,7 @@ import { UNIT_MAPPINGS } from "@/utils/constants"
 import { useProduct } from "@/contexts/ProductContext"
 
 export function useProductCalculation() {
-  const { allProducts, productList } = useProduct()
+  const { productList, productDetails } = useProduct()
   const [userInputs, setUserInputs] = useState<Record<string, UserInput>>({})
 
   const generateSelectOptions = (product: ApiProductData) => {
@@ -105,10 +105,10 @@ export function useProductCalculation() {
   const listData = useMemo((): ProductData[] => {
     if (!productList || productList.length === 0) return []
     return productList.map((productId) => {
-      const product = allProducts.find(product => product.id === productId)
+      const product = productDetails[productId]
       return transformProductFormat(product, productId)
     }).filter((item) => item !== null)
-  }, [allProducts, productList, transformProductFormat])
+  }, [productDetails, productList, transformProductFormat])
 
   return {
     listData,

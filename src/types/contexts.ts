@@ -1,4 +1,4 @@
-import type { ApiProductData } from './api'
+import type { ApiProductData, ApiProductListData } from './api'
 
 export interface FormData {
   height: string | number
@@ -59,8 +59,11 @@ export type SearchAction =
   | { type: 'APPLY_SEARCH' }
 
 export interface ProductContextType {
-  allProducts: ApiProductData[]
+  allProducts: ApiProductListData[]
   productList: string[]
-  setProductList: React.Dispatch<React.SetStateAction<string[]>> 
+  setProductList: React.Dispatch<React.SetStateAction<string[]>>
   brandOptions: BrandOption[]
+  productDetails: Record<string, ApiProductData>
+  loadingProductIds: Set<string>
+  fetchProductDetail: (id: string) => Promise<void>
 }

@@ -11,7 +11,7 @@ export function useDRIsCalculation(
   const { submittedValues } = useBioInfo()
   const { gender, age } = submittedValues
 
-  const drisContent: { item: string, value: number }[] | null = useMemo(() => {
+  const drisContent: { item: string, value: number | number[] }[] | null = useMemo(() => {
     const drisForNutrient = DRIS[nutrient]
     if (!drisForNutrient) return null
 
@@ -24,26 +24,32 @@ export function useDRIsCalculation(
     if (!ageGroupData) return null
 
     return Object.keys(ageGroupData).map(item => {
-      // amdr
+      // amdr：值為 number | number[]
       if (item === 'amdr') {
-        return { item, value: ageGroupData?.[item] }
+        return { item, value: ageGroupData?.[item] as number | number[] }
       }
 
-      // 非 amdr
-      let driValue = ageGroupData?.[item]?.[gender] || 0
-      
+      // 非 amdr：ageGroupData[item] 是 { [gender]: number }
+      const ageItemValue = ageGroupData?.[item]
+      let driValue: number =
+        typeof ageItemValue === 'object' && !Array.isArray(ageItemValue) && ageItemValue !== null
+          ? (ageItemValue as Record<string, number>)[gender] ?? 0
+          : 0
+
       // 考慮懷孕、哺乳的情況
       if (state) {
         const stateDri = drisForNutrient.state?.[state.type]
         if (stateDri) {
           if (state.type === 'pregnancy' && state.pregnancyState) {
-            const pregnancyDriValue = stateDri?.[state.pregnancyState]?.[item] ?? 0
+            const pregnancyDri = stateDri as Record<string, Record<string, number>>
+            const pregnancyDriValue = pregnancyDri?.[state.pregnancyState]?.[item] ?? 0
             if (pregnancyDriValue > 0) {
               if (item === 'ul') driValue = Math.max(driValue, pregnancyDriValue)
               else driValue += pregnancyDriValue
             }
           } else if (state.type === 'lactation') {
-            const lactationDriValue = stateDri?.[item] ?? 0
+            const lactationDri = stateDri as Record<string, number>
+            const lactationDriValue = lactationDri?.[item] ?? 0
             if (lactationDriValue > 0) {
               if (item === 'ul') driValue = Math.max(driValue, lactationDriValue)
               else driValue += lactationDriValue
@@ -64,11 +70,11 @@ export function useDRIsCalculation(
     let range = [0, 0]
     drisContent.forEach(({ item, value }) => {
       if (item === 'amdr') {
-        if (Array.isArray(value) && value.length === 2) range = value
-        else range = [0, value]
+        if (Array.isArray(value) && value.length === 2) range = value as number[]
+        else range = [0, value as number]
       }
-      else if (item === 'ul' || item === 'cdrr') range[1] = value
-      else range = [value, Infinity]
+      else if (item === 'ul' || item === 'cdrr') range[1] = value as number
+      else range = [value as number, Infinity]
     })
 
     return range

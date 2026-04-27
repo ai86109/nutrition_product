@@ -2,7 +2,7 @@ import Link from "next/link"
 import { Star, Plus, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { ApiProductData } from "@/types"
+import { ApiProductListData } from "@/types"
 import { getLinkPath } from "@/utils/external-links"
 import { useProduct } from "@/contexts/ProductContext"
 import { useAuth } from "@/contexts/AuthContext"
@@ -10,9 +10,9 @@ import { useHistorySettings } from "@/hooks/localStorage-related/useHistorySetti
 import { useFavoriteSettings } from "@/hooks/localStorage-related/useFavoriteSettings"
 import { cn } from "@/lib/utils"
 
-export default function ProductListItem({ item }: { item: ApiProductData }) {
+export default function ProductListItem({ item }: { item: ApiProductListData }) {
   const { isLoggedIn } = useAuth()
-  const { productList, setProductList } = useProduct()
+  const { productList, setProductList, fetchProductDetail } = useProduct()
   const { addList } = useHistorySettings()
   const { isFavorite, toggleFavorite } = useFavoriteSettings()
 
@@ -22,6 +22,7 @@ export default function ProductListItem({ item }: { item: ApiProductData }) {
   const handleAddToCalculate = (): void => {
     if (isAdded) return
     setProductList((prev: string[]) => [...prev, item.id])
+    fetchProductDetail(item.id)
     if (isLoggedIn) addList(item.id)
   }
 
