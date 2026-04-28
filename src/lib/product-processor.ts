@@ -144,7 +144,9 @@ export const formatProductDetail = (product: RawProduct) => {
   const defaultAmount = product_variants?.find(variant => variant.is_default)?.volume || null
   const type = formMap[form as FormMapKey] || form || ''
   const factor = defaultAmount && standard_weight ? defaultAmount / standard_weight : 1
+  const per100Factor = standard_weight ? 100 / standard_weight : 1
   const ingredients = ingredientsProcessor(product.nutrition_facts ?? {}, factor)
+  const ingredientsPer100 = ingredientsProcessor(product.nutrition_facts ?? {}, per100Factor)
   const spec = (product_variants ?? []).map(variant => ({
     defaultAmount: variant.quantity,
     unit: unitMap[variant.unit as UnitMapKey] || variant.unit,
@@ -160,6 +162,7 @@ export const formatProductDetail = (product: RawProduct) => {
     categories,
     defaultAmount,
     ingredients,
+    ingredientsPer100,
     spec,
     reviewStatus: is_approved,
   }

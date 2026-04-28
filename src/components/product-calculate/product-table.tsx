@@ -42,9 +42,10 @@ export default function ProductTable({
               </TableCell>
               <TableCell className="text-wrap lg:text-nowrap">
                 <ProductName
-                  id={item.id} 
-                  name={item.name} 
-                  engName={item.engName} 
+                  id={item.id}
+                  name={item.name}
+                  engName={item.engName}
+                  brand={item.brand}
                   categories={item.categories}
                 />
               </TableCell>

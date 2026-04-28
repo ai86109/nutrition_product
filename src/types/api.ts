@@ -41,4 +41,6 @@ export interface ApiProductData {
   categories: string[];
   spec: ProcessedSpec[];
   ingredients: IngredientsData;
+  // 每 100g/100ml 的營養素（給產品資訊 dialog 顯示用）
+  ingredientsPer100?: IngredientsData;
 }

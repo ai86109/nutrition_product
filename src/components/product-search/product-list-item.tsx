@@ -1,13 +1,13 @@
-import Link from "next/link"
+import { useState } from "react"
 import { Star, Plus, Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { ApiProductListData } from "@/types"
-import { getLinkPath } from "@/utils/external-links"
 import { useProduct } from "@/contexts/ProductContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useHistorySettings } from "@/hooks/localStorage-related/useHistorySettings"
 import { useFavoriteSettings } from "@/hooks/localStorage-related/useFavoriteSettings"
+import { ProductDetailDialog } from "@/components/dialogs/product-detail-dialog"
 import { cn } from "@/lib/utils"
 
 export default function ProductListItem({ item }: { item: ApiProductListData }) {
@@ -15,6 +15,7 @@ export default function ProductListItem({ item }: { item: ApiProductListData }) 
   const { productList, setProductList, fetchProductDetail } = useProduct()
   const { addList } = useHistorySettings()
   const { isFavorite, toggleFavorite } = useFavoriteSettings()
+  const [detailOpen, setDetailOpen] = useState(false)
 
   const isAdded = productList.includes(item.id)
   const isFaved = isFavorite(item.id)
@@ -34,7 +35,12 @@ export default function ProductListItem({ item }: { item: ApiProductListData }) 
     <div className="flex items-center gap-3 px-3 py-2.5 border-b border-border/60 last:border-b-0 hover:bg-muted/40 transition-colors">
       {/* Info */}
       <div className="flex-1 min-w-0">
-        <Link href={getLinkPath(item.id)} target="_blank" className="block">
+        <button
+          type="button"
+          onClick={() => setDetailOpen(true)}
+          className="block w-full text-left cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm"
+          aria-label={`查看 ${item.name} 詳細資訊`}
+        >
           <p className="text-sm font-medium truncate">{item.name}</p>
           {item.engName && (
             <p className="text-xs text-muted-foreground truncate">{item.engName}</p>
@@ -59,7 +65,7 @@ export default function ProductListItem({ item }: { item: ApiProductListData }) 
               </Badge>
             ))}
           </div>
-        </Link>
+        </button>
       </div>
 
       {/* Actions */}
@@ -91,6 +97,8 @@ export default function ProductListItem({ item }: { item: ApiProductListData }) 
           {isAdded ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
         </Button>
       </div>
+
+      <ProductDetailDialog item={item} open={detailOpen} onOpenChange={setDetailOpen} />
     </div>
   )
 }
