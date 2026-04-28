@@ -164,8 +164,8 @@ export default function PatientCard({
       <ConfirmDialog
         open={deleteOpen}
         onOpenChange={setDeleteOpen}
-        title={`刪除病人「${patient.name}」？`}
-        description={`會一併刪除這位病人的所有 snapshot（${snapshots.length} 筆），無法復原。`}
+        title={`你要刪除病人「${patient.name}」嗎？`}
+        description={`會一併刪除這位病人的所有歷史紀錄，共 ${snapshots.length} 筆，無法復原。`}
         confirmText="刪除"
         destructive
         loading={deleting}

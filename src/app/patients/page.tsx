@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
 import Navigation from "@/components/navigation"
 import PatientCard from "@/components/patients/patient-card"
+import PatientFilters from "@/components/patients/patient-filters"
 import { useAuth } from "@/contexts/AuthContext"
 import { getPatients } from "@/lib/supabase/queries/patients"
 import { getAllSnapshotsByUser } from "@/lib/supabase/queries/patient-snapshots"
@@ -27,6 +28,17 @@ export default function PatientsPage() {
     new Set()
   )
   const [hasInitDefaults, setHasInitDefaults] = useState(false)
+
+  // 篩選狀態
+  const [nameQuery, setNameQuery] = useState("")
+  const [dateFrom, setDateFrom] = useState("") // YYYY-MM-DD
+  const [dateTo, setDateTo] = useState("")     // YYYY-MM-DD
+
+  const handleResetFilters = useCallback(() => {
+    setNameQuery("")
+    setDateFrom("")
+    setDateTo("")
+  }, [])
 
   // 未登入導去 /auth
   useEffect(() => {
@@ -62,6 +74,46 @@ export default function PatientsPage() {
     })
     return map
   }, [snapshots])
+
+  // 套用篩選：名字 + memo 日期區間
+  // - 名字：trim + case-insensitive substring，空字串不篩
+  // - 日期：dateFrom/dateTo 為 YYYY-MM-DD（本機時間），任一非空即視為「有日期篩選」
+  // - 有日期篩選時，patient 至少要有一筆 snapshot 落在範圍內才會顯示
+  const isFiltered =
+    nameQuery !== "" || dateFrom !== "" || dateTo !== ""
+
+  const filteredPatients = useMemo(() => {
+    const trimmedName = nameQuery.trim().toLowerCase()
+    const hasDateFilter = dateFrom !== "" || dateTo !== ""
+    const fromMs = dateFrom
+      ? new Date(`${dateFrom}T00:00:00`).getTime()
+      : Number.NEGATIVE_INFINITY
+    const toMs = dateTo
+      ? new Date(`${dateTo}T23:59:59.999`).getTime()
+      : Number.POSITIVE_INFINITY
+
+    return patients.flatMap((p) => {
+      if (
+        trimmedName &&
+        !p.name.toLowerCase().includes(trimmedName)
+      ) {
+        return []
+      }
+
+      const allSnapshots = snapshotsByPatient[p.id] ?? []
+
+      if (hasDateFilter) {
+        const inRange = allSnapshots.filter((s) => {
+          const t = new Date(s.created_at).getTime()
+          return t >= fromMs && t <= toMs
+        })
+        if (inRange.length === 0) return []
+        return [{ patient: p, snapshots: inRange }]
+      }
+
+      return [{ patient: p, snapshots: allSnapshots }]
+    })
+  }, [patients, snapshotsByPatient, nameQuery, dateFrom, dateTo])
 
   // 初次載入完成後設定預設展開：最上面病人 + 該病人最新一筆 snapshot
   useEffect(() => {
@@ -144,24 +196,45 @@ export default function PatientsPage() {
     }
 
     return (
-      <div className="space-y-4">
-        {patients.map((p, i) => (
-          <PatientCard
-            key={p.id}
-            patient={p}
-            snapshots={snapshotsByPatient[p.id] ?? []}
-            isExpanded={expandedPatients.has(p.id)}
-            onToggleExpand={() => togglePatient(p.id)}
-            expandedSnapshotIds={expandedSnapshots}
-            onToggleSnapshot={toggleSnapshot}
-            canMoveUp={i > 0}
-            canMoveDown={i < patients.length - 1}
-            onMoveUp={() => swap(i, i - 1)}
-            onMoveDown={() => swap(i, i + 1)}
-            onChanged={reload}
-          />
-        ))}
-      </div>
+      <>
+        <PatientFilters
+          nameQuery={nameQuery}
+          dateFrom={dateFrom}
+          dateTo={dateTo}
+          onNameQueryChange={setNameQuery}
+          onDateFromChange={setDateFrom}
+          onDateToChange={setDateTo}
+          onReset={handleResetFilters}
+        />
+        {filteredPatients.length === 0 ? (
+          <p className="text-sm text-muted-foreground text-center">
+            沒有符合條件的病人
+          </p>
+        ) : (
+          <div className="space-y-4">
+            {filteredPatients.map(({ patient: p, snapshots: ss }) => {
+              // swap 用的是 patients 完整 list 的 index；若有篩選，停用上下移避免錯位
+              const fullIdx = patients.findIndex((x) => x.id === p.id)
+              return (
+                <PatientCard
+                  key={p.id}
+                  patient={p}
+                  snapshots={ss}
+                  isExpanded={expandedPatients.has(p.id)}
+                  onToggleExpand={() => togglePatient(p.id)}
+                  expandedSnapshotIds={expandedSnapshots}
+                  onToggleSnapshot={toggleSnapshot}
+                  canMoveUp={!isFiltered && fullIdx > 0}
+                  canMoveDown={!isFiltered && fullIdx < patients.length - 1}
+                  onMoveUp={() => swap(fullIdx, fullIdx - 1)}
+                  onMoveDown={() => swap(fullIdx, fullIdx + 1)}
+                  onChanged={reload}
+                />
+              )
+            })}
+          </div>
+        )}
+      </>
     )
   }
 

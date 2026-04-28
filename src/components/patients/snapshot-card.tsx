@@ -302,8 +302,8 @@ export default function SnapshotCard({
       <ConfirmDialog
         open={confirmOpen}
         onOpenChange={setConfirmOpen}
-        title="刪除這筆 snapshot？"
-        description="刪除後無法復原。"
+        title="你要刪除這筆紀錄嗎？"
+        description="刪除後將無法復原。"
         confirmText="刪除"
         destructive
         loading={deleting}
