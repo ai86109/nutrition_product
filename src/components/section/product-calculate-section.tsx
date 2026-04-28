@@ -13,6 +13,7 @@ import { useProductCalculation } from "@/hooks/useProductCalculation";
 import { useIngredientCalculation } from "@/hooks/product-calculate/useIngredientCalculation";
 import { useMealCalculation } from "@/hooks/product-calculate/useMealCalculation";
 import ConditionalContent from "@/components/conditional-content"
+import SaveSnapshotButton from "@/components/patient-tracking/save-snapshot-button"
 
 
 export default function ProductCalculateSection() {
@@ -28,6 +29,18 @@ export default function ProductCalculateSection() {
 
   return (
     <div className="flex flex-col items-center mt-4 p-2">
+      {/* 手機版專屬：標題 + 儲存按鈕同一行 */}
+      <div className="sm:hidden w-full flex justify-between items-center gap-4 px-6 mb-2">
+        <h2 className="text-[20px] font-semibold">營養品成分計算</h2>
+        {hasAnyProduct && (
+          <SaveSnapshotButton
+            listData={listData}
+            isCalculateServings={isCalculateServings}
+            mealsPerDay={mealsPerDay}
+          />
+        )}
+      </div>
+
       <ConditionalContent
         condition={hasAnyProduct}
         fallback={
@@ -42,7 +55,17 @@ export default function ProductCalculateSection() {
       >
         <div className="w-full">
           <CardContent>
-            <BioSettings />
+            <div className="flex justify-between items-start gap-4">
+              <BioSettings />
+              {/* 桌面版才顯示在 BioSettings 旁；手機版上面那一行已經渲染過 */}
+              <div className="hidden sm:block">
+                <SaveSnapshotButton
+                  listData={listData}
+                  isCalculateServings={isCalculateServings}
+                  mealsPerDay={mealsPerDay}
+                />
+              </div>
+            </div>
             <MealCalculationSettings
               isServingsCanBeUsed={isServingsCanBeUsed}
               isCalculateServings={isCalculateServings}

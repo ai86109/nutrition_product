@@ -59,9 +59,6 @@ export default function MainSection() {
         </Accordion>
 
         <div className="bg-white py-2">
-          <CardHeader className="my-2">
-            <CardTitle className="text-[20px]">營養品成分計算</CardTitle>
-          </CardHeader>
           <ProductCalculateSection />
         </div>
       </div>

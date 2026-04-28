@@ -2,10 +2,11 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button"
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import ConditionalContent from "@/components/conditional-content";
 import { Skeleton } from "@/components/ui/skeleton"
+import { ArrowLeft } from "lucide-react"
 
 export default function Navigation() {
   const { session, loading, role } = useAuth();
@@ -13,6 +14,8 @@ export default function Navigation() {
   const user = session?.user || null;
   const { name: userName, avatar_url: avatarUrl} = user?.user_metadata || {};
   const router = useRouter();
+  const pathname = usePathname();
+  const isOnPatientsPage = pathname?.startsWith('/patients') ?? false;
 
   return (
     <nav className="flex items-center gap-2 justify-end px-4 pt-2">
@@ -27,6 +30,18 @@ export default function Navigation() {
           <Avatar>
             <AvatarImage src={avatarUrl} alt="avatar" />
           </Avatar>
+        )}
+        {user && (
+          isOnPatientsPage ? (
+            <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/')}>
+              <ArrowLeft className="size-4" />
+              返回首頁
+            </Button>
+          ) : (
+            <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/patients')}>
+              病人追蹤
+            </Button>
+          )
         )}
         {isAdmin && (
           <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/admin')}>
