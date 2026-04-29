@@ -1,6 +1,7 @@
 import { requireAdmin } from '@/lib/admin'
 import Link from 'next/link'
 import AdminSidebar from '@/components/admin/admin-sidebar'
+import { getPendingProductCount } from '@/lib/supabase/queries/admin-products'
 
 export default async function AdminLayout({
   children,
@@ -8,6 +9,7 @@ export default async function AdminLayout({
   children: React.ReactNode
 }) {
   await requireAdmin()
+  const pendingProductCount = await getPendingProductCount()
 
   return (
     <div className="min-h-screen flex flex-col bg-gray-100">
@@ -23,7 +25,7 @@ export default async function AdminLayout({
 
       {/* Body: sidebar + content */}
       <div className="flex flex-1 overflow-hidden">
-        <AdminSidebar />
+        <AdminSidebar pendingProductCount={pendingProductCount} />
         <main className="flex-1 overflow-auto p-6">
           {children}
         </main>
