@@ -66,3 +66,31 @@ export async function updatePatientSnapshotNotes(
 
   return data as PatientSnapshot
 }
+
+/**
+ * 更新 snapshot 的使用者指定日期 (snapshot_date)。
+ *
+ * - date 是 YYYY-MM-DD：覆寫顯示與排序日期
+ * - date 為 null：清空，回到 created_at 為基準
+ *
+ * 呼叫端應該檢查 date 不晚於今天（UI 層的 max 限制）。
+ */
+export async function updatePatientSnapshotDate(
+  snapshotId: string,
+  date: string | null
+): Promise<PatientSnapshot> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('patient_snapshots')
+    .update({ snapshot_date: date })
+    .eq('id', snapshotId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating snapshot date:', error)
+    throw error
+  }
+
+  return data as PatientSnapshot
+}

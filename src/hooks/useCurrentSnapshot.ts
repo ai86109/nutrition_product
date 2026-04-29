@@ -98,6 +98,8 @@ export function useCurrentSnapshot({
       meals_per_day: mealsNum,
       selected_products: selectedProducts,
       notes: null,
+      // 新建時不指定 snapshot_date，由使用者之後在病人頁編輯
+      snapshot_date: null,
     }
   }, [
     formData,

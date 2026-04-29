@@ -3,6 +3,12 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   ChevronDown,
   ChevronRight,
@@ -16,8 +22,11 @@ import {
 import ConfirmDialog from "./confirm-dialog"
 import {
   deletePatientSnapshot,
+  updatePatientSnapshotDate,
   updatePatientSnapshotNotes,
 } from "@/lib/supabase/mutations/patient-snapshots"
+import { getEffectiveDate } from "@/lib/snapshot-date"
+import { formatNumber } from "@/lib/utils"
 import type { PatientSnapshot } from "@/types/patient"
 
 interface SnapshotCardProps {
@@ -28,10 +37,10 @@ interface SnapshotCardProps {
   onChanged: () => void
 }
 
-function formatDateTime(iso: string) {
-  const d = new Date(iso)
+function getTodayLocalDate(): string {
+  const d = new Date()
   const pad = (n: number) => String(n).padStart(2, "0")
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
 }
 
 interface StatProps {
@@ -87,6 +96,15 @@ export default function SnapshotCard({
   const [draftNotes, setDraftNotes] = useState("")
   const [savingNotes, setSavingNotes] = useState(false)
 
+  // 日期編輯 Popover 狀態
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false)
+  const [draftDate, setDraftDate] = useState("")
+  const [savingDate, setSavingDate] = useState(false)
+
+  const todayMax = getTodayLocalDate()
+  const effectiveDate = getEffectiveDate(snapshot)
+  const hasDateOverride = snapshot.snapshot_date !== null
+
   const handleDelete = async () => {
     setDeleting(true)
     try {
@@ -131,6 +149,59 @@ export default function SnapshotCard({
     }
   }
 
+  const handleDatePopoverOpenChange = (open: boolean) => {
+    if (open) {
+      // 開啟時初始化 draft 為目前 effective date
+      setDraftDate(effectiveDate)
+    }
+    setDatePopoverOpen(open)
+  }
+
+  const handleSaveDate = async () => {
+    if (!draftDate) return
+    if (draftDate > todayMax) return // UI 已用 max 限制，這層是保險
+    if (draftDate === snapshot.snapshot_date) {
+      // 沒變化就不打 API
+      setDatePopoverOpen(false)
+      return
+    }
+    setSavingDate(true)
+    try {
+      await updatePatientSnapshotDate(snapshot.id, draftDate)
+      onChanged()
+      setDatePopoverOpen(false)
+    } catch (err) {
+      console.error(err)
+      alert("儲存日期失敗，請稍後再試")
+    } finally {
+      setSavingDate(false)
+    }
+  }
+
+  const handleClearDate = async () => {
+    if (!hasDateOverride) {
+      setDatePopoverOpen(false)
+      return
+    }
+    setSavingDate(true)
+    try {
+      await updatePatientSnapshotDate(snapshot.id, null)
+      onChanged()
+      setDatePopoverOpen(false)
+    } catch (err) {
+      console.error(err)
+      alert("清空日期失敗，請稍後再試")
+    } finally {
+      setSavingDate(false)
+    }
+  }
+
+  const isSaveDisabled =
+    savingDate ||
+    draftDate === "" ||
+    draftDate > todayMax ||
+    draftDate === effectiveDate
+
   const {
     bio_info,
     calorie_target,
@@ -150,7 +221,7 @@ export default function SnapshotCard({
 
   return (
     <Card className="overflow-hidden p-0">
-      {/* Header — 點擊切換展開 */}
+      {/* Header — 點擊切換展開；旁邊有編輯日期、刪除 */}
       <div className="flex items-center justify-between gap-2 px-4 py-3">
         <button
           type="button"
@@ -165,16 +236,83 @@ export default function SnapshotCard({
           )}
           <Calendar className="size-3.5 shrink-0 text-muted-foreground" />
           <span className="text-sm font-medium tabular-nums">
-            {formatDateTime(snapshot.created_at)}
+            {effectiveDate}
           </span>
         </button>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => setConfirmOpen(true)}
-        >
-          刪除
-        </Button>
+
+        <div className="flex items-center gap-1 shrink-0">
+          <Popover
+            open={datePopoverOpen}
+            onOpenChange={handleDatePopoverOpenChange}
+          >
+            <PopoverTrigger asChild>
+              <Button variant="outline" size="sm" title="編輯日期">
+                <Pencil className="size-4" />
+                <span className="hidden sm:inline">編輯日期</span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-72">
+              <div className="space-y-3">
+                <div>
+                  <h4 className="text-sm font-semibold">編輯日期</h4>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    目前：{effectiveDate}
+                    {!hasDateOverride && "（自動）"}
+                  </p>
+                </div>
+
+                <Input
+                  type="date"
+                  value={draftDate}
+                  max={todayMax}
+                  onChange={(e) => setDraftDate(e.target.value)}
+                  aria-label="snapshot 日期"
+                />
+
+                <div className="flex items-center justify-between gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleClearDate}
+                    disabled={savingDate || !hasDateOverride}
+                    title={
+                      hasDateOverride
+                        ? "復原後回到系統建立日"
+                        : "目前已是系統建立日"
+                    }
+                  >
+                    復原
+                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setDatePopoverOpen(false)}
+                      disabled={savingDate}
+                    >
+                      取消
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleSaveDate}
+                      disabled={isSaveDisabled}
+                    >
+                      {savingDate ? "儲存中..." : "儲存"}
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setConfirmOpen(true)}
+          >
+            刪除
+          </Button>
+        </div>
       </div>
 
       {/* Body */}
@@ -231,7 +369,7 @@ export default function SnapshotCard({
                       </span>
                       {p.serving_amount > 0 && p.serving_unit && (
                         <div className="text-xs text-muted-foreground">
-                          ({p.serving_amount}
+                          ({formatNumber(p.serving_amount)}
                           {p.serving_unit})
                         </div>
                       )}

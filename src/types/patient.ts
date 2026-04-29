@@ -61,7 +61,14 @@ export interface PatientSnapshot {
   meals_per_day: number | null
   selected_products: SnapshotSelectedProduct[]
   notes: string | null
+  /** 系統建立時間（不可編輯） */
   created_at: string
+  /**
+   * 使用者指定的「這筆紀錄的日期」，可為 null。
+   * - null：用 created_at::date 當 fallback 顯示與排序
+   * - YYYY-MM-DD：使用者透過編輯按鈕設定的日期
+   */
+  snapshot_date: string | null
 }
 
 // 建立用（id / user_id / created_at 由 server 補）

@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { getPatients } from "@/lib/supabase/queries/patients"
 import { getAllSnapshotsByUser } from "@/lib/supabase/queries/patient-snapshots"
 import { updatePatientSortOrders } from "@/lib/supabase/mutations/patients"
+import { getEffectiveDateMs } from "@/lib/snapshot-date"
 import type { Patient, PatientSnapshot } from "@/types/patient"
 import { Skeleton } from "@/components/ui/skeleton"
 
@@ -104,7 +105,7 @@ export default function PatientsPage() {
 
       if (hasDateFilter) {
         const inRange = allSnapshots.filter((s) => {
-          const t = new Date(s.created_at).getTime()
+          const t = getEffectiveDateMs(s)
           return t >= fromMs && t <= toMs
         })
         if (inRange.length === 0) return []

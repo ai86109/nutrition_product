@@ -197,6 +197,8 @@ export default function SaveSnapshotDialog({
       meals_per_day: mealsNum,
       selected_products: initialValues.selected_products,
       notes: notes.trim() === "" ? null : notes.trim(),
+      // 新建時不指定 snapshot_date，由使用者之後在病人頁編輯
+      snapshot_date: null,
     }
 
     setSaving(true)

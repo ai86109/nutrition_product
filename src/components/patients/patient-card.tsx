@@ -11,10 +11,12 @@ import {
   User,
   Pencil,
   Trash2,
+  TrendingUp,
 } from "lucide-react"
 import SnapshotCard from "./snapshot-card"
 import RenamePatientDialog from "./rename-patient-dialog"
 import ConfirmDialog from "./confirm-dialog"
+import { SnapshotTrendSheet } from "./snapshot-trend-sheet"
 import { deletePatient } from "@/lib/supabase/mutations/patients"
 import type { Patient, PatientSnapshot } from "@/types/patient"
 
@@ -48,6 +50,7 @@ export default function PatientCard({
   const [renameOpen, setRenameOpen] = useState(false)
   const [deleteOpen, setDeleteOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [trendOpen, setTrendOpen] = useState(false)
 
   const handleDelete = async () => {
     setDeleting(true)
@@ -61,6 +64,22 @@ export default function PatientCard({
     } finally {
       setDeleting(false)
     }
+  }
+
+  const handleViewRecord = (snapshotId: string) => {
+    // 確保目標 snapshot 是展開狀態
+    if (!expandedSnapshotIds.has(snapshotId)) {
+      onToggleSnapshot(snapshotId)
+    }
+    // 關閉 Sheet
+    setTrendOpen(false)
+    // 等 Sheet 收合動畫結束再捲動到目標卡片
+    setTimeout(() => {
+      const el = document.getElementById(`snapshot-${snapshotId}`)
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" })
+      }
+    }, 350)
   }
 
   return (
@@ -138,17 +157,32 @@ export default function PatientCard({
               這位病人還沒有 snapshot 紀錄
             </p>
           ) : (
-            <div className="space-y-3">
-              {snapshots.map((s) => (
-                <SnapshotCard
-                  key={s.id}
-                  snapshot={s}
-                  isExpanded={expandedSnapshotIds.has(s.id)}
-                  onToggleExpand={() => onToggleSnapshot(s.id)}
-                  onChanged={onChanged}
-                />
-              ))}
-            </div>
+            <>
+              {snapshots.length >= 2 && (
+                <div className="mb-3 flex justify-end">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setTrendOpen(true)}
+                  >
+                    <TrendingUp className="size-4" />
+                    查看趨勢
+                  </Button>
+                </div>
+              )}
+              <div className="space-y-3">
+                {snapshots.map((s) => (
+                  <div key={s.id} id={`snapshot-${s.id}`}>
+                    <SnapshotCard
+                      snapshot={s}
+                      isExpanded={expandedSnapshotIds.has(s.id)}
+                      onToggleExpand={() => onToggleSnapshot(s.id)}
+                      onChanged={onChanged}
+                    />
+                  </div>
+                ))}
+              </div>
+            </>
           )}
         </div>
       )}
@@ -170,6 +204,14 @@ export default function PatientCard({
         destructive
         loading={deleting}
         onConfirm={handleDelete}
+      />
+
+      <SnapshotTrendSheet
+        open={trendOpen}
+        onOpenChange={setTrendOpen}
+        patient={patient}
+        snapshots={snapshots}
+        onViewRecord={handleViewRecord}
       />
     </Card>
   )
