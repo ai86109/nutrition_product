@@ -74,7 +74,10 @@ function formatDate(dateStr: string | null) {
 }
 
 function getDisplayStatus(p: AdminProductListItem): ProductDisplayStatus {
-  if (!p.has_nutrition_facts) return 'pending_review'
+  // 待處理 = product_status 為 active 且 nutrition_facts 為空
+  if (p.product_status === 'active' && !p.has_nutrition_facts) {
+    return 'pending_review'
+  }
   return (p.product_status ?? 'inactive') as ProductDisplayStatus
 }
 
@@ -279,7 +282,7 @@ export default function AdminProductTable({ products }: AdminProductTableProps) 
               </TableRow>
             ) : (
               paginated.map((p) => {
-                const isPending = !p.has_nutrition_facts
+                const isPending = getDisplayStatus(p) === 'pending_review'
                 return (
                   <TableRow key={p.license_no}>
                     <TableCell className="font-mono text-xs">{p.license_no}</TableCell>
@@ -320,11 +323,21 @@ export default function AdminProductTable({ products }: AdminProductTableProps) 
                       {formatDate(p.license_expiry_date)}
                     </TableCell>
                     <TableCell>
-                      <ProductStatusSelect
-                        licenseNo={p.license_no}
-                        currentStatus={p.product_status}
-                        hasNutritionFacts={!isPending}
-                      />
+                      <div className="flex items-center gap-2">
+                        <ProductStatusSelect
+                          licenseNo={p.license_no}
+                          currentStatus={p.product_status}
+                        />
+                        {isPending && (
+                          <Badge
+                            variant="outline"
+                            className="border-red-300 bg-red-50 text-red-700"
+                            title="此產品為 active 但 nutrition_facts 為空，需處理"
+                          >
+                            待處理
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 )

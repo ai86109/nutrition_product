@@ -8,7 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { Badge } from '@/components/ui/badge'
 import { updateProductStatus } from '@/lib/supabase/mutations/admin-products'
 import type { ProductStatus } from '@/lib/supabase/queries/admin-products'
 
@@ -21,25 +20,14 @@ export const PRODUCT_STATUS_LABELS: Record<ProductStatus, string> = {
 interface ProductStatusSelectProps {
   licenseNo: string
   currentStatus: ProductStatus | null
-  hasNutritionFacts: boolean
 }
 
 export default function ProductStatusSelect({
   licenseNo,
   currentStatus,
-  hasNutritionFacts,
 }: ProductStatusSelectProps) {
   const [status, setStatus] = useState<ProductStatus | null>(currentStatus)
   const [loading, setLoading] = useState(false)
-
-  // nutrition_facts 為空 → 顯示「待處理」且不可變更
-  if (!hasNutritionFacts) {
-    return (
-      <Badge variant="outline" className="text-muted-foreground">
-        待處理
-      </Badge>
-    )
-  }
 
   async function handleChange(newStatus: ProductStatus) {
     if (newStatus === status) return

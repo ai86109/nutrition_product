@@ -34,21 +34,18 @@ export async function getAdminProductList(): Promise<AdminProductListItem[]> {
 }
 
 /**
- * 待處理產品數量：nutrition_facts 為 null 的筆數。
- * 用 head + count 模式不抓資料、只取 count，最省流量。
- * 註：DB 端用 NULL 過濾就足夠（n8n 寫入時會放完整 JSON，不會放 {}）。
+ * 待處理產品數量。
+ * 判定：product_status = 'active' AND (nutrition_facts IS NULL OR = '{}')
+ * 走 RPC 確保條件跟 DB 端一致，避免 client / server 兩邊各寫一份易飄移。
  */
 export async function getPendingProductCount(): Promise<number> {
   const supabase = await createClientForServer()
-  const { count, error } = await supabase
-    .from('products')
-    .select('license_no', { count: 'exact', head: true })
-    .is('nutrition_facts', null)
+  const { data, error } = await supabase.rpc('get_pending_product_count')
 
   if (error) {
     console.error('Error fetching pending product count:', error)
     return 0
   }
 
-  return count ?? 0
+  return (data as number | null) ?? 0
 }
