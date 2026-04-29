@@ -1,14 +1,9 @@
 import { NUTRIENT_UNITS } from '@/utils/constants'
+import { getCategoryLabel } from '@/utils/product-categories'
 
-type CategoryMapKey = keyof typeof categoryMap
 type FormMapKey = keyof typeof formMap
 type UnitMapKey = keyof typeof unitMap
 type UnitConversionKey = keyof typeof UNIT_CONVERSIONS
-
-const categoryMap = {
-  'balanced': '均衡配方',
-  'concentrated': '濃縮配方',
-} as const
 
 const formMap = {
   'powder': '粉劑',
@@ -48,9 +43,7 @@ interface RawProduct {
 }
 
 const categoryProcessor = (categories: string[]): string[] => {
-  return categories.map((cate) => {
-    return categoryMap[cate as CategoryMapKey] || cate
-  })
+  return categories.map(getCategoryLabel)
 }
 
 const normalizeDefaultUnit = (unit: string | undefined): string => {
