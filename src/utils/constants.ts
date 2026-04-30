@@ -297,8 +297,8 @@ export const NUTRIENT_UNITS: { [key: string]: string } = {
 }
 
 export const NUTRIENT_INFO_TEXTS: { [key: string]: string } = {
-  calories: '百分比 = 營養品熱量 / 輸入的熱量',
-  protein: '低於目標範圍 = min − 目前值；高於目標範圍 = 目前值 − max',
+  calories: '百分比 = 營養品熱量 / 目標熱量',
+  protein: '低於目標範圍 = 目標最小值 > 目前值；高於目標範圍 = 目前值 < 目標最大值',
 }
 
 export const DEFAULT_TDEE_SETTINGS: TDEEList[] = [

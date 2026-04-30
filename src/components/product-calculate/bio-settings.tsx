@@ -10,7 +10,7 @@ export default function BioSettings() {
       <h2 className="font-bold mb-2">輸入病人所需熱量與蛋白質區間</h2>
 
       <div className="flex items-center space-x-2 mb-2">
-        <span className="text-sm">熱量(kcal)：</span>
+        <span className="text-sm">目標熱量(kcal)：</span>
         <Input className="w-[100px]" type="number" placeholder="輸入熱量" value={tdee} onChange={(e) => setTdee(e.target.value)} />
         {isTdeeInvalid && <span className="text-sm text-red-500">請輸入可計算的數值</span>}
       </div>
