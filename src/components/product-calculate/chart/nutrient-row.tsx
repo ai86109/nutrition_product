@@ -136,6 +136,25 @@ export function NutrientRow({
   const showDot = showDris && isLoggedIn && value > 0 && isMarkColorMeaningful
   const showRow2Extras = showBar || showPct || showDot
 
+  if (!showDris) {
+    return (
+      <div className="flex items-center justify-between gap-3 py-2">
+        <span className="text-sm font-bold whitespace-nowrap flex items-center gap-1">
+          {label}
+          {infoText && (
+            <InfoPopover size={14}>
+              <p className="text-sm">{infoText}</p>
+            </InfoPopover>
+          )}
+        </span>
+        <span className="text-sm tabular-nums whitespace-nowrap">
+          <span className="font-bold">{value}</span>
+          <span className="text-xs text-muted-foreground ml-1">{unit}</span>
+        </span>
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col gap-1.5 py-2">
       {/* Row 1: name + DRIs reference */}
@@ -160,7 +179,7 @@ export function NutrientRow({
 
       {/* Row 2: value + bar + % + dot */}
       <div className="flex items-center gap-2">
-        <span className="text-xl tabular-nums whitespace-nowrap">
+        <span className="text-sm tabular-nums whitespace-nowrap">
           <span className="font-bold">{value}</span>
           <span className="text-xs text-muted-foreground ml-1">{unit}</span>
         </span>
