@@ -37,6 +37,7 @@ interface RawProduct {
   form?: string
   standard_weight?: number
   is_approved?: string | boolean
+  product_status?: string | null
   categories?: string[]
   nutrition_facts?: Record<string, RawIngredientEntry>
   product_variants?: RawVariant[]
@@ -112,7 +113,7 @@ export const formatProductList = (products: RawProduct[]) => {
   return products
     .filter(isValidProductListItem)
     .map((product) => {
-      const { is_approved, categories: rawCate, form } = product
+      const { is_approved, product_status, categories: rawCate, form } = product
       const categories = is_approved ? categoryProcessor(rawCate || []) : []
       const type = formMap[form as FormMapKey] || form || ''
 
@@ -124,6 +125,7 @@ export const formatProductList = (products: RawProduct[]) => {
         type,
         categories,
         reviewStatus: String(is_approved ?? ''),
+        productStatus: product_status ?? null,
       }
     })
 }

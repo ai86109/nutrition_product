@@ -37,6 +37,7 @@ export interface ProductDetailDialogItem {
   brand: string
   type?: string
   categories?: string[]
+  productStatus?: string | null
 }
 
 interface ProductDetailDialogProps {
@@ -303,20 +304,22 @@ function ProductPanelHeader({ item, detail, slotAction, className }: ProductPane
     <div className={cn("px-5 pt-5 pb-3 space-y-2", className)}>
       <h2 className="text-base sm:text-lg leading-snug text-pretty font-semibold text-left">
         {item.name}
-        <a
-          href={fdaUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className={cn(
-            "inline-flex items-center justify-center rounded-md p-0.5 ml-1 align-middle",
-            "text-muted-foreground hover:text-foreground hover:bg-muted",
-            "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          )}
-          aria-label="開啟衛福部頁面"
-          title="開啟衛福部頁面"
-        >
-          <ExternalLink className="h-3.5 w-3.5" />
-        </a>
+        {item.productStatus !== 'inactive' && (
+          <a
+            href={fdaUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={cn(
+              "inline-flex items-center justify-center rounded-md p-0.5 ml-1 align-middle",
+              "text-muted-foreground hover:text-foreground hover:bg-muted",
+              "transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            )}
+            aria-label="開啟衛福部頁面"
+            title="開啟衛福部頁面"
+          >
+            <ExternalLink className="h-3.5 w-3.5" />
+          </a>
+        )}
       </h2>
       {item.engName && (
         <p className="text-xs sm:text-sm text-muted-foreground leading-snug text-left">

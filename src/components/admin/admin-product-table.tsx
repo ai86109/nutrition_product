@@ -73,6 +73,13 @@ function formatDate(dateStr: string | null) {
   return `${y}/${m}/${day}`
 }
 
+function isExpired(dateStr: string | null): boolean {
+  if (!dateStr) return false
+  const d = new Date(dateStr)
+  if (Number.isNaN(d.getTime())) return false
+  return d < new Date()
+}
+
 function getDisplayStatus(p: AdminProductListItem): ProductDisplayStatus {
   // 待處理 = product_status 為 active 且 nutrition_facts 為空
   if (p.product_status === 'active' && !p.has_nutrition_facts) {
@@ -319,16 +326,18 @@ export default function AdminProductTable({ products }: AdminProductTableProps) 
                         initial={p.is_approved === true}
                       />
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell
+                      className={
+                        isExpired(p.license_expiry_date)
+                          ? 'text-red-600 font-medium'
+                          : 'text-muted-foreground'
+                      }
+                    >
                       {formatDate(p.license_expiry_date)}
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
-                        <ProductStatusSelect
-                          licenseNo={p.license_no}
-                          currentStatus={p.product_status}
-                        />
-                        {isPending && (
+                        {isPending ? (
                           <Badge
                             variant="outline"
                             className="border-red-300 bg-red-50 text-red-700"
@@ -336,6 +345,11 @@ export default function AdminProductTable({ products }: AdminProductTableProps) 
                           >
                             待處理
                           </Badge>
+                        ) : (
+                          <ProductStatusSelect
+                            licenseNo={p.license_no}
+                            currentStatus={p.product_status}
+                          />
                         )}
                       </div>
                     </TableCell>

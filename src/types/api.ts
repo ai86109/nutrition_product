@@ -26,6 +26,7 @@ export interface ApiProductListData {
   brand: string;
   type: string;
   reviewStatus: string;
+  productStatus: string | null;
   categories: string[];
 }
 

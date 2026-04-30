@@ -7,7 +7,7 @@ export async function getProductListFromSupabase() {
     const supabase = await createClientForServer()
     const { data: products, error } = await supabase
       .from('products')
-      .select(`license_no, name_zh, name_en, brand, form, is_approved, categories, product_variants (*)`)
+      .select(`license_no, name_zh, name_en, brand, form, is_approved, product_status, categories, product_variants (*)`)
       .not('nutrition_facts', 'is', null)
 
     if (error) {
