@@ -19,6 +19,7 @@ import { WomanStateSelector } from "@/components/product-calculate/chart/woman-s
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button"
 import { redirect } from 'next/navigation'
+import { CalorieHeroCard } from "./calorie-hero-card"
 
 function ProteinRangeBlock({ protein }: { protein: number }) {
   const { proteinRange } = useBioInfo()
@@ -294,8 +295,10 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
   }, [ingredientsData])
 
   const orderedGroups = useMemo(() => {
+    // 熱量改由 CalorieHeroCard 呈現，這裡的 table 不再顯示熱量列
+    const macroNutrientsListWithoutCalories = macroNutrientsList.filter(key => key !== 'calories')
     const groups = [
-      { key: "macroNutrients", items: macroNutrientsList },
+      { key: "macroNutrients", items: macroNutrientsListWithoutCalories },
       { key: "macroMinerals", items: macroMineralsList },
       { key: "traceMinerals", items: traceMineralsList },
       { key: "vitamins", items: vitaminsList },
@@ -319,14 +322,18 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
       </div>
 
       {isShowWomanStateOptions && (
-        <WomanStateSelector 
+        <WomanStateSelector
           womanState={womanState}
           pregnancyState={pregnancyState}
           handleWomanStateToggle={handleWomanStateToggle}
           setPregnancyState={setPregnancyState}
         />
       )}
-      
+
+      {macroNutrientsList.includes('calories') && (
+        <CalorieHeroCard value={caloriesValue} state={state} />
+      )}
+
       <Table className="min-w-[250px] max-w-[400px]">
         <TableBody>
           {isShowDetail && orderedGroups.flatMap(group => (
@@ -344,7 +351,7 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
             </Fragment>
           ))}
           
-          {!isShowDetail && macroNutrientsList.map((key) => (
+          {!isShowDetail && macroNutrientsList.filter(key => key !== 'calories').map((key) => (
             <NutritionRow
               key={key}
               nutrient={key}
