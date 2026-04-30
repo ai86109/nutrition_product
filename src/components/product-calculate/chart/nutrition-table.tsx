@@ -20,6 +20,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button"
 import { redirect } from 'next/navigation'
 import { CalorieHeroCard } from "./calorie-hero-card"
+import { ProteinHeroCard } from "./protein-hero-card"
 
 function ProteinRangeBlock({ protein }: { protein: number }) {
   const { proteinRange } = useBioInfo()
@@ -295,10 +296,12 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
   }, [ingredientsData])
 
   const orderedGroups = useMemo(() => {
-    // 熱量改由 CalorieHeroCard 呈現，這裡的 table 不再顯示熱量列
-    const macroNutrientsListWithoutCalories = macroNutrientsList.filter(key => key !== 'calories')
+    // 熱量、蛋白質改由 hero card 呈現，這裡的 table 不再顯示這兩列
+    const macroNutrientsListWithoutHero = macroNutrientsList.filter(
+      key => key !== 'calories' && key !== 'protein'
+    )
     const groups = [
-      { key: "macroNutrients", items: macroNutrientsListWithoutCalories },
+      { key: "macroNutrients", items: macroNutrientsListWithoutHero },
       { key: "macroMinerals", items: macroMineralsList },
       { key: "traceMinerals", items: traceMineralsList },
       { key: "vitamins", items: vitaminsList },
@@ -313,6 +316,7 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
   }
 
   const caloriesValue = useMemo(() => rounding(ingredientsData['calories'] || 0), [ingredientsData, rounding])
+  const proteinValue = useMemo(() => rounding(Number(ingredientsData['protein'] || 0)), [ingredientsData, rounding])
 
   return (
     <div className="flex flex-col space-y-4 w-full max-w-[400px]">
@@ -334,6 +338,10 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
         <CalorieHeroCard value={caloriesValue} state={state} />
       )}
 
+      {macroNutrientsList.includes('protein') && (
+        <ProteinHeroCard value={proteinValue} state={state} />
+      )}
+
       <Table className="min-w-[250px] max-w-[400px]">
         <TableBody>
           {isShowDetail && orderedGroups.flatMap(group => (
@@ -351,7 +359,9 @@ export function NutritionTable({ ingredientsData }: { ingredientsData: Ingredien
             </Fragment>
           ))}
           
-          {!isShowDetail && macroNutrientsList.filter(key => key !== 'calories').map((key) => (
+          {!isShowDetail && macroNutrientsList
+            .filter(key => key !== 'calories' && key !== 'protein')
+            .map((key) => (
             <NutritionRow
               key={key}
               nutrient={key}

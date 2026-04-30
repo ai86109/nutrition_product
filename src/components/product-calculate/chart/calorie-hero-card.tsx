@@ -160,7 +160,7 @@ export function CalorieHeroCard({
         </div>
       ) : (
         <p className="text-xs text-muted-foreground">
-          {value > 0 ? "請先填寫 TDEE 才能比對熱量目標" : "尚未選擇營養品"}
+          {value > 0 ? "請先填寫目標熱量" : "尚未選擇營養品"}
         </p>
       )}
 

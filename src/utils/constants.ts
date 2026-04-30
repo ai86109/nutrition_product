@@ -298,7 +298,7 @@ export const NUTRIENT_UNITS: { [key: string]: string } = {
 
 export const NUTRIENT_INFO_TEXTS: { [key: string]: string } = {
   calories: '百分比 = 營養品熱量 / 輸入的熱量',
-  protein: '百分比 = 營養品蛋白質 / 輸入的最小蛋白質',
+  protein: '低於目標範圍 = min − 目前值；高於目標範圍 = 目前值 − max',
 }
 
 export const DEFAULT_TDEE_SETTINGS: TDEEList[] = [
