@@ -2,8 +2,9 @@
 
 import {
   Bar,
-  BarChart,
   CartesianGrid,
+  ComposedChart,
+  Line,
   Tooltip,
   XAxis,
   YAxis,
@@ -14,16 +15,19 @@ import type { ProteinPoint } from "@/hooks/useSnapshotTrendData"
 import { formatFullDate } from "./format"
 import { EmptyState } from "./empty-state"
 
-const COLOR = "#7F77DD"
+const COLOR_RANGE = "#7F77DD"
+const COLOR_ACTUAL = "#F59E0B"
 
 const config: ChartConfig = {
-  range: { label: "蛋白質範圍", color: COLOR },
+  range: { label: "蛋白質範圍", color: COLOR_RANGE },
+  actual: { label: "實際蛋白質", color: COLOR_ACTUAL },
 }
 
 interface ProteinTooltipPayload {
   ts: number
-  min: number
-  max: number
+  min: number | null
+  max: number | null
+  actual: number | null
 }
 
 function ProteinTooltip({
@@ -35,10 +39,24 @@ function ProteinTooltip({
   return (
     <div className="rounded-md border bg-background px-3 py-2 text-xs shadow-md">
       <div className="font-medium tabular-nums">{formatFullDate(data.ts)}</div>
-      <div className="mt-0.5 tabular-nums">
-        蛋白質 {data.min} ~ {data.max}{" "}
-        <span className="text-muted-foreground">g</span>
-      </div>
+      {data.min != null && data.max != null && (
+        <div className="mt-0.5 tabular-nums">
+          目標{" "}
+          <span style={{ color: COLOR_RANGE }} className="font-medium">
+            {data.min} ~ {data.max}
+          </span>{" "}
+          <span className="text-muted-foreground">g</span>
+        </div>
+      )}
+      {data.actual != null && (
+        <div className="mt-0.5 tabular-nums">
+          實際{" "}
+          <span style={{ color: COLOR_ACTUAL }} className="font-medium">
+            {data.actual}
+          </span>{" "}
+          <span className="text-muted-foreground">g</span>
+        </div>
+      )}
     </div>
   )
 }
@@ -55,7 +73,7 @@ export function ProteinRangeChart({ data }: ProteinRangeChartProps) {
       config={config}
       className="aspect-auto h-[180px] w-full"
     >
-      <BarChart
+      <ComposedChart
         data={data}
         margin={{ top: 12, right: 12, left: 0, bottom: 4 }}
       >
@@ -66,6 +84,7 @@ export function ProteinRangeChart({ data }: ProteinRangeChartProps) {
           tick={{ fontSize: 11 }}
           tickMargin={6}
           interval="preserveStartEnd"
+          padding={{ left: 16, right: 16 }}
         />
         <YAxis
           tick={{ fontSize: 11 }}
@@ -73,15 +92,28 @@ export function ProteinRangeChart({ data }: ProteinRangeChartProps) {
           width={36}
           domain={["auto", "auto"]}
         />
-        <Tooltip content={<ProteinTooltip />} cursor={{ fill: "transparent" }} />
+        <Tooltip content={<ProteinTooltip />} cursor={{ fill: "rgba(0,0,0,0.04)" }} />
         <Bar
           dataKey="range"
-          fill={COLOR}
-          fillOpacity={0.6}
+          fill={COLOR_RANGE}
+          fillOpacity={0.5}
           radius={[2, 2, 2, 2]}
+          barSize={16}
           isAnimationActive={false}
         />
-      </BarChart>
+        <Line
+          type="monotone"
+          dataKey="actual"
+          name="實際蛋白質"
+          stroke={COLOR_ACTUAL}
+          strokeWidth={2}
+          strokeDasharray="4 3"
+          dot={{ r: 3, fill: COLOR_ACTUAL, strokeWidth: 0 }}
+          activeDot={{ r: 5 }}
+          connectNulls={false}
+          isAnimationActive={false}
+        />
+      </ComposedChart>
     </ChartContainer>
   )
 }

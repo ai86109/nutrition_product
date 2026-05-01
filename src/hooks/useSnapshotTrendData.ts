@@ -41,10 +41,11 @@ export interface CaloriePoint extends TrendPointBase {
 }
 
 export interface ProteinPoint extends TrendPointBase {
-  min: number
-  max: number
+  min: number | null
+  max: number | null
   /** [min, max] — 直接給 Recharts Bar 的 dataKey 當 floating bar 用 */
-  range: [number, number]
+  range: [number, number] | null
+  actual: number | null
 }
 
 /** 配方變化紀錄：每筆含配方的 snapshot 對應一筆，按 effective date 降序（最新在前） */
@@ -124,12 +125,15 @@ export function useSnapshotTrendData(
       }
 
       const pr = s.protein_range
-      if (pr && isValidNumber(pr.min) && isValidNumber(pr.max)) {
+      const pa = s.actual_protein
+      const hasRange = pr && isValidNumber(pr.min) && isValidNumber(pr.max)
+      if (hasRange || isValidNumber(pa)) {
         protein.push({
           ...base,
-          min: pr.min,
-          max: pr.max,
-          range: [pr.min, pr.max],
+          min: hasRange ? pr!.min : null,
+          max: hasRange ? pr!.max : null,
+          range: hasRange ? [pr!.min as number, pr!.max as number] : null,
+          actual: isValidNumber(pa) ? pa : null,
         })
       }
 
