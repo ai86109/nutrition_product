@@ -29,6 +29,8 @@ export interface TrendPointBase {
 
 export interface WeightPoint extends TrendPointBase {
   value: number
+  edema?: boolean | null
+  edema_note?: string | null
 }
 
 export interface CaloriePoint extends TrendPointBase {
@@ -84,7 +86,12 @@ export function useSnapshotTrendData(
 
       const w = s.bio_info?.weight
       if (isValidNumber(w)) {
-        weight.push({ ...base, value: w })
+        weight.push({
+          ...base,
+          value: w,
+          edema: s.bio_info?.edema,
+          edema_note: s.bio_info?.edema_note,
+        })
       }
 
       const c = s.calorie_target

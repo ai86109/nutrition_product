@@ -28,6 +28,10 @@ export interface SnapshotBioInfo {
   bmi?: number | null
   ibw?: number | null
   abw?: number | null
+  edema?: boolean | null
+  edema_note?: string | null
+  pressure_sore?: boolean | null
+  pressure_sore_note?: string | null
 }
 
 export interface SnapshotProteinRange {

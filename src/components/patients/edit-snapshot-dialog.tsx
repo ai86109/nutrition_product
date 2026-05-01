@@ -45,6 +45,12 @@ export default function EditSnapshotDialog({
   const [mealsCheck, setMealsCheck] = useState<boolean>(false)
   const [mealsPerDay, setMealsPerDay] = useState<string>("")
 
+  // 水腫 / 壓瘡
+  const [edema, setEdema] = useState<boolean>(false)
+  const [edemaNote, setEdemaNote] = useState<string>("")
+  const [pressureSore, setPressureSore] = useState<boolean>(false)
+  const [pressureSoreNote, setPressureSoreNote] = useState<string>("")
+
   // Products（可調整數量、可移除；不支援新增）
   const [products, setProducts] = useState<SnapshotSelectedProduct[]>([])
 
@@ -75,6 +81,11 @@ export default function EditSnapshotDialog({
     setMealsCheck(hasMeals)
     setMealsPerDay(hasMeals ? String(snapshot.meals_per_day) : "")
 
+    setEdema(bi.edema ?? false)
+    setEdemaNote(bi.edema_note ?? "")
+    setPressureSore(bi.pressure_sore ?? false)
+    setPressureSoreNote(bi.pressure_sore_note ?? "")
+
     setProducts(snapshot.selected_products)
   }, [open, snapshot])
 
@@ -103,6 +114,10 @@ export default function EditSnapshotDialog({
         height: heightNum,
         weight: weightNum,
         gender,
+        edema: edema || null,
+        edema_note: edema && edemaNote.trim() !== "" ? edemaNote.trim() : null,
+        pressure_sore: pressureSore || null,
+        pressure_sore_note: pressureSore && pressureSoreNote.trim() !== "" ? pressureSoreNote.trim() : null,
       },
       calorie_target: calorieNum,
       protein_range: hasProtein
@@ -153,6 +168,44 @@ export default function EditSnapshotDialog({
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
                 />
+              </div>
+            </div>
+            {/* 水腫 */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="edit-edema-check"
+                  checked={edema}
+                  onCheckedChange={(c) => setEdema(!!c)}
+                />
+                <Label htmlFor="edit-edema-check" className="text-sm">水腫</Label>
+                {edema && (
+                  <Input
+                    placeholder="備註（選填）"
+                    className="h-7 text-sm flex-1"
+                    value={edemaNote}
+                    onChange={(e) => setEdemaNote(e.target.value)}
+                  />
+                )}
+              </div>
+            </div>
+            {/* 壓瘡 */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2">
+                <Checkbox
+                  id="edit-pressure-sore-check"
+                  checked={pressureSore}
+                  onCheckedChange={(c) => setPressureSore(!!c)}
+                />
+                <Label htmlFor="edit-pressure-sore-check" className="text-sm">壓瘡</Label>
+                {pressureSore && (
+                  <Input
+                    placeholder="備註（選填）"
+                    className="h-7 text-sm flex-1"
+                    value={pressureSoreNote}
+                    onChange={(e) => setPressureSoreNote(e.target.value)}
+                  />
+                )}
               </div>
             </div>
           </div>

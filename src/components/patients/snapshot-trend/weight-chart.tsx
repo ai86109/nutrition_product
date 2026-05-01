@@ -23,6 +23,8 @@ const config: ChartConfig = {
 interface WeightTooltipPayload {
   ts: number
   value: number
+  edema?: boolean | null
+  edema_note?: string | null
 }
 
 function WeightTooltip({
@@ -37,6 +39,9 @@ function WeightTooltip({
       <div className="mt-0.5 tabular-nums">
         體重 {data.value} <span className="text-muted-foreground">kg</span>
       </div>
+      {data.edema && (
+        <div className="mt-0.5">有水腫</div>
+      )}
     </div>
   )
 }
