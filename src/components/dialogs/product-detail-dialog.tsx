@@ -27,6 +27,7 @@ import {
   NUTRIENT_LABELS,
   NUTRIENT_UNITS,
 } from "@/utils/constants"
+import { calcMacroRatios } from "@/utils/nutrition-calculations"
 import { cn } from "@/lib/utils"
 
 // 接受 search 列表 (ApiProductListData) 與計算區 (ProductData) 共用的最小欄位集
@@ -81,6 +82,31 @@ const validKeysOf = (ingredients: IngredientsData): string[] =>
 const formatValue = (raw: number | undefined): string => {
   if (raw === undefined || Number.isNaN(raw)) return "-"
   return Number(raw.toFixed(2)).toString()
+}
+
+
+const MACRO_CHIPS = [
+  { key: "carb",    label: "醣類",   bg: "rgba(47,111,146,0.10)",  color: "#2f6f92" },
+  { key: "protein", label: "蛋白質", bg: "rgba(212,122,74,0.10)",  color: "#d47a4a" },
+  { key: "fat",     label: "脂肪",   bg: "rgba(111,143,58,0.10)",  color: "#6f8f3a" },
+] as const
+
+function MacroRatioLine({ ingredients }: { ingredients: IngredientsData }) {
+  const ratios = calcMacroRatios(ingredients)
+  if (!ratios) return null
+  return (
+    <div className="flex items-center gap-1.5 mb-3 flex-wrap">
+      {MACRO_CHIPS.map(({ key, label, bg, color }) => (
+        <span
+          key={key}
+          className="text-xs px-2 py-0.5 rounded-full font-medium"
+          style={{ backgroundColor: bg, color }}
+        >
+          {label} {ratios[key]}%
+        </span>
+      ))}
+    </div>
+  )
 }
 
 const getUnitLabel = (type: string) =>
@@ -388,6 +414,7 @@ function ProductPanelContent({
 
       {!isLoading && orderedGroups.length > 0 && (
         <div className="space-y-4">
+          <MacroRatioLine ingredients={ingredients} />
           {orderedGroups.map((group) => (
             <NutrientGroupBlock
               key={group.key}

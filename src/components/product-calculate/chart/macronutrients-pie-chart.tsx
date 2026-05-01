@@ -7,6 +7,7 @@ import {
 import { IngredientsData } from "@/types"
 import { useMemo } from "react"
 import { Cell, Pie, PieChart } from "recharts"
+import { calcMacroRatios } from "@/utils/nutrition-calculations"
 
 const pieChartConfig: ChartConfig = {
   carbohydrates: {
@@ -36,33 +37,14 @@ export function MacronutrientsPieChart({
   ingredientsData: IngredientsData
 }) {
   const pieChartData = useMemo(() => {
-    const {
-      calories = 0,
-      carbohydrates = 0,
-      protein = 0,
-      fat = 0,
-      dietary_fiber = 0,
-    } = ingredientsData
+    const ratios = calcMacroRatios(ingredientsData)
+    if (!ratios) return []
 
-    if (calories === 0) return []
-    if (carbohydrates === 0 && protein === 0 && fat === 0) return []
-
-    const adjustedCarbohydrates = carbohydrates - dietary_fiber
-    const carbohydratesPercentage =
-      ((adjustedCarbohydrates * 4 + dietary_fiber * 2) / calories) * 100
-    const proteinPercentage = ((protein * 4) / calories) * 100
-    const fatPercentage = ((fat * 9) / calories) * 100
-
-    return [
-      { macronutrients: "carbohydrates", percentage: carbohydratesPercentage },
-      { macronutrients: "protein", percentage: proteinPercentage },
-      { macronutrients: "fat", percentage: fatPercentage },
-    ]
-      .map(item => ({
-        ...item,
-        percentage: Number(Math.max(item.percentage, 0).toFixed(1)),
-      }))
-      .filter(item => item.percentage > 0) as PieChartItem[]
+    return ([
+      { macronutrients: "carbohydrates", percentage: ratios.carb },
+      { macronutrients: "protein",       percentage: ratios.protein },
+      { macronutrients: "fat",           percentage: ratios.fat },
+    ] as PieChartItem[]).filter(item => item.percentage > 0)
   }, [ingredientsData])
 
   if (pieChartData.length === 0) return null
