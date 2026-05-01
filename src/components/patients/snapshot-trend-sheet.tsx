@@ -15,6 +15,7 @@ import { WeightChart } from "./snapshot-trend/weight-chart"
 import { CalorieChart } from "./snapshot-trend/calorie-chart"
 import { ProteinRangeChart } from "./snapshot-trend/protein-range-chart"
 import { ProductHistoryTable } from "./snapshot-trend/product-history-table"
+import { PressureSoreTable } from "./snapshot-trend/pressure-sore-table"
 
 interface SnapshotTrendSheetProps {
   open: boolean
@@ -156,6 +157,10 @@ export function SnapshotTrendSheet({
 
           <ChartCell title="蛋白質 (g)" summary={proteinSummary}>
             <ProteinRangeChart data={trend.protein} />
+          </ChartCell>
+
+          <ChartCell title="壓瘡紀錄">
+            <PressureSoreTable data={trend.pressureSoreHistory} />
           </ChartCell>
 
           <ChartCell title="配方紀錄" className="sm:col-span-2">

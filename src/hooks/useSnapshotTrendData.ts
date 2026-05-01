@@ -52,12 +52,22 @@ export interface ProductHistoryPoint {
   products: SnapshotSelectedProduct[]
 }
 
+/** 壓瘡紀錄：每筆有壓瘡的 snapshot 對應一筆，按 effective date 降序（最新在前） */
+export interface PressureSorePoint {
+  snapshotId: string
+  /** YYYY-MM-DD */
+  date: string
+  note: string | null
+}
+
 export interface SnapshotTrendData {
   weight: WeightPoint[]
   calorie: CaloriePoint[]
   protein: ProteinPoint[]
   /** 含配方的 snapshot，按 effective date 降序（最新在前） */
   productHistory: ProductHistoryPoint[]
+  /** 有壓瘡的 snapshot，按 effective date 降序（最新在前） */
+  pressureSoreHistory: PressureSorePoint[]
   /** 全部 snapshot 中最早與最晚的 effective date；無資料時為 null */
   dateRange: { from: string; to: string } | null
   /** 輸入 snapshot 總數（不過濾） */
@@ -78,6 +88,7 @@ export function useSnapshotTrendData(
     const calorie: CaloriePoint[] = []
     const protein: ProteinPoint[] = []
     const productHistory: ProductHistoryPoint[] = []
+    const pressureSoreHistory: PressureSorePoint[] = []
 
     sorted.forEach((s) => {
       const ts = getEffectiveDateMs(s)
@@ -113,6 +124,14 @@ export function useSnapshotTrendData(
       if (prods.length > 0) {
         productHistory.unshift({ snapshotId: s.id, date, products: prods })
       }
+
+      if (s.bio_info?.pressure_sore) {
+        pressureSoreHistory.unshift({
+          snapshotId: s.id,
+          date,
+          note: s.bio_info.pressure_sore_note ?? null,
+        })
+      }
     })
 
     const dateRange =
@@ -128,6 +147,7 @@ export function useSnapshotTrendData(
       calorie,
       protein,
       productHistory,
+      pressureSoreHistory,
       dateRange,
       totalCount: sorted.length,
     }
