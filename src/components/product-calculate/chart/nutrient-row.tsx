@@ -137,20 +137,44 @@ export function NutrientRow({
   const showRow2Extras = showBar || showPct || showDot
 
   if (!showDris) {
+    if (!hasGenderAndAge) {
+      return (
+        <div className="flex items-center justify-between gap-3 py-2">
+          <span className="text-sm font-bold whitespace-nowrap flex items-center gap-1">
+            {label}
+            {infoText && (
+              <InfoPopover size={14}>
+                <p className="text-sm">{infoText}</p>
+              </InfoPopover>
+            )}
+          </span>
+          <span className="text-sm tabular-nums whitespace-nowrap">
+            <span className="font-bold">{value}</span>
+            <span className="text-xs text-muted-foreground ml-1">{unit}</span>
+          </span>
+        </div>
+      )
+    }
+
+    // hasGenderAndAge 但此營養素無 DRIs：維持與有 DRIs 相同的兩行排版
     return (
-      <div className="flex items-center justify-between gap-3 py-2">
-        <span className="text-sm font-bold whitespace-nowrap flex items-center gap-1">
-          {label}
-          {infoText && (
-            <InfoPopover size={14}>
-              <p className="text-sm">{infoText}</p>
-            </InfoPopover>
-          )}
-        </span>
-        <span className="text-sm tabular-nums whitespace-nowrap">
-          <span className="font-bold">{value}</span>
-          <span className="text-xs text-muted-foreground ml-1">{unit}</span>
-        </span>
+      <div className="flex flex-col gap-1.5 py-2">
+        <div className="flex items-start justify-between gap-3">
+          <span className="text-sm font-bold whitespace-nowrap flex items-center gap-1">
+            {label}
+            {infoText && (
+              <InfoPopover size={14}>
+                <p className="text-sm">{infoText}</p>
+              </InfoPopover>
+            )}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm tabular-nums whitespace-nowrap">
+            <span className="font-bold">{value}</span>
+            <span className="text-xs text-muted-foreground ml-1">{unit}</span>
+          </span>
+        </div>
       </div>
     )
   }
