@@ -10,10 +10,11 @@ import {
 } from "@/components/ui/sheet"
 import { useSnapshotTrendData } from "@/hooks/useSnapshotTrendData"
 import type { Patient, PatientSnapshot } from "@/types/patient"
+import { cn } from "@/lib/utils"
 import { WeightChart } from "./snapshot-trend/weight-chart"
 import { CalorieChart } from "./snapshot-trend/calorie-chart"
 import { ProteinRangeChart } from "./snapshot-trend/protein-range-chart"
-import { MealsChart } from "./snapshot-trend/meals-chart"
+import { ProductHistoryTable } from "./snapshot-trend/product-history-table"
 
 interface SnapshotTrendSheetProps {
   open: boolean
@@ -21,7 +22,7 @@ interface SnapshotTrendSheetProps {
   patient: Patient
   snapshots: PatientSnapshot[]
   /**
-   * 點擊 meals tooltip 上「查看此筆紀錄」按鈕時呼叫。
+   * 點擊配方紀錄列表上「查看此筆紀錄」按鈕時呼叫。
    * 父層負責關 Sheet、展開對應 snapshot、捲動到該卡片。
    */
   onViewRecord?: (snapshotId: string) => void
@@ -31,11 +32,12 @@ interface ChartCellProps {
   title: string
   summary?: string
   children: React.ReactNode
+  className?: string
 }
 
-function ChartCell({ title, summary, children }: ChartCellProps) {
+function ChartCell({ title, summary, children, className }: ChartCellProps) {
   return (
-    <div className="rounded-lg border bg-background p-3">
+    <div className={cn("rounded-lg border bg-background p-3", className)}>
       <div className="flex items-baseline justify-between gap-2 px-1 pb-1">
         <h3 className="text-sm font-medium">{title}</h3>
         {summary && (
@@ -107,8 +109,6 @@ export function SnapshotTrendSheet({
     trend.protein.length >= 2
       ? `${trend.protein[0].min}–${trend.protein[0].max} → ${trend.protein[trend.protein.length - 1].min}–${trend.protein[trend.protein.length - 1].max}`
       : undefined
-  const mealsSummary = summarize(trend.meals.map((p) => p.value))
-
   const headerSubtitle = trend.dateRange
     ? `${patient.name} · ${trend.totalCount} 筆紀錄 · ${trend.dateRange.from} → ${trend.dateRange.to}`
     : patient.name
@@ -150,21 +150,24 @@ export function SnapshotTrendSheet({
             <WeightChart data={trend.weight} />
           </ChartCell>
 
-          <ChartCell title="每日熱量 (kcal)" summary={calorieSummary}>
+          <ChartCell title="目標熱量 (kcal)" summary={calorieSummary}>
             <CalorieChart data={trend.calorie} />
           </ChartCell>
 
-          <ChartCell title="蛋白質範圍 (g)" summary={proteinSummary}>
+          <ChartCell title="蛋白質 (g)" summary={proteinSummary}>
             <ProteinRangeChart data={trend.protein} />
           </ChartCell>
 
-          <ChartCell title="每日餐數" summary={mealsSummary}>
-            <MealsChart data={trend.meals} onViewRecord={onViewRecord} />
+          <ChartCell title="配方紀錄" className="sm:col-span-2">
+            <ProductHistoryTable
+              data={trend.productHistory}
+              onViewRecord={onViewRecord}
+            />
           </ChartCell>
         </div>
 
         <div className="border-t px-4 py-3 text-xs text-muted-foreground">
-          滑鼠停留資料點可看當日數值，每日餐數的 tooltip 會列出當日營養品。
+          滑鼠停留資料點可看當日數值。配方紀錄依時間排序，點「查看此筆紀錄」可跳至該次紀錄。
         </div>
       </SheetContent>
     </Sheet>

@@ -25,7 +25,7 @@ describe("useSnapshotTrendData", () => {
     expect(result.current.weight).toEqual([])
     expect(result.current.calorie).toEqual([])
     expect(result.current.protein).toEqual([])
-    expect(result.current.meals).toEqual([])
+    expect(result.current.productHistory).toEqual([])
     expect(result.current.dateRange).toBeNull()
     expect(result.current.totalCount).toBe(0)
   })
@@ -100,7 +100,7 @@ describe("useSnapshotTrendData", () => {
     expect(result.current.protein[0].max).toBe(75)
   })
 
-  test("meals point carries products and notes for tooltip", () => {
+  test("productHistory includes only snapshots with products, newest first", () => {
     const products = [
       {
         product_id: "p1",
@@ -113,17 +113,44 @@ describe("useSnapshotTrendData", () => {
         quantity: 2,
       },
     ]
-    const s = makeSnap({
-      id: "s",
-      meals_per_day: 4,
+    const withProducts = makeSnap({
+      id: "with",
+      created_at: "2026-02-01T00:00:00Z",
       selected_products: products,
-      notes: "胃口較差",
     })
-    const { result } = renderHook(() => useSnapshotTrendData([s]))
-    expect(result.current.meals).toHaveLength(1)
-    expect(result.current.meals[0].value).toBe(4)
-    expect(result.current.meals[0].products).toEqual(products)
-    expect(result.current.meals[0].notes).toBe("胃口較差")
+    const noProducts = makeSnap({
+      id: "without",
+      created_at: "2026-03-01T00:00:00Z",
+      selected_products: [],
+    })
+    const { result } = renderHook(() =>
+      useSnapshotTrendData([withProducts, noProducts])
+    )
+    expect(result.current.productHistory).toHaveLength(1)
+    expect(result.current.productHistory[0].snapshotId).toBe("with")
+    expect(result.current.productHistory[0].products).toEqual(products)
+  })
+
+  test("productHistory is ordered newest first when multiple snapshots have products", () => {
+    const older = makeSnap({
+      id: "older",
+      created_at: "2026-01-01T00:00:00Z",
+      selected_products: [
+        { product_id: "p1", name_zh: "A", serving_label: "1包", serving_amount: 10, serving_unit: "g", quantity: 1 },
+      ],
+    })
+    const newer = makeSnap({
+      id: "newer",
+      created_at: "2026-04-01T00:00:00Z",
+      selected_products: [
+        { product_id: "p2", name_zh: "B", serving_label: "1罐", serving_amount: 200, serving_unit: "ml", quantity: 2 },
+      ],
+    })
+    const { result } = renderHook(() => useSnapshotTrendData([older, newer]))
+    expect(result.current.productHistory.map((p) => p.snapshotId)).toEqual([
+      "newer",
+      "older",
+    ])
   })
 
   test("dateRange returns earliest and latest dates as YYYY-MM-DD", () => {

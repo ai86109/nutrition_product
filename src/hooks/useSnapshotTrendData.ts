@@ -10,12 +10,13 @@ import {
 } from "@/lib/snapshot-date"
 
 /**
- * 把多筆 snapshot 轉成 4 張趨勢圖各自的 chart-ready 資料。
+ * 把多筆 snapshot 轉成趨勢圖與配方紀錄所需的 chart-ready 資料。
  *
  * - 輸入順序不限（queries 拿回來是 effective date desc，這裡內部用 compareByEffectiveDateAsc 排）
  * - 各指標分別過濾 null：某筆 snapshot 沒有體重，weight 序列就跳過該筆
  * - 蛋白質範圍要 min 和 max 都是有效數字才算一筆
  * - 時間軸用 effective date：snapshot_date 有值用它；沒有 fallback 到 created_at::date
+ * - productHistory：含配方的 snapshot，按 effective date 降序（最新在前）
  */
 
 export interface TrendPointBase {
@@ -41,17 +42,20 @@ export interface ProteinPoint extends TrendPointBase {
   range: [number, number]
 }
 
-export interface MealsPoint extends TrendPointBase {
-  value: number
+/** 配方變化紀錄：每筆含配方的 snapshot 對應一筆，按 effective date 降序（最新在前） */
+export interface ProductHistoryPoint {
+  snapshotId: string
+  /** YYYY-MM-DD */
+  date: string
   products: SnapshotSelectedProduct[]
-  notes: string | null
 }
 
 export interface SnapshotTrendData {
   weight: WeightPoint[]
   calorie: CaloriePoint[]
   protein: ProteinPoint[]
-  meals: MealsPoint[]
+  /** 含配方的 snapshot，按 effective date 降序（最新在前） */
+  productHistory: ProductHistoryPoint[]
   /** 全部 snapshot 中最早與最晚的 effective date；無資料時為 null */
   dateRange: { from: string; to: string } | null
   /** 輸入 snapshot 總數（不過濾） */
@@ -71,7 +75,7 @@ export function useSnapshotTrendData(
     const weight: WeightPoint[] = []
     const calorie: CaloriePoint[] = []
     const protein: ProteinPoint[] = []
-    const meals: MealsPoint[] = []
+    const productHistory: ProductHistoryPoint[] = []
 
     sorted.forEach((s) => {
       const ts = getEffectiveDateMs(s)
@@ -98,14 +102,9 @@ export function useSnapshotTrendData(
         })
       }
 
-      const m = s.meals_per_day
-      if (isValidNumber(m)) {
-        meals.push({
-          ...base,
-          value: m,
-          products: s.selected_products ?? [],
-          notes: s.notes,
-        })
+      const prods = s.selected_products ?? []
+      if (prods.length > 0) {
+        productHistory.unshift({ snapshotId: s.id, date, products: prods })
       }
     })
 
@@ -121,7 +120,7 @@ export function useSnapshotTrendData(
       weight,
       calorie,
       protein,
-      meals,
+      productHistory,
       dateRange,
       totalCount: sorted.length,
     }
