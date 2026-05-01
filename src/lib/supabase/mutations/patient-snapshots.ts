@@ -1,5 +1,13 @@
 import { createClient } from '@/utils/supabase/client'
-import type { PatientSnapshot, PatientSnapshotInput } from '@/types/patient'
+import type { PatientSnapshot, PatientSnapshotInput, SnapshotBioInfo, SnapshotProteinRange, SnapshotSelectedProduct } from '@/types/patient'
+
+export interface SnapshotEditableFields {
+  bio_info: SnapshotBioInfo
+  calorie_target: number | null
+  protein_range: SnapshotProteinRange | null
+  meals_per_day: number | null
+  selected_products: SnapshotSelectedProduct[]
+}
 
 /**
  * 建立新的 snapshot。snapshot 設計上不可編輯（DB 層也不開放 UPDATE policy）。
@@ -21,6 +29,30 @@ export async function createPatientSnapshot(
 
   if (error) {
     console.error('Error creating snapshot:', error)
+    throw error
+  }
+
+  return data as PatientSnapshot
+}
+
+/**
+ * 更新 snapshot 的生理資訊、每日目標、營養品。
+ * UPDATE policy 已由 snapshot_notes_editable migration 開放。
+ */
+export async function updatePatientSnapshot(
+  snapshotId: string,
+  fields: SnapshotEditableFields
+): Promise<PatientSnapshot> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('patient_snapshots')
+    .update(fields)
+    .eq('id', snapshotId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating snapshot:', error)
     throw error
   }
 

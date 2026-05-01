@@ -20,6 +20,7 @@ import {
   Pencil,
 } from "lucide-react"
 import ConfirmDialog from "./confirm-dialog"
+import EditSnapshotDialog from "./edit-snapshot-dialog"
 import {
   deletePatientSnapshot,
   updatePatientSnapshotDate,
@@ -93,6 +94,7 @@ export default function SnapshotCard({
 }: SnapshotCardProps) {
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [deleting, setDeleting] = useState(false)
+  const [editOpen, setEditOpen] = useState(false)
 
   // 備註編輯狀態
   const [isEditingNotes, setIsEditingNotes] = useState(false)
@@ -311,6 +313,13 @@ export default function SnapshotCard({
           <Button
             variant="outline"
             size="sm"
+            onClick={() => setEditOpen(true)}
+          >
+            編輯
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
             onClick={() => setConfirmOpen(true)}
           >
             刪除
@@ -334,11 +343,6 @@ export default function SnapshotCard({
               />
               <Stat label="性別" value={genderLabel} />
             </div>
-            {patient.birthday && (
-              <p className="text-xs text-muted-foreground">
-                生日：{formatBirthday(patient.birthday)}
-              </p>
-            )}
           </div>
 
           {/* 每日目標 */}
@@ -458,6 +462,13 @@ export default function SnapshotCard({
         destructive
         loading={deleting}
         onConfirm={handleDelete}
+      />
+
+      <EditSnapshotDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        snapshot={snapshot}
+        onSaved={onChanged}
       />
     </Card>
   )
