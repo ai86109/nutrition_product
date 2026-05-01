@@ -27,10 +27,12 @@ import {
 } from "@/lib/supabase/mutations/patient-snapshots"
 import { getEffectiveDate } from "@/lib/snapshot-date"
 import { formatNumber } from "@/lib/utils"
-import type { PatientSnapshot } from "@/types/patient"
+import { calculateAgeAt, formatBirthday } from "@/lib/age"
+import type { Patient, PatientSnapshot } from "@/types/patient"
 
 interface SnapshotCardProps {
   snapshot: PatientSnapshot
+  patient: Patient
   isExpanded: boolean
   onToggleExpand: () => void
   /** 刪除 / 編輯成功後讓父層重新載入 */
@@ -84,6 +86,7 @@ function SectionHeader({ icon, label, hint }: SectionHeaderProps) {
 
 export default function SnapshotCard({
   snapshot,
+  patient,
   isExpanded,
   onToggleExpand,
   onChanged,
@@ -324,9 +327,18 @@ export default function SnapshotCard({
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
               <Stat label="身高" value={bio_info.height} unit="cm" />
               <Stat label="體重" value={bio_info.weight} unit="kg" />
-              <Stat label="年齡" value={bio_info.age} unit="歲" />
+              <Stat
+                label="年齡"
+                value={calculateAgeAt(patient.birthday, effectiveDate)}
+                unit="歲"
+              />
               <Stat label="性別" value={genderLabel} />
             </div>
+            {patient.birthday && (
+              <p className="text-xs text-muted-foreground">
+                生日：{formatBirthday(patient.birthday)}
+              </p>
+            )}
           </div>
 
           {/* 每日目標 */}

@@ -68,7 +68,6 @@ export function useCurrentSnapshot({
 
     const heightNum = Number(formData.height) || null
     const weightNum = Number(formData.weight) || null
-    const ageNum = Number(formData.age) || null
 
     const calorieNum =
       tdee === "" || tdee === null || tdee === undefined
@@ -90,7 +89,6 @@ export function useCurrentSnapshot({
       bio_info: {
         height: heightNum,
         weight: weightNum,
-        age: ageNum,
         gender,
       },
       calorie_target: calorieNum,

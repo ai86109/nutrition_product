@@ -9,7 +9,8 @@ import type { Gender } from '@/types'
 export async function createPatient(
   userId: string,
   name: string,
-  gender: Gender
+  gender: Gender,
+  birthday: string   // 'YYYY-MM-DD'
 ): Promise<Patient> {
   const supabase = createClient()
 
@@ -30,6 +31,7 @@ export async function createPatient(
       user_id: userId,
       name: name.trim(),
       gender,
+      birthday,
       sort_order: nextSortOrder,
     })
     .select()
@@ -37,6 +39,29 @@ export async function createPatient(
 
   if (error) {
     console.error('Error creating patient:', error)
+    throw error
+  }
+
+  return data
+}
+
+/**
+ * 更新病人生日
+ */
+export async function updatePatientBirthday(
+  patientId: string,
+  birthday: string | null  // 'YYYY-MM-DD' or null to clear
+): Promise<Patient> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('patients')
+    .update({ birthday })
+    .eq('id', patientId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating patient birthday:', error)
     throw error
   }
 

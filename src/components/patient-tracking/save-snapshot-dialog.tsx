@@ -22,6 +22,7 @@ import { getPatients } from "@/lib/supabase/queries/patients"
 import { createPatient } from "@/lib/supabase/mutations/patients"
 import { createPatientSnapshot } from "@/lib/supabase/mutations/patient-snapshots"
 import { useAuth } from "@/contexts/AuthContext"
+import { calculateAgeAt, formatBirthday } from "@/lib/age"
 import type { Patient, PatientSnapshotInput } from "@/types/patient"
 import type { Gender } from "@/types"
 
@@ -45,12 +46,12 @@ export default function SaveSnapshotDialog({
   const [mode, setMode] = useState<PatientMode>("new")
   const [selectedPatientId, setSelectedPatientId] = useState<string>("")
   const [newPatientName, setNewPatientName] = useState<string>("")
+  const [newPatientBirthday, setNewPatientBirthday] = useState<string>("")
   const [patientError, setPatientError] = useState<string | null>(null)
 
   // Bio info（可編輯）
   const [height, setHeight] = useState<string>("")
   const [weight, setWeight] = useState<string>("")
-  const [age, setAge] = useState<string>("")
   const [gender, setGender] = useState<Gender>("man")
 
   // Targets
@@ -104,7 +105,6 @@ export default function SaveSnapshotDialog({
     const bi = initialValues.bio_info
     setHeight(bi.height != null ? String(bi.height) : "")
     setWeight(bi.weight != null ? String(bi.weight) : "")
-    setAge(bi.age != null ? String(bi.age) : "")
     setGender((bi.gender ?? "man") as Gender)
 
     setCalorieTarget(
@@ -130,8 +130,15 @@ export default function SaveSnapshotDialog({
     )
     setNotes(initialValues.notes ?? "")
     setNewPatientName("")
+    setNewPatientBirthday("")
     setPatientError(null)
   }, [open, initialValues])
+
+  // 目前選中的既有病人資訊
+  const selectedPatient =
+    mode === "existing"
+      ? patients.find((p) => p.id === selectedPatientId) ?? null
+      : null
 
   const handleSave = async () => {
     if (!userId) {
@@ -142,13 +149,17 @@ export default function SaveSnapshotDialog({
     // Validate patient
     let patientId = selectedPatientId
     if (mode === "new") {
-      const trimmed = newPatientName.trim()
-      if (!trimmed) {
+      const trimmedName = newPatientName.trim()
+      if (!trimmedName) {
         setPatientError("請輸入病人名稱")
         return
       }
+      if (!newPatientBirthday) {
+        setPatientError("請輸入病人生日")
+        return
+      }
       try {
-        const created = await createPatient(userId, trimmed, gender)
+        const created = await createPatient(userId, trimmedName, gender, newPatientBirthday)
         patientId = created.id
       } catch (err: unknown) {
         const code = (err as { code?: string })?.code
@@ -169,7 +180,6 @@ export default function SaveSnapshotDialog({
     // 組 snapshot input
     const heightNum = height === "" ? null : Number(height)
     const weightNum = weight === "" ? null : Number(weight)
-    const ageNum = age === "" ? null : Number(age)
     const calorieNum = calorieTarget === "" ? null : Number(calorieTarget)
     const proteinMinNum = proteinMin === "" ? null : Number(proteinMin)
     const proteinMaxNum = proteinMax === "" ? null : Number(proteinMax)
@@ -187,7 +197,6 @@ export default function SaveSnapshotDialog({
       bio_info: {
         height: heightNum,
         weight: weightNum,
-        age: ageNum,
         gender,
       },
       calorie_target: calorieNum,
@@ -254,6 +263,39 @@ export default function SaveSnapshotDialog({
           {/* Bio info */}
           <div className="space-y-2">
             <Label className="text-sm font-bold">生理資訊</Label>
+
+            {/* 新增病人：生日欄位（必填） */}
+            {mode === "new" && (
+              <div className="flex items-center gap-2">
+                <span className="text-sm w-[60px] shrink-0">生日</span>
+                <Input
+                  type="date"
+                  value={newPatientBirthday}
+                  max={new Date().toISOString().slice(0, 10)}
+                  onChange={(e) => {
+                    setNewPatientBirthday(e.target.value)
+                    setPatientError(null)
+                  }}
+                  className="w-[180px]"
+                />
+                {newPatientBirthday && (
+                  <span className="text-sm text-muted-foreground">
+                    {calculateAgeAt(newPatientBirthday)} 歲
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* 既有病人：顯示生日 + 年齡（唯讀） */}
+            {selectedPatient && (
+              <div className="flex items-center gap-3 text-sm text-muted-foreground bg-muted/40 rounded-md px-3 py-2">
+                <span>生日：{formatBirthday(selectedPatient.birthday)}</span>
+                {selectedPatient.birthday && (
+                  <span>（{calculateAgeAt(selectedPatient.birthday)} 歲）</span>
+                )}
+              </div>
+            )}
+
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-sm w-[60px]">身高(cm)</span>
@@ -269,14 +311,6 @@ export default function SaveSnapshotDialog({
                   type="number"
                   value={weight}
                   onChange={(e) => setWeight(e.target.value)}
-                />
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm w-[60px]">年齡</span>
-                <Input
-                  type="number"
-                  value={age}
-                  onChange={(e) => setAge(e.target.value)}
                 />
               </div>
               <div

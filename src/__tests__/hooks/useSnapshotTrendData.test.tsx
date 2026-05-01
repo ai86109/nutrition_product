@@ -7,7 +7,7 @@ function makeSnap(overrides: Partial<PatientSnapshot> = {}): PatientSnapshot {
     id: "s1",
     patient_id: "p1",
     user_id: "u1",
-    bio_info: { height: null, weight: null, age: null, gender: null },
+    bio_info: { height: null, weight: null, gender: null },
     calorie_target: null,
     protein_range: null,
     meals_per_day: null,
@@ -34,12 +34,12 @@ describe("useSnapshotTrendData", () => {
     const newer = makeSnap({
       id: "newer",
       created_at: "2026-04-15T00:00:00Z",
-      bio_info: { weight: 70, height: null, age: null, gender: null },
+      bio_info: { weight: 70, height: null, gender: null },
     })
     const older = makeSnap({
       id: "older",
       created_at: "2026-01-01T00:00:00Z",
-      bio_info: { weight: 65, height: null, age: null, gender: null },
+      bio_info: { weight: 65, height: null, gender: null },
     })
     const { result } = renderHook(() => useSnapshotTrendData([newer, older]))
     expect(result.current.weight.map((p) => p.snapshotId)).toEqual([
@@ -54,7 +54,7 @@ describe("useSnapshotTrendData", () => {
     const withWeight = makeSnap({
       id: "b",
       created_at: "2026-02-01T00:00:00Z",
-      bio_info: { weight: 70, height: null, age: null, gender: null },
+      bio_info: { weight: 70, height: null, gender: null },
     })
     const { result } = renderHook(() =>
       useSnapshotTrendData([noWeight, withWeight])
@@ -171,7 +171,7 @@ describe("useSnapshotTrendData", () => {
     const b = makeSnap({
       id: "b",
       created_at: "2026-02-01T00:00:00Z",
-      bio_info: { weight: 70, height: null, age: null, gender: null },
+      bio_info: { weight: 70, height: null, gender: null },
     })
     const { result } = renderHook(() => useSnapshotTrendData([a, b]))
     expect(result.current.totalCount).toBe(2)
@@ -184,13 +184,13 @@ describe("useSnapshotTrendData", () => {
       id: "a",
       created_at: "2026-04-15T00:00:00Z",
       snapshot_date: "2026-01-05",
-      bio_info: { weight: 65, height: null, age: null, gender: null },
+      bio_info: { weight: 65, height: null, gender: null },
     })
     const b = makeSnap({
       id: "b",
       created_at: "2026-02-01T00:00:00Z",
       snapshot_date: null,
-      bio_info: { weight: 70, height: null, age: null, gender: null },
+      bio_info: { weight: 70, height: null, gender: null },
     })
     const { result } = renderHook(() => useSnapshotTrendData([a, b]))
     // a 的 effective 是 2026-01-05，比 b 的 2026-02-01 早 → asc 排序 a 在前

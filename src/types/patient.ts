@@ -8,6 +8,7 @@ export interface Patient {
   user_id: string
   name: string
   gender: Gender
+  birthday: string | null   // DATE as 'YYYY-MM-DD', nullable for existing patients
   sort_order: number
   created_at: string
   updated_at: string
@@ -17,11 +18,11 @@ export interface Patient {
 // Snapshot 內的 jsonb 欄位 shape
 // =====================================================================
 
-// 生理資訊：身高、體重、年齡、性別。BMI/IBW/ABW 為衍生值，存下來方便日後直接顯示
+// 生理資訊：身高、體重、性別。BMI/IBW/ABW 為衍生值，存下來方便日後直接顯示。
+// 年齡不再存於 snapshot——改由 patient.birthday 搭配 snapshot 日期動態推算。
 export interface SnapshotBioInfo {
   height: number | null
   weight: number | null
-  age: number | null
   gender: Gender | null
   bmi?: number | null
   ibw?: number | null

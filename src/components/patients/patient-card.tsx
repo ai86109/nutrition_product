@@ -12,12 +12,16 @@ import {
   Pencil,
   Trash2,
   TrendingUp,
+  Check,
+  X,
 } from "lucide-react"
+import { Input } from "@/components/ui/input"
 import SnapshotCard from "./snapshot-card"
 import RenamePatientDialog from "./rename-patient-dialog"
 import ConfirmDialog from "./confirm-dialog"
 import { SnapshotTrendSheet } from "./snapshot-trend-sheet"
-import { deletePatient } from "@/lib/supabase/mutations/patients"
+import { deletePatient, updatePatientBirthday } from "@/lib/supabase/mutations/patients"
+import { calculateAgeAt, formatBirthday } from "@/lib/age"
 import type { Patient, PatientSnapshot } from "@/types/patient"
 
 interface PatientCardProps {
@@ -52,6 +56,11 @@ export default function PatientCard({
   const [deleting, setDeleting] = useState(false)
   const [trendOpen, setTrendOpen] = useState(false)
 
+  // 生日編輯狀態
+  const [isEditingBirthday, setIsEditingBirthday] = useState(false)
+  const [draftBirthday, setDraftBirthday] = useState("")
+  const [savingBirthday, setSavingBirthday] = useState(false)
+
   const handleDelete = async () => {
     setDeleting(true)
     try {
@@ -63,6 +72,35 @@ export default function PatientCard({
       alert("刪除病人失敗，請稍後再試")
     } finally {
       setDeleting(false)
+    }
+  }
+
+  const handleStartEditBirthday = () => {
+    setDraftBirthday(patient.birthday ?? "")
+    setIsEditingBirthday(true)
+  }
+
+  const handleCancelEditBirthday = () => {
+    setIsEditingBirthday(false)
+    setDraftBirthday("")
+  }
+
+  const handleSaveBirthday = async () => {
+    const value = draftBirthday.trim()
+    if (value === (patient.birthday ?? "")) {
+      setIsEditingBirthday(false)
+      return
+    }
+    setSavingBirthday(true)
+    try {
+      await updatePatientBirthday(patient.id, value || null)
+      onChanged()
+      setIsEditingBirthday(false)
+    } catch (err) {
+      console.error(err)
+      alert("儲存生日失敗，請稍後再試")
+    } finally {
+      setSavingBirthday(false)
     }
   }
 
@@ -151,38 +189,97 @@ export default function PatientCard({
 
       {/* Snapshots */}
       {isExpanded && (
-        <div className="border-t bg-muted/30 px-4 py-4">
+        <div className="border-t bg-muted/30 px-4 py-4 space-y-4">
+          {/* 生日列 + 查看趨勢（同階層） */}
+          <div className="flex items-center justify-between gap-3">
+            {/* 生日：可編輯 */}
+            {isEditingBirthday ? (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground shrink-0">生日</span>
+                <Input
+                  type="date"
+                  value={draftBirthday}
+                  max={new Date().toISOString().slice(0, 10)}
+                  onChange={(e) => setDraftBirthday(e.target.value)}
+                  className="h-7 w-[160px] text-sm"
+                  disabled={savingBirthday}
+                  autoFocus
+                />
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7"
+                  onClick={handleSaveBirthday}
+                  disabled={savingBirthday}
+                  title="儲存"
+                >
+                  <Check className="size-3.5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-7"
+                  onClick={handleCancelEditBirthday}
+                  disabled={savingBirthday}
+                  title="取消"
+                >
+                  <X className="size-3.5" />
+                </Button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">
+                  生日：
+                  <span className="text-foreground font-medium">
+                    {patient.birthday
+                      ? `${formatBirthday(patient.birthday)}（${calculateAgeAt(patient.birthday)} 歲）`
+                      : "未設定"}
+                  </span>
+                </span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="size-6"
+                  onClick={handleStartEditBirthday}
+                  title="編輯生日"
+                >
+                  <Pencil className="size-3" />
+                </Button>
+              </div>
+            )}
+
+            {/* 查看趨勢 */}
+            {snapshots.length >= 2 && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setTrendOpen(true)}
+              >
+                <TrendingUp className="size-4" />
+                查看趨勢
+              </Button>
+            )}
+          </div>
+
+          {/* Snapshot 卡片列表 */}
           {snapshots.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               這位病人還沒有 snapshot 紀錄
             </p>
           ) : (
-            <>
-              {snapshots.length >= 2 && (
-                <div className="mb-3 flex justify-end">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setTrendOpen(true)}
-                  >
-                    <TrendingUp className="size-4" />
-                    查看趨勢
-                  </Button>
+            <div className="space-y-3">
+              {snapshots.map((s) => (
+                <div key={s.id} id={`snapshot-${s.id}`}>
+                  <SnapshotCard
+                    snapshot={s}
+                    patient={patient}
+                    isExpanded={expandedSnapshotIds.has(s.id)}
+                    onToggleExpand={() => onToggleSnapshot(s.id)}
+                    onChanged={onChanged}
+                  />
                 </div>
-              )}
-              <div className="space-y-3">
-                {snapshots.map((s) => (
-                  <div key={s.id} id={`snapshot-${s.id}`}>
-                    <SnapshotCard
-                      snapshot={s}
-                      isExpanded={expandedSnapshotIds.has(s.id)}
-                      onToggleExpand={() => onToggleSnapshot(s.id)}
-                      onChanged={onChanged}
-                    />
-                  </div>
-                ))}
-              </div>
-            </>
+              ))}
+            </div>
           )}
         </div>
       )}
