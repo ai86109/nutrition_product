@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import {
   Dialog,
   DialogContent,
@@ -47,7 +47,10 @@ export default function SaveSnapshotDialog({
   const [selectedPatientId, setSelectedPatientId] = useState<string>("")
   const [newPatientName, setNewPatientName] = useState<string>("")
   const [newPatientBirthday, setNewPatientBirthday] = useState<string>("")
+  const [newPatientDiseaseHistory, setNewPatientDiseaseHistory] = useState<string>("")
   const [patientError, setPatientError] = useState<string | null>(null)
+  const [birthdayError, setBirthdayError] = useState<string | null>(null)
+  const birthdayRef = useRef<HTMLDivElement>(null)
 
   // Bio info（可編輯）
   const [height, setHeight] = useState<string>("")
@@ -131,7 +134,9 @@ export default function SaveSnapshotDialog({
     setNotes(initialValues.notes ?? "")
     setNewPatientName("")
     setNewPatientBirthday("")
+    setNewPatientDiseaseHistory("")
     setPatientError(null)
+    setBirthdayError(null)
   }, [open, initialValues])
 
   // 目前選中的既有病人資訊
@@ -155,11 +160,18 @@ export default function SaveSnapshotDialog({
         return
       }
       if (!newPatientBirthday) {
-        setPatientError("請輸入病人生日")
+        setBirthdayError("請輸入病人生日")
+        birthdayRef.current?.scrollIntoView({ behavior: "smooth", block: "center" })
         return
       }
       try {
-        const created = await createPatient(userId, trimmedName, gender, newPatientBirthday)
+        const created = await createPatient(
+          userId,
+          trimmedName,
+          gender,
+          newPatientBirthday,
+          newPatientDiseaseHistory.trim() || null
+        )
         patientId = created.id
       } catch (err: unknown) {
         const code = (err as { code?: string })?.code
@@ -266,22 +278,27 @@ export default function SaveSnapshotDialog({
 
             {/* 新增病人：生日欄位（必填） */}
             {mode === "new" && (
-              <div className="flex items-center gap-2">
-                <span className="text-sm w-[60px] shrink-0">生日</span>
-                <Input
-                  type="date"
-                  value={newPatientBirthday}
-                  max={new Date().toISOString().slice(0, 10)}
-                  onChange={(e) => {
-                    setNewPatientBirthday(e.target.value)
-                    setPatientError(null)
-                  }}
-                  className="w-[180px]"
-                />
-                {newPatientBirthday && (
-                  <span className="text-sm text-muted-foreground">
-                    {calculateAgeAt(newPatientBirthday)} 歲
-                  </span>
+              <div className="space-y-1" ref={birthdayRef}>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm w-[60px] shrink-0">生日</span>
+                  <Input
+                    type="date"
+                    value={newPatientBirthday}
+                    max={new Date().toISOString().slice(0, 10)}
+                    onChange={(e) => {
+                      setNewPatientBirthday(e.target.value)
+                      setBirthdayError(null)
+                    }}
+                    className={`w-[180px] ${birthdayError ? "border-destructive focus-visible:ring-destructive/50" : ""}`}
+                  />
+                  {newPatientBirthday && (
+                    <span className="text-sm text-muted-foreground">
+                      {calculateAgeAt(newPatientBirthday)} 歲
+                    </span>
+                  )}
+                </div>
+                {birthdayError && (
+                  <p className="text-sm text-destructive pl-[68px]">{birthdayError}</p>
                 )}
               </div>
             )}
@@ -437,6 +454,25 @@ export default function SaveSnapshotDialog({
           </div>
 
           <Separator />
+
+          {/* 疾病史（新增病人時才顯示） */}
+          {mode === "new" && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="dialog-disease-history" className="text-sm font-bold">
+                  疾病史
+                </Label>
+                <textarea
+                  id="dialog-disease-history"
+                  className="border-input flex w-full min-h-[80px] rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+                  placeholder="病人的疾病史（選填）"
+                  value={newPatientDiseaseHistory}
+                  onChange={(e) => setNewPatientDiseaseHistory(e.target.value)}
+                />
+              </div>
+              <Separator />
+            </>
+          )}
 
           {/* Notes */}
           <div className="space-y-2">

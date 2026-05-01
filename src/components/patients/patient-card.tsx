@@ -20,7 +20,7 @@ import SnapshotCard from "./snapshot-card"
 import RenamePatientDialog from "./rename-patient-dialog"
 import ConfirmDialog from "./confirm-dialog"
 import { SnapshotTrendSheet } from "./snapshot-trend-sheet"
-import { deletePatient, updatePatientBirthday } from "@/lib/supabase/mutations/patients"
+import { deletePatient, updatePatientBirthday, updatePatientDiseaseHistory } from "@/lib/supabase/mutations/patients"
 import { calculateAgeAt, formatBirthday } from "@/lib/age"
 import type { Patient, PatientSnapshot } from "@/types/patient"
 
@@ -60,6 +60,11 @@ export default function PatientCard({
   const [isEditingBirthday, setIsEditingBirthday] = useState(false)
   const [draftBirthday, setDraftBirthday] = useState("")
   const [savingBirthday, setSavingBirthday] = useState(false)
+
+  // 疾病史編輯狀態
+  const [isEditingDiseaseHistory, setIsEditingDiseaseHistory] = useState(false)
+  const [draftDiseaseHistory, setDraftDiseaseHistory] = useState("")
+  const [savingDiseaseHistory, setSavingDiseaseHistory] = useState(false)
 
   const handleDelete = async () => {
     setDeleting(true)
@@ -101,6 +106,36 @@ export default function PatientCard({
       alert("儲存生日失敗，請稍後再試")
     } finally {
       setSavingBirthday(false)
+    }
+  }
+
+  const handleStartEditDiseaseHistory = () => {
+    setDraftDiseaseHistory(patient.disease_history ?? "")
+    setIsEditingDiseaseHistory(true)
+  }
+
+  const handleCancelEditDiseaseHistory = () => {
+    setIsEditingDiseaseHistory(false)
+    setDraftDiseaseHistory("")
+  }
+
+  const handleSaveDiseaseHistory = async () => {
+    const value = draftDiseaseHistory.trim()
+    const next = value || null
+    if (next === (patient.disease_history ?? null)) {
+      setIsEditingDiseaseHistory(false)
+      return
+    }
+    setSavingDiseaseHistory(true)
+    try {
+      await updatePatientDiseaseHistory(patient.id, next)
+      onChanged()
+      setIsEditingDiseaseHistory(false)
+    } catch (err) {
+      console.error(err)
+      alert("儲存疾病史失敗，請稍後再試")
+    } finally {
+      setSavingDiseaseHistory(false)
     }
   }
 
@@ -190,71 +225,85 @@ export default function PatientCard({
       {/* Snapshots */}
       {isExpanded && (
         <div className="border-t bg-muted/30 px-4 py-4 space-y-4">
-          {/* 生日列 + 查看趨勢（同階層） */}
-          <div className="flex items-center justify-between gap-3">
-            {/* 生日：可編輯 */}
-            {isEditingBirthday ? (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground shrink-0">生日</span>
-                <Input
-                  type="date"
-                  value={draftBirthday}
-                  max={new Date().toISOString().slice(0, 10)}
-                  onChange={(e) => setDraftBirthday(e.target.value)}
-                  className="h-7 w-[160px] text-sm"
-                  disabled={savingBirthday}
-                  autoFocus
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  onClick={handleSaveBirthday}
-                  disabled={savingBirthday}
-                  title="儲存"
-                >
-                  <Check className="size-3.5" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-7"
-                  onClick={handleCancelEditBirthday}
-                  disabled={savingBirthday}
-                  title="取消"
-                >
-                  <X className="size-3.5" />
-                </Button>
+          {/* 病人資訊 + 查看趨勢 */}
+          <div className="flex items-start justify-between gap-3">
+            {/* 生日 + 疾病史：統一 info panel */}
+            <div className="flex-1 rounded-lg border bg-background px-4 py-3 space-y-3">
+              {/* 生日 */}
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-muted-foreground w-12 shrink-0">生日</span>
+                {isEditingBirthday ? (
+                  <div className="flex items-center gap-1.5">
+                    <Input
+                      type="date"
+                      value={draftBirthday}
+                      max={new Date().toISOString().slice(0, 10)}
+                      onChange={(e) => setDraftBirthday(e.target.value)}
+                      className="h-7 w-[155px] text-sm"
+                      disabled={savingBirthday}
+                      autoFocus
+                    />
+                    <Button variant="ghost" size="icon" className="size-7" onClick={handleSaveBirthday} disabled={savingBirthday} title="儲存">
+                      <Check className="size-3.5" />
+                    </Button>
+                    <Button variant="ghost" size="icon" className="size-7" onClick={handleCancelEditBirthday} disabled={savingBirthday} title="取消">
+                      <X className="size-3.5" />
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-sm">
+                      {patient.birthday
+                        ? <><span className="font-medium">{formatBirthday(patient.birthday)}</span><span className="text-muted-foreground ml-1.5">（{calculateAgeAt(patient.birthday)} 歲）</span></>
+                        : <span className="text-muted-foreground italic">未設定</span>}
+                    </span>
+                    <Button variant="ghost" size="icon" className="size-6 text-muted-foreground hover:text-foreground" onClick={handleStartEditBirthday} title="編輯生日">
+                      <Pencil className="size-3" />
+                    </Button>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">
-                  生日：
-                  <span className="text-foreground font-medium">
-                    {patient.birthday
-                      ? `${formatBirthday(patient.birthday)}（${calculateAgeAt(patient.birthday)} 歲）`
-                      : "未設定"}
-                  </span>
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="size-6"
-                  onClick={handleStartEditBirthday}
-                  title="編輯生日"
-                >
-                  <Pencil className="size-3" />
-                </Button>
+
+              {/* 疾病史 */}
+              <div className="flex items-start gap-3">
+                <span className="text-xs text-muted-foreground w-12 shrink-0 mt-0.5">疾病史</span>
+                {isEditingDiseaseHistory ? (
+                  <div className="flex-1 space-y-1.5">
+                    <textarea
+                      className="border-input flex w-full min-h-[72px] rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+                      placeholder="病人的疾病史（選填）"
+                      value={draftDiseaseHistory}
+                      onChange={(e) => setDraftDiseaseHistory(e.target.value)}
+                      disabled={savingDiseaseHistory}
+                      autoFocus
+                    />
+                    <div className="flex gap-1 justify-end">
+                      <Button variant="ghost" size="sm" className="h-7 px-2 text-xs" onClick={handleCancelEditDiseaseHistory} disabled={savingDiseaseHistory}>取消</Button>
+                      <Button size="sm" className="h-7 px-2 text-xs" onClick={handleSaveDiseaseHistory} disabled={savingDiseaseHistory}>
+                        {savingDiseaseHistory ? "儲存中..." : "儲存"}
+                      </Button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex-1">
+                    <div className="inline-flex items-start gap-1">
+                      {patient.disease_history ? (
+                        <p className="text-sm whitespace-pre-wrap">{patient.disease_history}</p>
+                      ) : (
+                        <p className="text-sm text-muted-foreground italic">未設定</p>
+                      )}
+                      <Button variant="ghost" size="icon" className="size-6 shrink-0 text-muted-foreground hover:text-foreground" onClick={handleStartEditDiseaseHistory} title="編輯疾病史">
+                        <Pencil className="size-3" />
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+            </div>
 
             {/* 查看趨勢 */}
             {snapshots.length >= 2 && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setTrendOpen(true)}
-              >
+              <Button variant="outline" size="sm" onClick={() => setTrendOpen(true)} className="shrink-0">
                 <TrendingUp className="size-4" />
                 查看趨勢
               </Button>

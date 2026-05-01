@@ -10,7 +10,8 @@ export async function createPatient(
   userId: string,
   name: string,
   gender: Gender,
-  birthday: string   // 'YYYY-MM-DD'
+  birthday: string,              // 'YYYY-MM-DD'
+  diseaseHistory?: string | null // 疾病史（選填）
 ): Promise<Patient> {
   const supabase = createClient()
 
@@ -32,6 +33,7 @@ export async function createPatient(
       name: name.trim(),
       gender,
       birthday,
+      disease_history: diseaseHistory ?? null,
       sort_order: nextSortOrder,
     })
     .select()
@@ -39,6 +41,29 @@ export async function createPatient(
 
   if (error) {
     console.error('Error creating patient:', error)
+    throw error
+  }
+
+  return data
+}
+
+/**
+ * 更新病人疾病史
+ */
+export async function updatePatientDiseaseHistory(
+  patientId: string,
+  diseaseHistory: string | null
+): Promise<Patient> {
+  const supabase = createClient()
+  const { data, error } = await supabase
+    .from('patients')
+    .update({ disease_history: diseaseHistory })
+    .eq('id', patientId)
+    .select()
+    .single()
+
+  if (error) {
+    console.error('Error updating patient disease history:', error)
     throw error
   }
 

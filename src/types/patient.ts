@@ -8,7 +8,8 @@ export interface Patient {
   user_id: string
   name: string
   gender: Gender
-  birthday: string | null   // DATE as 'YYYY-MM-DD', nullable for existing patients
+  birthday: string | null        // DATE as 'YYYY-MM-DD', nullable for existing patients
+  disease_history: string | null // 疾病史，自由文字
   sort_order: number
   created_at: string
   updated_at: string
