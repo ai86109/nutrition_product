@@ -378,9 +378,11 @@ export default function SnapshotCard({
           <div className="space-y-2">
             <SectionHeader icon={<Target />} label="每日目標" />
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <Stat label="熱量" value={calorie_target} unit="kcal" />
+              <Stat label="目標熱量" value={calorie_target} unit="kcal" />
               <Stat label="蛋白質範圍" value={proteinDisplay} unit="g" />
               <Stat label="每日餐數" value={meals_per_day} unit="餐" />
+              <Stat label="實際熱量" value={snapshot.actual_calorie} unit="kcal" />
+              <Stat label="實際蛋白質" value={snapshot.actual_protein} unit="g" />
             </div>
           </div>
 

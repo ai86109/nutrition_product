@@ -44,6 +44,8 @@ export default function EditSnapshotDialog({
   const [proteinMax, setProteinMax] = useState<string>("")
   const [mealsCheck, setMealsCheck] = useState<boolean>(false)
   const [mealsPerDay, setMealsPerDay] = useState<string>("")
+  const [actualCalorie, setActualCalorie] = useState<string>("")
+  const [actualProtein, setActualProtein] = useState<string>("")
 
   // 水腫 / 壓瘡
   const [edema, setEdema] = useState<boolean>(false)
@@ -86,6 +88,9 @@ export default function EditSnapshotDialog({
     setPressureSore(bi.pressure_sore ?? false)
     setPressureSoreNote(bi.pressure_sore_note ?? "")
 
+    setActualCalorie(snapshot.actual_calorie != null ? String(snapshot.actual_calorie) : "")
+    setActualProtein(snapshot.actual_protein != null ? String(snapshot.actual_protein) : "")
+
     setProducts(snapshot.selected_products)
   }, [open, snapshot])
 
@@ -124,6 +129,8 @@ export default function EditSnapshotDialog({
         ? { min: proteinMinNum, max: proteinMaxNum }
         : null,
       meals_per_day: mealsNum,
+      actual_calorie: actualCalorie === "" ? null : Number(actualCalorie),
+      actual_protein: actualProtein === "" ? null : Number(actualProtein),
       selected_products: products,
     }
 
@@ -265,6 +272,25 @@ export default function EditSnapshotDialog({
                 onChange={(e) => setMealsPerDay(e.target.value)}
               />
               <span>餐</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm w-[80px]">實際熱量(kcal)</span>
+              <Input
+                type="number"
+                className="w-[120px]"
+                value={actualCalorie}
+                onChange={(e) => setActualCalorie(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-sm w-[80px]">實際蛋白質(g)</span>
+              <Input
+                type="number"
+                step="0.1"
+                className="w-[120px]"
+                value={actualProtein}
+                onChange={(e) => setActualProtein(e.target.value)}
+              />
             </div>
           </div>
 

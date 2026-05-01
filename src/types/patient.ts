@@ -65,6 +65,8 @@ export interface PatientSnapshot {
   calorie_target: number | null
   protein_range: SnapshotProteinRange | null
   meals_per_day: number | null
+  actual_calorie: number | null
+  actual_protein: number | null
   selected_products: SnapshotSelectedProduct[]
   notes: string | null
   /** 系統建立時間（不可編輯） */

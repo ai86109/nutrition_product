@@ -151,7 +151,7 @@ export function SnapshotTrendSheet({
             <WeightChart data={trend.weight} />
           </ChartCell>
 
-          <ChartCell title="目標熱量 (kcal)" summary={calorieSummary}>
+          <ChartCell title="熱量 (kcal)" summary={calorieSummary}>
             <CalorieChart data={trend.calorie} />
           </ChartCell>
 

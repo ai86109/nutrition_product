@@ -34,7 +34,10 @@ export interface WeightPoint extends TrendPointBase {
 }
 
 export interface CaloriePoint extends TrendPointBase {
-  value: number
+  value: number | null
+  actual: number | null
+  /** 實際 / 目標 × 100，兩者皆有時才有值 */
+  pct: number | null
 }
 
 export interface ProteinPoint extends TrendPointBase {
@@ -106,8 +109,18 @@ export function useSnapshotTrendData(
       }
 
       const c = s.calorie_target
-      if (isValidNumber(c)) {
-        calorie.push({ ...base, value: c })
+      const ca = s.actual_calorie
+      if (isValidNumber(c) || isValidNumber(ca)) {
+        const pct =
+          isValidNumber(c) && isValidNumber(ca) && c > 0
+            ? Math.round((ca / c) * 100)
+            : null
+        calorie.push({
+          ...base,
+          value: isValidNumber(c) ? c : null,
+          actual: isValidNumber(ca) ? ca : null,
+          pct,
+        })
       }
 
       const pr = s.protein_range

@@ -6,6 +6,8 @@ export interface SnapshotEditableFields {
   calorie_target: number | null
   protein_range: SnapshotProteinRange | null
   meals_per_day: number | null
+  actual_calorie: number | null
+  actual_protein: number | null
   selected_products: SnapshotSelectedProduct[]
 }
 
