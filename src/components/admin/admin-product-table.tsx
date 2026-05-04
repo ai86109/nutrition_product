@@ -31,6 +31,7 @@ import { Button } from '@/components/ui/button'
 import { ExternalLink } from 'lucide-react'
 import CategoryMultiSelect from '@/components/admin/category-multi-select'
 import ProductStatusSelect from '@/components/admin/product-status-select'
+import AdminProductImagesCell from '@/components/admin/admin-product-images-cell'
 import { updateProductIsApproved } from '@/lib/supabase/mutations/admin-products'
 import { getLinkPath } from '@/utils/external-links'
 import type {
@@ -271,6 +272,7 @@ export default function AdminProductTable({ products }: AdminProductTableProps) 
               <TableHead>證號</TableHead>
               <TableHead>品名</TableHead>
               <TableHead>廠商</TableHead>
+              <TableHead className="text-center">圖片</TableHead>
               <TableHead>配方種類</TableHead>
               <TableHead className="text-center">是否顯示</TableHead>
               <TableHead>有效日期</TableHead>
@@ -281,7 +283,7 @@ export default function AdminProductTable({ products }: AdminProductTableProps) 
             {paginated.length === 0 ? (
               <TableRow>
                 <TableCell
-                  colSpan={7}
+                  colSpan={8}
                   className="text-center text-muted-foreground py-8"
                 >
                   沒有符合條件的產品
@@ -313,6 +315,12 @@ export default function AdminProductTable({ products }: AdminProductTableProps) 
                     </TableCell>
                     <TableCell className="text-muted-foreground">
                       {p.brand ?? '-'}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <AdminProductImagesCell
+                        licenseNo={p.license_no}
+                        productName={p.name_zh ?? p.license_no}
+                      />
                     </TableCell>
                     <TableCell>
                       <CategoryMultiSelect
