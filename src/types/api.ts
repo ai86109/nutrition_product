@@ -1,4 +1,5 @@
 import type { IngredientsData } from './nutrition'
+import type { ProductImagePublic } from './product-images'
 export interface FieldMappings {
   info: Record<string, string>;
   spec: Record<string, string>;
@@ -44,4 +45,6 @@ export interface ApiProductData {
   ingredients: IngredientsData;
   // 每 100g/100ml 的營養素（給產品資訊 dialog 顯示用）
   ingredientsPer100?: IngredientsData;
+  // 產品圖片（已過濾 status='approved'、依 display_order 排序、含 publicUrl）
+  images?: ProductImagePublic[];
 }

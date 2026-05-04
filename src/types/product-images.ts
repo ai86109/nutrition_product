@@ -32,3 +32,15 @@ export interface ProductImageWithUrl extends ProductImageRow {
 
 /** 每個產品最多可上傳的有效圖片數（approved + pending），與 SQL 端一致 */
 export const PRODUCT_IMAGE_MAX_COUNT = 5
+
+/**
+ * 公開頁面（產品 dialog / Lightbox）使用的圖片型別。
+ * 不含 admin 相關欄位（status / source / 等），避免不必要的資訊外洩到前端。
+ * publicUrl 在 server 端用 supabase.storage.getPublicUrl() 預先算好。
+ */
+export interface ProductImagePublic {
+  id: string
+  publicUrl: string
+  width: number | null
+  height: number | null
+}

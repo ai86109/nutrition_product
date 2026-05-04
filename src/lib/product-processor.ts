@@ -1,5 +1,6 @@
 import { NUTRIENT_UNITS } from '@/utils/constants'
 import { getCategoryLabel } from '@/utils/product-categories'
+import type { ProductImagePublic } from '@/types/product-images'
 
 type FormMapKey = keyof typeof formMap
 type UnitMapKey = keyof typeof unitMap
@@ -131,7 +132,11 @@ export const formatProductList = (products: RawProduct[]) => {
 }
 
 // 詳細格式（含完整 nutrition 資料，單筆使用）
-export const formatProductDetail = (product: RawProduct) => {
+//   images 在 server side 預先算好 publicUrl 後傳入，這裡只是組裝
+export const formatProductDetail = (
+  product: RawProduct,
+  images: ProductImagePublic[] = []
+) => {
   if (!isValidProduct(product)) return null
 
   const { is_approved, categories: rawCate, product_variants, form, standard_weight } = product
@@ -160,6 +165,7 @@ export const formatProductDetail = (product: RawProduct) => {
     ingredientsPer100,
     spec,
     reviewStatus: is_approved,
+    images,
   }
 }
 
