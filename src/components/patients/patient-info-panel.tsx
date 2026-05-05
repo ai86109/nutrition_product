@@ -84,7 +84,7 @@ export default function PatientInfoPanel({
 
   return (
     <div className="rounded-lg border bg-background px-4 py-3 space-y-3 shrink-0">
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
         <div className="flex-1 min-w-0 space-y-2">
           {/* 生日 */}
           <div className="flex items-center gap-3">
@@ -218,13 +218,13 @@ export default function PatientInfoPanel({
           </div>
         </div>
 
-        {/* 查看趨勢按鈕 */}
+        {/* 查看趨勢按鈕 — 手機全寬置底，桌面右上 */}
         {snapshots.length >= 2 && (
           <Button
             variant="outline"
             size="sm"
             onClick={() => setTrendOpen(true)}
-            className="shrink-0"
+            className="w-full md:w-auto md:shrink-0"
           >
             <TrendingUp className="size-4" />
             查看趨勢

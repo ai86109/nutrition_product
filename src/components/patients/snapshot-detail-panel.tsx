@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Pencil, User, Target, Pill, StickyNote } from "lucide-react"
+import { Pencil, User, Target, Pill, StickyNote, Utensils } from "lucide-react"
 import EditSnapshotDialog from "./edit-snapshot-dialog"
 import { updatePatientSnapshotNotes } from "@/lib/supabase/mutations/patient-snapshots"
 import { getEffectiveDate } from "@/lib/snapshot-date"
@@ -12,7 +12,7 @@ import { calcBMI, calcABW } from "@/utils/nutrition-calculations"
 import type { Patient, PatientSnapshot } from "@/types/patient"
 
 interface StatProps {
-  label: string
+  label: React.ReactNode
   value: string | number | null | undefined
   unit?: string
   suffix?: string
@@ -22,7 +22,9 @@ function Stat({ label, value, unit, suffix }: StatProps) {
   const isEmpty = value === null || value === undefined || value === ""
   return (
     <div className="rounded-md bg-muted/50 px-3 py-2 min-w-0">
-      <div className="text-xs text-muted-foreground truncate">{label}</div>
+      <div className="text-xs text-muted-foreground truncate flex items-center gap-1">
+        {label}
+      </div>
       <div className="mt-0.5 flex items-baseline gap-1 flex-nowrap overflow-hidden">
         <span className="text-base font-semibold tabular-nums truncate">
           {isEmpty ? "—" : value}
@@ -50,6 +52,70 @@ function SectionHeader({ icon, label, hint }: SectionHeaderProps) {
       <span className="[&>svg]:size-3.5">{icon}</span>
       <span>{label}</span>
       {hint && <span className="font-normal normal-case">{hint}</span>}
+    </div>
+  )
+}
+
+interface GoalCardProps {
+  label: string
+  unit: string
+  rangeMin: number | null | undefined
+  rangeMax: number | null | undefined
+  actual: number | null | undefined
+}
+
+/**
+ * 把「目標範圍」與「實際」放在同一張卡，
+ * 兩端都齊全時順手算達成率（以中位數 = (min+max)/2 為基準）。
+ */
+function GoalCard({ label, unit, rangeMin, rangeMax, actual }: GoalCardProps) {
+  const minDefined = rangeMin !== null && rangeMin !== undefined
+  const maxDefined = rangeMax !== null && rangeMax !== undefined
+  const hasRange = minDefined || maxDefined
+  const hasActual = actual !== null && actual !== undefined
+
+  let achievementPct: number | null = null
+  if (hasActual && minDefined && maxDefined) {
+    const mid = ((rangeMin as number) + (rangeMax as number)) / 2
+    if (mid > 0) achievementPct = Math.round(((actual as number) / mid) * 100)
+  }
+
+  return (
+    <div className="rounded-lg border bg-muted/30 p-3 space-y-2 min-w-0">
+      <div className="flex items-center justify-between gap-2">
+        <h3 className="text-sm font-semibold">{label}</h3>
+        {achievementPct !== null && (
+          <span className="text-xs font-medium text-muted-foreground tabular-nums">
+            達成 {achievementPct}%
+          </span>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <div className="rounded-md bg-background px-3 py-2 min-w-0">
+          <div className="text-xs text-muted-foreground">目標範圍</div>
+          <div className="mt-0.5 flex items-baseline gap-1 flex-nowrap overflow-hidden">
+            <span className="text-base font-semibold tabular-nums truncate">
+              {hasRange
+                ? `${minDefined ? rangeMin : "—"} ~ ${maxDefined ? rangeMax : "—"}`
+                : "—"}
+            </span>
+            {hasRange && (
+              <span className="text-xs text-muted-foreground">{unit}</span>
+            )}
+          </div>
+        </div>
+        <div className="rounded-md bg-background px-3 py-2 min-w-0">
+          <div className="text-xs text-muted-foreground">實際</div>
+          <div className="mt-0.5 flex items-baseline gap-1 flex-nowrap overflow-hidden">
+            <span className="text-base font-semibold tabular-nums truncate">
+              {hasActual ? actual : "—"}
+            </span>
+            {hasActual && (
+              <span className="text-xs text-muted-foreground">{unit}</span>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -116,16 +182,6 @@ export default function SnapshotDetailPanel({
   const genderLabel =
     bio_info.gender === "man" ? "男" : bio_info.gender === "woman" ? "女" : null
 
-  const calorieDisplay =
-    calorie_range && (calorie_range.min !== null || calorie_range.max !== null)
-      ? `${calorie_range.min ?? "—"} ~ ${calorie_range.max ?? "—"}`
-      : null
-
-  const proteinDisplay =
-    protein_range && (protein_range.min !== null || protein_range.max !== null)
-      ? `${protein_range.min ?? "—"} ~ ${protein_range.max ?? "—"}`
-      : null
-
   const bmi = calcBMI(bio_info.height ?? 0, bio_info.weight ?? 0)
   const abw = calcABW(bio_info.height ?? 0, bio_info.weight ?? 0)
 
@@ -150,7 +206,7 @@ export default function SnapshotDetailPanel({
         {/* 生理資訊 */}
         <div className="space-y-2">
           <SectionHeader icon={<User />} label="生理資訊" />
-          <div className="grid grid-cols-6 gap-2">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-6">
             <Stat label="身高" value={bio_info.height} unit="cm" />
             <Stat
               label="體重"
@@ -193,15 +249,36 @@ export default function SnapshotDetailPanel({
           )}
         </div>
 
-        {/* 每日目標 */}
+        {/* 每日目標 — 熱量、蛋白質各一張組合卡，餐數另放 */}
         <div className="space-y-2">
           <SectionHeader icon={<Target />} label="每日目標" />
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-            <Stat label="目標熱量範圍" value={calorieDisplay} unit="kcal" />
-            <Stat label="蛋白質範圍" value={proteinDisplay} unit="g" />
-            <Stat label="每日餐數" value={meals_per_day} unit="餐" />
-            <Stat label="實際熱量" value={snapshot.actual_calorie} unit="kcal" />
-            <Stat label="實際蛋白質" value={snapshot.actual_protein} unit="g" />
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+            <GoalCard
+              label="熱量"
+              unit="kcal"
+              rangeMin={calorie_range?.min}
+              rangeMax={calorie_range?.max}
+              actual={snapshot.actual_calorie}
+            />
+            <GoalCard
+              label="蛋白質"
+              unit="g"
+              rangeMin={protein_range?.min}
+              rangeMax={protein_range?.max}
+              actual={snapshot.actual_protein}
+            />
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:max-w-xs">
+            <Stat
+              label={
+                <>
+                  <Utensils className="size-3 text-muted-foreground" />
+                  每日餐數
+                </>
+              }
+              value={meals_per_day}
+              unit="餐"
+            />
           </div>
         </div>
 
