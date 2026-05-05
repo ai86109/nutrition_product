@@ -320,6 +320,7 @@ export default function AdminProductTable({ products }: AdminProductTableProps) 
                       <AdminProductImagesCell
                         licenseNo={p.license_no}
                         productName={p.name_zh ?? p.license_no}
+                        imageCount={p.image_count}
                       />
                     </TableCell>
                     <TableCell>

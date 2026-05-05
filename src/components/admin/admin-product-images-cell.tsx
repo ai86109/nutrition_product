@@ -8,15 +8,18 @@ import AdminProductImagesSheet from '@/components/admin/admin-product-images-she
 interface AdminProductImagesCellProps {
   licenseNo: string
   productName: string
+  imageCount: number
 }
 
 /**
  * 產品 admin table 內的「圖片」欄按鈕。
  * 點擊後開啟 AdminProductImagesSheet（lazy：sheet 開啟時才 fetch 圖片清單）。
+ * imageCount 由 get_admin_product_list RPC 帶回，直接顯示不需額外 fetch。
  */
 export default function AdminProductImagesCell({
   licenseNo,
   productName,
+  imageCount,
 }: AdminProductImagesCellProps) {
   const [open, setOpen] = useState(false)
 
@@ -27,9 +30,16 @@ export default function AdminProductImagesCell({
         size="sm"
         onClick={() => setOpen(true)}
         className="h-8 px-2 text-muted-foreground hover:text-foreground"
-        aria-label={`管理 ${productName} 的圖片`}
+        aria-label={`管理 ${productName} 的圖片（${imageCount} 張）`}
       >
         <Images className="h-4 w-4" />
+        {imageCount > 0 ? (
+          <span className="ml-1 text-xs font-medium tabular-nums text-foreground">
+            {imageCount}
+          </span>
+        ) : (
+          <span className="ml-1 text-xs tabular-nums">0</span>
+        )}
         <span className="ml-1 text-xs">管理</span>
       </Button>
 

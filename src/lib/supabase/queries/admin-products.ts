@@ -19,6 +19,7 @@ export interface AdminProductListItem {
   license_expiry_date: string | null
   product_status: ProductStatus | null
   has_nutrition_facts: boolean
+  image_count: number
 }
 
 export async function getAdminProductList(): Promise<AdminProductListItem[]> {
