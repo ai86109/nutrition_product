@@ -37,30 +37,29 @@ function CalorieTooltip({
   if (!active || !payload || payload.length === 0) return null
   const data = payload[0].payload as CalorieTooltipPayload
 
-  // 與主畫面 CalorieHeroCard 一致的狀態文字
-  let statusText: string | null = null
-  if (data.actual != null && data.min != null && data.max != null) {
-    const minVal = Math.min(data.min, data.max)
-    const maxVal = Math.max(data.min, data.max)
-    if (data.actual >= minVal && data.actual <= maxVal) {
-      statusText = "符合目標範圍"
-    } else {
-      const isBelow = data.actual < minVal
-      const deviation = Number(
-        (isBelow ? minVal - data.actual : data.actual - maxVal).toFixed(1)
-      )
-      statusText = `${isBelow ? "低於" : "高於"}目標範圍 ${deviation} kcal`
+  let achievementText: string | null = null
+  if (data.actual != null) {
+    if (data.min != null && data.max != null) {
+      const minPct = ((data.actual / data.min) * 100).toFixed(0)
+      const maxPct = ((data.actual / data.max) * 100).toFixed(0)
+      achievementText = `${minPct}% ~ ${maxPct}%`
+    } else if (data.min != null) {
+      achievementText = `${((data.actual / data.min) * 100).toFixed(0)}%`
+    } else if (data.max != null) {
+      achievementText = `${((data.actual / data.max) * 100).toFixed(0)}%`
     }
   }
 
   return (
     <div className="rounded-md border bg-background px-3 py-2 text-xs shadow-md">
       <div className="font-medium tabular-nums">{formatFullDate(data.ts)}</div>
-      {data.min != null && data.max != null && (
+      {(data.min != null || data.max != null) && (
         <div className="mt-0.5 tabular-nums">
           目標{" "}
           <span style={{ color: COLOR_RANGE }} className="font-medium">
-            {data.min} ~ {data.max}
+            {data.min != null && data.max != null
+              ? `${data.min} ~ ${data.max}`
+              : (data.min ?? data.max)}
           </span>{" "}
           <span className="text-muted-foreground">kcal</span>
         </div>
@@ -74,8 +73,11 @@ function CalorieTooltip({
           <span className="text-muted-foreground">kcal</span>
         </div>
       )}
-      {statusText && (
-        <div className="mt-0.5 font-medium">{statusText}</div>
+      {achievementText && (
+        <div className="mt-0.5 tabular-nums">
+          達成率{" "}
+          <span className="font-medium">{achievementText}</span>
+        </div>
       )}
     </div>
   )

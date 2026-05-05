@@ -83,6 +83,31 @@ function isValidNumber(v: unknown): v is number {
   return typeof v === "number" && Number.isFinite(v)
 }
 
+/**
+ * 將 min/max 轉成 Recharts floating bar 所需的 [bottom, top]。
+ * - 兩值都有且不相等 → 直接使用
+ * - 只有一值，或兩值相同 → 加上視覺偏移（±1%，最少 2 單位）使柱子有高度
+ */
+function buildDisplayRange(
+  min: number | null,
+  max: number | null
+): [number, number] | null {
+  const hasMin = isValidNumber(min)
+  const hasMax = isValidNumber(max)
+  if (!hasMin && !hasMax) return null
+
+  const lo = hasMin ? min! : max!
+  const hi = hasMax ? max! : min!
+  const sorted: [number, number] = [Math.min(lo, hi), Math.max(lo, hi)]
+
+  if (sorted[0] === sorted[1]) {
+    const offset = Math.max(sorted[0] * 0.01, 2)
+    return [sorted[0] - offset, sorted[1] + offset]
+  }
+
+  return sorted
+}
+
 export function useSnapshotTrendData(
   snapshots: PatientSnapshot[]
 ): SnapshotTrendData {
@@ -112,26 +137,34 @@ export function useSnapshotTrendData(
 
       const cr = s.calorie_range
       const ca = s.actual_calorie
-      const hasCalorieRange = cr && isValidNumber(cr.min) && isValidNumber(cr.max)
+      const hasCalorieMin = cr != null && isValidNumber(cr.min)
+      const hasCalorieMax = cr != null && isValidNumber(cr.max)
+      const hasCalorieRange = hasCalorieMin || hasCalorieMax
       if (hasCalorieRange || isValidNumber(ca)) {
+        const cMin = hasCalorieMin ? (cr!.min as number) : null
+        const cMax = hasCalorieMax ? (cr!.max as number) : null
         calorie.push({
           ...base,
-          min: hasCalorieRange ? cr!.min : null,
-          max: hasCalorieRange ? cr!.max : null,
-          range: hasCalorieRange ? [cr!.min as number, cr!.max as number] : null,
+          min: cMin,
+          max: cMax,
+          range: buildDisplayRange(cMin, cMax),
           actual: isValidNumber(ca) ? ca : null,
         })
       }
 
       const pr = s.protein_range
       const pa = s.actual_protein
-      const hasRange = pr && isValidNumber(pr.min) && isValidNumber(pr.max)
+      const hasProteinMin = pr != null && isValidNumber(pr.min)
+      const hasProteinMax = pr != null && isValidNumber(pr.max)
+      const hasRange = hasProteinMin || hasProteinMax
       if (hasRange || isValidNumber(pa)) {
+        const pMin = hasProteinMin ? (pr!.min as number) : null
+        const pMax = hasProteinMax ? (pr!.max as number) : null
         protein.push({
           ...base,
-          min: hasRange ? pr!.min : null,
-          max: hasRange ? pr!.max : null,
-          range: hasRange ? [pr!.min as number, pr!.max as number] : null,
+          min: pMin,
+          max: pMax,
+          range: buildDisplayRange(pMin, pMax),
           actual: isValidNumber(pa) ? pa : null,
         })
       }

@@ -36,14 +36,29 @@ function ProteinTooltip({
 }: TooltipProps<number, string>) {
   if (!active || !payload || payload.length === 0) return null
   const data = payload[0].payload as ProteinTooltipPayload
+  let achievementText: string | null = null
+  if (data.actual != null) {
+    if (data.min != null && data.max != null) {
+      const minPct = ((data.actual / data.min) * 100).toFixed(0)
+      const maxPct = ((data.actual / data.max) * 100).toFixed(0)
+      achievementText = `${minPct}% ~ ${maxPct}%`
+    } else if (data.min != null) {
+      achievementText = `${((data.actual / data.min) * 100).toFixed(0)}%`
+    } else if (data.max != null) {
+      achievementText = `${((data.actual / data.max) * 100).toFixed(0)}%`
+    }
+  }
+
   return (
     <div className="rounded-md border bg-background px-3 py-2 text-xs shadow-md">
       <div className="font-medium tabular-nums">{formatFullDate(data.ts)}</div>
-      {data.min != null && data.max != null && (
+      {(data.min != null || data.max != null) && (
         <div className="mt-0.5 tabular-nums">
           目標{" "}
           <span style={{ color: COLOR_RANGE }} className="font-medium">
-            {data.min} ~ {data.max}
+            {data.min != null && data.max != null
+              ? `${data.min} ~ ${data.max}`
+              : (data.min ?? data.max)}
           </span>{" "}
           <span className="text-muted-foreground">g</span>
         </div>
@@ -55,6 +70,12 @@ function ProteinTooltip({
             {data.actual}
           </span>{" "}
           <span className="text-muted-foreground">g</span>
+        </div>
+      )}
+      {achievementText && (
+        <div className="mt-0.5 tabular-nums">
+          達成率{" "}
+          <span className="font-medium">{achievementText}</span>
         </div>
       )}
     </div>
