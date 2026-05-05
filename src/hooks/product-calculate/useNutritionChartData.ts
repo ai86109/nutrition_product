@@ -2,22 +2,23 @@ import { useCallback, useMemo } from "react"
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import { useBioInfoCalculations } from "../useBioInfoCalculations"
 
-const DEFAULT_PROTEIN_RANGE = { min: '0', max: '0' } as const
+const DEFAULT_RANGE = { min: '0', max: '0' } as const
 
 export function useNutritionChartData() {
   const { rounding } = useBioInfoCalculations()
-  const { tdee, proteinRange } = useBioInfo()
+  const { calorieRange, proteinRange } = useBioInfo()
 
-  const safeProteinRange = proteinRange || DEFAULT_PROTEIN_RANGE
-  
+  const safeCalorieRange = calorieRange || DEFAULT_RANGE
+  const safeProteinRange = proteinRange || DEFAULT_RANGE
+
   const getPercentage = useCallback((value: number): number => {
     return rounding(value * 100, 1)
   }, [rounding])
 
   const validationState = useMemo(() => ({
-    isTdeeValid: !isNaN(Number(tdee)) && Number(tdee) > 0,
+    isCalorieRangeValid: [safeCalorieRange.min, safeCalorieRange.max].every(val => Number(val) > 0),
     isProteinRangeValid: [safeProteinRange.min, safeProteinRange.max].every(val => Number(val) > 0)
-  }), [tdee, safeProteinRange])
+  }), [safeCalorieRange, safeProteinRange])
 
   const createChartData = useCallback((
     value: number,
@@ -38,9 +39,11 @@ export function useNutritionChartData() {
   }, [getPercentage])
 
   const getCaloriesChartData = useCallback((calories: number) => {
-    if (!validationState.isTdeeValid) return []
-    return createChartData(calories, Number(tdee), "calories")
-  }, [createChartData, tdee, validationState.isTdeeValid])
+    if (!validationState.isCalorieRangeValid) return []
+    // 以最小值作為計算基準（與 meal-servings 一致）
+    const minCalorieRequirement = Math.min(Number(safeCalorieRange.min), Number(safeCalorieRange.max))
+    return createChartData(calories, minCalorieRequirement, "calories")
+  }, [createChartData, safeCalorieRange, validationState.isCalorieRangeValid])
 
   const getProteinChartData = useCallback((protein: number) => {
     if (!validationState.isProteinRangeValid) return []

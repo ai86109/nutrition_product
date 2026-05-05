@@ -21,10 +21,11 @@ export default function ProductCalculateSection() {
   const { loadingProductIds, productList } = useProduct()
   const { ingredientsData } = useIngredientCalculation(listData)
   const { mealsPerDay, isCalculateServings, setIsCalculateServings, handleMealsInputChange } = useMealCalculation()
-  const { tdee } = useBioInfo();
+  const { calorieRange } = useBioInfo();
+  const calorieMin = Math.min(Number(calorieRange.min), Number(calorieRange.max))
 
-  const isServingsCanBeUsed = Number(tdee) > 0 && listData.filter((item) => item.checked).length === 1
-  const isShowServings = isCalculateServings && typeof mealsPerDay == 'number' && mealsPerDay > 0 && Number(tdee) > 0
+  const isServingsCanBeUsed = calorieMin > 0 && listData.filter((item) => item.checked).length === 1
+  const isShowServings = isCalculateServings && typeof mealsPerDay == 'number' && mealsPerDay > 0 && calorieMin > 0
   const hasAnyProduct = productList.length > 0
 
   return (

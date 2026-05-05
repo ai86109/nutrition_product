@@ -1,7 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useState, ReactNode } from 'react'
-import { FormData, Gender, SubmittedValues, CalorieType, ProteinRange, BioInfoContextType } from '@/types'
+import { FormData, Gender, SubmittedValues, CalorieType, ProteinRange, CalorieRange, BioInfoContextType } from '@/types'
 
 export const DEFAULT_CALORIE_TYPE_SETTINGS: CalorieType[] = [
   { id: 'PBW', label: 'PBW', checked: true },
@@ -26,7 +26,7 @@ export function BioInfoProvider({ children }: { children: ReactNode }) {
   })
 
   const [calorieTypeLists, setCalorieTypeLists] = useState<CalorieType[]>(DEFAULT_CALORIE_TYPE_SETTINGS)
-  const [tdee, setTdee] = useState<number | string>("")
+  const [calorieRange, setCalorieRange] = useState<CalorieRange>({ min: "", max: "" })
   const [proteinRange, setProteinRange] = useState<ProteinRange>({
     min: "",
     max: "",
@@ -42,8 +42,8 @@ export function BioInfoProvider({ children }: { children: ReactNode }) {
       setSubmittedValues,
       calorieTypeLists,
       setCalorieTypeLists,
-      tdee,
-      setTdee,
+      calorieRange,
+      setCalorieRange,
       proteinRange,
       setProteinRange,
     }}>

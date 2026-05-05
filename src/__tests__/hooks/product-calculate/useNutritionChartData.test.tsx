@@ -10,49 +10,49 @@ describe('useNutritionChartData', () => {
   beforeEach(() => {
     jest.clearAllMocks()
     mockUseBioInfo.mockReturnValue({
-      tdee: '',
+      calorieRange: { min: '', max: '' },
       proteinRange: { min: '', max: '' }
     })
   })
 
   describe('validationState', () => {
-    describe('isTdeeValid', () => {
-      test('valid when tdee is a positive number string', () => {
+    describe('isCalorieRangeValid', () => {
+      test('valid when both min and max are positive number strings', () => {
         mockUseBioInfo.mockReturnValue({
-          tdee: '2000',
+          calorieRange: { min: '1500', max: '2000' },
         })
         const { result } = renderHook(() => useNutritionChartData())
-        expect(result.current.isTdeeValid).toBe(true)
+        expect(result.current.isCalorieRangeValid).toBe(true)
       })
 
-      test('tdee is empty string', () => {
+      test('invalid when calorie range is empty strings', () => {
         mockUseBioInfo.mockReturnValue({
-          tdee: '',
+          calorieRange: { min: '', max: '' },
         })
         const { result } = renderHook(() => useNutritionChartData())
-        expect(result.current.isTdeeValid).toBe(false)
+        expect(result.current.isCalorieRangeValid).toBe(false)
       })
 
-      test('invalid when tdee is zero or negative number string', () => {
+      test('invalid when min or max is zero or negative', () => {
         mockUseBioInfo.mockReturnValue({
-          tdee: '0',
+          calorieRange: { min: '0', max: '2000' },
         })
         const { result } = renderHook(() => useNutritionChartData())
-        expect(result.current.isTdeeValid).toBe(false)
+        expect(result.current.isCalorieRangeValid).toBe(false)
 
         mockUseBioInfo.mockReturnValue({
-          tdee: '-1500',
+          calorieRange: { min: '-1500', max: '2000' },
         })
         const { result: result2 } = renderHook(() => useNutritionChartData())
-        expect(result2.current.isTdeeValid).toBe(false)
+        expect(result2.current.isCalorieRangeValid).toBe(false)
       })
 
-      test('invalid when tdee is non-numeric string', () => {
+      test('invalid when calorie range contains non-numeric string', () => {
         mockUseBioInfo.mockReturnValue({
-          tdee: 'abc',
+          calorieRange: { min: 'abc', max: '2000' },
         })
         const { result } = renderHook(() => useNutritionChartData())
-        expect(result.current.isTdeeValid).toBe(false)
+        expect(result.current.isCalorieRangeValid).toBe(false)
       })
     })
 
@@ -113,19 +113,25 @@ describe('useNutritionChartData', () => {
   })
 
   describe('getCaloriesChartData', () => {
-    test('returns empty array if isTdeeValid is false', () => {
-      const invalidTdeeValues = ['', '0', '-2000', 'abc'];
-      
-      invalidTdeeValues.forEach(tdee => {
-        mockUseBioInfo.mockReturnValue({ tdee });
+    test('returns empty array if isCalorieRangeValid is false', () => {
+      const invalidRanges = [
+        { min: '', max: '' },
+        { min: '0', max: '2000' },
+        { min: '-2000', max: '2500' },
+        { min: 'abc', max: '2000' },
+      ];
+
+      invalidRanges.forEach(calorieRange => {
+        mockUseBioInfo.mockReturnValue({ calorieRange });
         const { result } = renderHook(() => useNutritionChartData());
         expect(result.current.getCaloriesChartData(1500)).toEqual([]);
       });
     })
 
-    test('returns correct chart data when calories are below TDEE', () => {
+    test('returns correct chart data when calories are below calorie range min', () => {
+      // min=2000, max=2500 → target = min = 2000; 1500/2000 = 75%
       mockUseBioInfo.mockReturnValue({
-        tdee: '2000',
+        calorieRange: { min: '2000', max: '2500' },
       })
       const { result } = renderHook(() => useNutritionChartData())
       expect(result.current.getCaloriesChartData(1500)).toEqual([{
@@ -136,9 +142,10 @@ describe('useNutritionChartData', () => {
       }])
     })
 
-    test('returns correct chart data when calories exceed TDEE', () => {
+    test('returns correct chart data when calories exceed calorie range min', () => {
+      // min=2000, max=2500 → target = min = 2000; 3000/2000 = 150% → capped at 100
       mockUseBioInfo.mockReturnValue({
-        tdee: '2000',
+        calorieRange: { min: '2000', max: '2500' },
       })
       const { result } = renderHook(() => useNutritionChartData())
       expect(result.current.getCaloriesChartData(3000)).toEqual([{
@@ -151,7 +158,7 @@ describe('useNutritionChartData', () => {
 
     test('returns empty array when calories is zero or negative', () => {
       mockUseBioInfo.mockReturnValue({
-        tdee: '2000',
+        calorieRange: { min: '2000', max: '2500' },
       })
       const { result } = renderHook(() => useNutritionChartData())
       expect(result.current.getCaloriesChartData(0)).toEqual([])
@@ -161,7 +168,7 @@ describe('useNutritionChartData', () => {
     test('returns empty array when calories is a non-numeric value', () => {
       const nonNumericValues = [NaN, Infinity, -Infinity]
       mockUseBioInfo.mockReturnValue({
-        tdee: '2000',
+        calorieRange: { min: '2000', max: '2500' },
       })
       nonNumericValues.forEach(value => {
         const { result } = renderHook(() => useNutritionChartData())

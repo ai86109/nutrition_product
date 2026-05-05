@@ -39,6 +39,11 @@ export interface SnapshotProteinRange {
   max: number | null
 }
 
+export interface SnapshotCalorieRange {
+  min: number | null
+  max: number | null
+}
+
 // 凍結顯示用的選取營養品資訊（即使原始產品被改名/下架也能正確顯示）
 export interface SnapshotSelectedProduct {
   license_no?: string
@@ -62,7 +67,7 @@ export interface PatientSnapshot {
   patient_id: string
   user_id: string
   bio_info: SnapshotBioInfo
-  calorie_target: number | null
+  calorie_range: SnapshotCalorieRange | null
   protein_range: SnapshotProteinRange | null
   meals_per_day: number | null
   actual_calorie: number | null

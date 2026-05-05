@@ -51,7 +51,10 @@ interface CalculateDailyServingsPerMealProps {
 
 export function MealServingsCalculation({ mealsPerDay, item }: CalculateDailyServingsPerMealProps): React.ReactElement {
   const { rounding } = useBioInfoCalculations()
-  const { tdee } = useBioInfo();
+  const { calorieRange } = useBioInfo();
+
+  // 以熱量區間最小值計算（最小值需大於 0）
+  const calorieMin = Math.min(Number(calorieRange.min), Number(calorieRange.max))
 
   // get current ratio
   const { select, defaultAmount, ingredients } = item
@@ -63,15 +66,15 @@ export function MealServingsCalculation({ mealsPerDay, item }: CalculateDailySer
 
   const ratio = currentAmount / defaultAmount
 
-  // calculate servings per meal
-  const servingsPerMeal = ((Number(tdee)) / Number(mealsPerDay)) / ((ingredients.calories ?? 0) * ratio)
+  // calculate servings per meal（以熱量區間最小值為基準）
+  const servingsPerMeal = (calorieMin / Number(mealsPerDay)) / ((ingredients.calories ?? 0) * ratio)
   const unit = getProductUnit(select)
   const proteinPerMeal = ((ingredients.protein ?? 0) * ratio) * servingsPerMeal
 
   return (
     <div className="bg-blue-50 p-2 rounded w-[200px] text-wrap lg:w-auto">
       <p>
-        <span className="font-bold">每餐需要 {rounding(servingsPerMeal)} {unit} = {rounding(currentAmount * servingsPerMeal)}{CALC_UNIT_MAPPINGS[unit]}</span>
+        <span className="font-bold">每餐至少需要 {rounding(servingsPerMeal)} {unit} = {rounding(currentAmount * servingsPerMeal)}{CALC_UNIT_MAPPINGS[unit]}</span>
         <span>（總共 {rounding(servingsPerMeal * Number(mealsPerDay))} {unit} = {rounding(currentAmount * servingsPerMeal * Number(mealsPerDay))}{CALC_UNIT_MAPPINGS[unit]}）</span>
       </p>
       <ProteinRangeBlock proteinPerMeal={proteinPerMeal} mealsPerDay={mealsPerDay} />

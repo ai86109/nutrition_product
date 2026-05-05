@@ -8,8 +8,10 @@ function makeSnap(overrides: Partial<PatientSnapshot> = {}): PatientSnapshot {
     patient_id: "p1",
     user_id: "u1",
     bio_info: { height: null, weight: null, gender: null },
-    calorie_target: null,
+    calorie_range: null,
     protein_range: null,
+    actual_calorie: null,
+    actual_protein: null,
     meals_per_day: null,
     selected_products: [],
     notes: null,
@@ -63,16 +65,40 @@ describe("useSnapshotTrendData", () => {
     expect(result.current.weight[0].snapshotId).toBe("b")
   })
 
-  test("filters out points with null calorie_target per series", () => {
+  test("includes calorie only when both min and max are finite numbers", () => {
     const noCal = makeSnap({ id: "a" })
-    const withCal = makeSnap({
+    const onlyMin = makeSnap({
+      id: "min-only",
+      created_at: "2026-01-15T00:00:00Z",
+      calorie_range: { min: 1800, max: null },
+    })
+    const withRange = makeSnap({
       id: "b",
       created_at: "2026-02-01T00:00:00Z",
-      calorie_target: 2000,
+      calorie_range: { min: 1800, max: 2000 },
     })
-    const { result } = renderHook(() => useSnapshotTrendData([noCal, withCal]))
+    const { result } = renderHook(() =>
+      useSnapshotTrendData([noCal, onlyMin, withRange])
+    )
     expect(result.current.calorie).toHaveLength(1)
-    expect(result.current.calorie[0].value).toBe(2000)
+    expect(result.current.calorie[0].snapshotId).toBe("b")
+    expect(result.current.calorie[0].range).toEqual([1800, 2000])
+    expect(result.current.calorie[0].min).toBe(1800)
+    expect(result.current.calorie[0].max).toBe(2000)
+  })
+
+  test("includes calorie point when only actual_calorie is set (range null)", () => {
+    const onlyActual = makeSnap({
+      id: "actual",
+      created_at: "2026-02-10T00:00:00Z",
+      actual_calorie: 1750,
+    })
+    const { result } = renderHook(() => useSnapshotTrendData([onlyActual]))
+    expect(result.current.calorie).toHaveLength(1)
+    expect(result.current.calorie[0].range).toBeNull()
+    expect(result.current.calorie[0].min).toBeNull()
+    expect(result.current.calorie[0].max).toBeNull()
+    expect(result.current.calorie[0].actual).toBe(1750)
   })
 
   test("includes protein only when both min and max are finite numbers", () => {

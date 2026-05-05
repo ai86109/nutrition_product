@@ -14,7 +14,7 @@ import {
  *
  * - 輸入順序不限（queries 拿回來是 effective date desc，這裡內部用 compareByEffectiveDateAsc 排）
  * - 各指標分別過濾 null：某筆 snapshot 沒有體重，weight 序列就跳過該筆
- * - 蛋白質範圍要 min 和 max 都是有效數字才算一筆
+ * - 熱量／蛋白質範圍要 min 和 max 都是有效數字才算一筆
  * - 時間軸用 effective date：snapshot_date 有值用它；沒有 fallback 到 created_at::date
  * - productHistory：含配方的 snapshot，按 effective date 降序（最新在前）
  */
@@ -34,10 +34,11 @@ export interface WeightPoint extends TrendPointBase {
 }
 
 export interface CaloriePoint extends TrendPointBase {
-  value: number | null
+  min: number | null
+  max: number | null
+  /** [min, max] — 直接給 Recharts Bar 的 dataKey 當 floating bar 用 */
+  range: [number, number] | null
   actual: number | null
-  /** 實際 / 目標 × 100，兩者皆有時才有值 */
-  pct: number | null
 }
 
 export interface ProteinPoint extends TrendPointBase {
@@ -109,18 +110,16 @@ export function useSnapshotTrendData(
         })
       }
 
-      const c = s.calorie_target
+      const cr = s.calorie_range
       const ca = s.actual_calorie
-      if (isValidNumber(c) || isValidNumber(ca)) {
-        const pct =
-          isValidNumber(c) && isValidNumber(ca) && c > 0
-            ? Math.round((ca / c) * 100)
-            : null
+      const hasCalorieRange = cr && isValidNumber(cr.min) && isValidNumber(cr.max)
+      if (hasCalorieRange || isValidNumber(ca)) {
         calorie.push({
           ...base,
-          value: isValidNumber(c) ? c : null,
+          min: hasCalorieRange ? cr!.min : null,
+          max: hasCalorieRange ? cr!.max : null,
+          range: hasCalorieRange ? [cr!.min as number, cr!.max as number] : null,
           actual: isValidNumber(ca) ? ca : null,
-          pct,
         })
       }
 

@@ -1,9 +1,9 @@
 import { createClient } from '@/utils/supabase/client'
-import type { PatientSnapshot, PatientSnapshotInput, SnapshotBioInfo, SnapshotProteinRange, SnapshotSelectedProduct } from '@/types/patient'
+import type { PatientSnapshot, PatientSnapshotInput, SnapshotBioInfo, SnapshotCalorieRange, SnapshotProteinRange, SnapshotSelectedProduct } from '@/types/patient'
 
 export interface SnapshotEditableFields {
   bio_info: SnapshotBioInfo
-  calorie_target: number | null
+  calorie_range: SnapshotCalorieRange | null
   protein_range: SnapshotProteinRange | null
   meals_per_day: number | null
   actual_calorie: number | null

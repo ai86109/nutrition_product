@@ -58,7 +58,8 @@ export default function SaveSnapshotDialog({
   const [gender, setGender] = useState<Gender>("man")
 
   // Targets
-  const [calorieTarget, setCalorieTarget] = useState<string>("")
+  const [calorieMin, setCalorieMin] = useState<string>("")
+  const [calorieMax, setCalorieMax] = useState<string>("")
   const [proteinMin, setProteinMin] = useState<string>("")
   const [proteinMax, setProteinMax] = useState<string>("")
   const [mealsCheck, setMealsCheck] = useState<boolean>(false)
@@ -110,9 +111,14 @@ export default function SaveSnapshotDialog({
     setWeight(bi.weight != null ? String(bi.weight) : "")
     setGender((bi.gender ?? "man") as Gender)
 
-    setCalorieTarget(
-      initialValues.calorie_target != null
-        ? String(initialValues.calorie_target)
+    setCalorieMin(
+      initialValues.calorie_range?.min != null
+        ? String(initialValues.calorie_range.min)
+        : ""
+    )
+    setCalorieMax(
+      initialValues.calorie_range?.max != null
+        ? String(initialValues.calorie_range.max)
         : ""
     )
     setProteinMin(
@@ -192,7 +198,9 @@ export default function SaveSnapshotDialog({
     // 組 snapshot input
     const heightNum = height === "" ? null : Number(height)
     const weightNum = weight === "" ? null : Number(weight)
-    const calorieNum = calorieTarget === "" ? null : Number(calorieTarget)
+    const calorieMinNum = calorieMin === "" ? null : Number(calorieMin)
+    const calorieMaxNum = calorieMax === "" ? null : Number(calorieMax)
+    const hasCalorie = calorieMinNum !== null || calorieMaxNum !== null
     const proteinMinNum = proteinMin === "" ? null : Number(proteinMin)
     const proteinMaxNum = proteinMax === "" ? null : Number(proteinMax)
     const hasProtein = proteinMinNum !== null || proteinMaxNum !== null
@@ -211,11 +219,16 @@ export default function SaveSnapshotDialog({
         weight: weightNum,
         gender,
       },
-      calorie_target: calorieNum,
+      calorie_range: hasCalorie
+        ? { min: calorieMinNum, max: calorieMaxNum }
+        : null,
       protein_range: hasProtein
         ? { min: proteinMinNum, max: proteinMaxNum }
         : null,
       meals_per_day: mealsNum,
+      // 新建 snapshot 時不收實際攝取量，留待之後在編輯 dialog 補
+      actual_calorie: null,
+      actual_protein: null,
       selected_products: initialValues.selected_products,
       notes: notes.trim() === "" ? null : notes.trim(),
       // 新建時不指定 snapshot_date，由使用者之後在病人頁編輯
@@ -373,9 +386,18 @@ export default function SaveSnapshotDialog({
               <span className="text-sm w-[80px]">熱量(kcal)</span>
               <Input
                 type="number"
-                className="w-[120px]"
-                value={calorieTarget}
-                onChange={(e) => setCalorieTarget(e.target.value)}
+                placeholder="最小值"
+                className="w-[100px]"
+                value={calorieMin}
+                onChange={(e) => setCalorieMin(e.target.value)}
+              />
+              <span>-</span>
+              <Input
+                type="number"
+                placeholder="最大值"
+                className="w-[100px]"
+                value={calorieMax}
+                onChange={(e) => setCalorieMax(e.target.value)}
               />
             </div>
 

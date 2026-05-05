@@ -26,7 +26,7 @@ export function useCurrentSnapshot({
   isCalculateServings,
   mealsPerDay,
 }: UseCurrentSnapshotArgs): Omit<PatientSnapshotInput, "patient_id"> {
-  const { formData, gender, tdee, proteinRange } = useBioInfo()
+  const { formData, gender, calorieRange, proteinRange } = useBioInfo()
 
   return useMemo(() => {
     // 從每筆勾選的 listData 萃出 serving 資訊
@@ -69,10 +69,11 @@ export function useCurrentSnapshot({
     const heightNum = Number(formData.height) || null
     const weightNum = Number(formData.weight) || null
 
-    const calorieNum =
-      tdee === "" || tdee === null || tdee === undefined
-        ? null
-        : Number(tdee)
+    const calorieMin =
+      calorieRange.min === "" ? null : Number(calorieRange.min)
+    const calorieMax =
+      calorieRange.max === "" ? null : Number(calorieRange.max)
+    const hasCalorie = calorieMin !== null || calorieMax !== null
 
     const proteinMin =
       proteinRange.min === "" ? null : Number(proteinRange.min)
@@ -91,9 +92,12 @@ export function useCurrentSnapshot({
         weight: weightNum,
         gender,
       },
-      calorie_target: calorieNum,
+      calorie_range: hasCalorie ? { min: calorieMin, max: calorieMax } : null,
       protein_range: hasProtein ? { min: proteinMin, max: proteinMax } : null,
       meals_per_day: mealsNum,
+      // 新建 snapshot 時不收實際攝取量，留待之後在編輯 dialog 補
+      actual_calorie: null,
+      actual_protein: null,
       selected_products: selectedProducts,
       notes: null,
       // 新建時不指定 snapshot_date，由使用者之後在病人頁編輯
@@ -102,7 +106,7 @@ export function useCurrentSnapshot({
   }, [
     formData,
     gender,
-    tdee,
+    calorieRange,
     proteinRange,
     listData,
     isCalculateServings,

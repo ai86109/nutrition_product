@@ -213,7 +213,7 @@ export default function SnapshotCard({
 
   const {
     bio_info,
-    calorie_target,
+    calorie_range,
     protein_range,
     meals_per_day,
     selected_products,
@@ -222,6 +222,11 @@ export default function SnapshotCard({
 
   const genderLabel =
     bio_info.gender === "man" ? "男" : bio_info.gender === "woman" ? "女" : null
+
+  const calorieDisplay =
+    calorie_range && (calorie_range.min !== null || calorie_range.max !== null)
+      ? `${calorie_range.min ?? "—"} ~ ${calorie_range.max ?? "—"}`
+      : null
 
   const proteinDisplay =
     protein_range && (protein_range.min !== null || protein_range.max !== null)
@@ -378,7 +383,7 @@ export default function SnapshotCard({
           <div className="space-y-2">
             <SectionHeader icon={<Target />} label="每日目標" />
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              <Stat label="目標熱量" value={calorie_target} unit="kcal" />
+              <Stat label="目標熱量範圍" value={calorieDisplay} unit="kcal" />
               <Stat label="蛋白質範圍" value={proteinDisplay} unit="g" />
               <Stat label="每日餐數" value={meals_per_day} unit="餐" />
               <Stat label="實際熱量" value={snapshot.actual_calorie} unit="kcal" />

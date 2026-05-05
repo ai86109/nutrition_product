@@ -15,6 +15,7 @@ import {
 } from "@/utils/constants"
 
 const BAR_BASE_COLOR = "#ad7c48"
+const TICK_COLOR = "rgba(0, 0, 0, 0.45)"
 
 type DrisItem = { item: string; value: number | number[] }
 
@@ -23,23 +24,59 @@ type WomanState =
   | null
 
 /**
- * 進度條 — 條塊最多畫到 100%，文字顯示實際 %（即使超標）。
- * 跟現有 nutrition-bar-chart.tsx 的邏輯一致。
+ * 區間進度條：
+ *  - 條塊 0–100% 對應 0–maxValue；超過 max 的部分 cap 在 100%
+ *  - minValue 位置畫一條刻度線
+ *  - 條塊下方：左側顯示 %數區間（value/max% ~ value/min%），右側顯示 min / max 數字
  */
-function ProgressBar({ percentage }: { percentage: number }) {
-  const fill = Math.min(percentage, 100)
+function CalorieRangeBar({
+  value,
+  minValue,
+  maxValue,
+}: {
+  value: number
+  minValue: number
+  maxValue: number
+}) {
+  if (maxValue <= 0) return null
+  const fillPct = Math.min((value / maxValue) * 100, 100)
+  const minPct = Math.min(Math.max((minValue / maxValue) * 100, 0), 100)
+
+  const pctOfMax = Number(((value / maxValue) * 100).toFixed(1))
+  const pctOfMin = minValue > 0 ? Number(((value / minValue) * 100).toFixed(1)) : null
+  const pctLabel =
+    pctOfMin !== null
+      ? `${Math.max(pctOfMax, pctOfMin)}% ~ ${Math.min(pctOfMax, pctOfMin)}%`
+      : `${pctOfMax}%`
+
   return (
-    <div
-      className="h-2 w-full rounded-full bg-muted overflow-hidden"
-      role="progressbar"
-      aria-valuenow={percentage}
-      aria-valuemin={0}
-      aria-valuemax={100}
-    >
+    <div className="space-y-1">
       <div
-        className="h-full rounded-full transition-[width]"
-        style={{ width: `${fill}%`, backgroundColor: BAR_BASE_COLOR }}
-      />
+        className="relative h-2 w-full rounded-full bg-muted overflow-hidden"
+        role="progressbar"
+        aria-valuenow={value}
+        aria-valuemin={0}
+        aria-valuemax={maxValue}
+      >
+        <div
+          className="absolute inset-y-0 left-0 transition-[width]"
+          style={{ width: `${fillPct}%`, backgroundColor: BAR_BASE_COLOR }}
+        />
+        <div
+          className="absolute inset-y-0 w-[2px]"
+          style={{
+            left: `calc(${minPct}% - 1px)`,
+            backgroundColor: TICK_COLOR,
+          }}
+          aria-hidden
+        />
+      </div>
+      <div className="flex items-baseline justify-between text-xs">
+        <span className="font-bold tabular-nums">{pctLabel}</span>
+        <span className="text-muted-foreground tabular-nums">
+          {minValue} ~ {maxValue}
+        </span>
+      </div>
     </div>
   )
 }
@@ -104,26 +141,30 @@ export function CalorieHeroCard({
   state: WomanState
 }) {
   const { isLoggedIn } = useAuth()
-  const { tdee, submittedValues } = useBioInfo()
+  const { calorieRange, submittedValues } = useBioInfo()
   const { gender, age } = submittedValues
   const { pbw, ibw, abw } = useBioInfoCalculations()
-  const { isTdeeValid } = useNutritionChartData()
+  const { isCalorieRangeValid } = useNutritionChartData()
   const { drisContent } = useDRIsCalculation("calories", value, state, value)
 
-  // useNutritionChartData 回傳的 percentage 已經在 hook 內被 cap 到 100（給 recharts 畫條塊用），
-  // 這裡要顯示真實百分比給使用者看，所以自己算一次。
-  const tdeeNum = Number(tdee)
-  const percentage =
-    isTdeeValid && tdeeNum > 0 && value > 0
-      ? Number(((value / tdeeNum) * 100).toFixed(1))
-      : 0
+  const minVal = Math.min(Number(calorieRange.min), Number(calorieRange.max))
+  const maxVal = Math.max(Number(calorieRange.min), Number(calorieRange.max))
 
-  const showProgress = isTdeeValid && value > 0
+  const showRangeBar = isCalorieRangeValid && value > 0
   const hasGenderAndAge = !!gender && age > 0
   const hasReferenceLevels = !!drisContent && drisContent.length > 0
   const showReferenceLevels = hasGenderAndAge && hasReferenceLevels
   const showSubGrid =
     pbw > 0 || ibw > 0 || abw > 0 || showReferenceLevels
+
+  const isInRange = value >= minVal && value <= maxVal
+  const isBelow = value < minVal
+  const deviation = isInRange
+    ? 0
+    : Number((isBelow ? minVal - value : value - maxVal).toFixed(1))
+  const statusText = isInRange
+    ? "符合目標範圍"
+    : `${isBelow ? "低於" : "高於"}目標範圍 ${deviation} kcal`
 
   const label = NUTRIENT_LABELS["calories"] ?? "熱量"
   const unit = NUTRIENT_UNITS["calories"] ?? "kcal"
@@ -149,18 +190,15 @@ export function CalorieHeroCard({
         <span className="text-sm text-muted-foreground">{unit}</span>
       </div>
 
-      {/* Progress bar + 百分比/目標說明 */}
-      {showProgress ? (
-        <div className="space-y-1.5">
-          <ProgressBar percentage={percentage} />
-          <div className="flex items-baseline justify-between text-xs">
-            <span className="font-bold tabular-nums">{percentage}%</span>
-            <span className="text-muted-foreground">目標 {tdee} kcal</span>
-          </div>
+      {/* Range bar + 狀態文字 */}
+      {showRangeBar ? (
+        <div className="space-y-2">
+          <CalorieRangeBar value={value} minValue={minVal} maxValue={maxVal} />
+          <p className="text-xs font-bold">{statusText}</p>
         </div>
       ) : (
         <p className="text-xs text-muted-foreground">
-          {value > 0 ? "請先填寫目標熱量" : "尚未選擇營養品"}
+          {value > 0 ? "請先填寫目標熱量範圍" : "尚未選擇營養品"}
         </p>
       )}
 

@@ -26,6 +26,11 @@ export interface ProteinRange {
   max: number | string
 }
 
+export interface CalorieRange {
+  min: number | string
+  max: number | string
+}
+
 export interface BrandOption {
   id: string
   name: string
@@ -40,8 +45,8 @@ export interface BioInfoContextType {
   setSubmittedValues: React.Dispatch<React.SetStateAction<SubmittedValues>>
   calorieTypeLists: CalorieType[]
   setCalorieTypeLists: React.Dispatch<React.SetStateAction<CalorieType[]>>
-  tdee: number | string
-  setTdee: React.Dispatch<React.SetStateAction<number | string>>
+  calorieRange: CalorieRange
+  setCalorieRange: React.Dispatch<React.SetStateAction<CalorieRange>>
   proteinRange: ProteinRange
   setProteinRange: React.Dispatch<React.SetStateAction<ProteinRange>>
 }

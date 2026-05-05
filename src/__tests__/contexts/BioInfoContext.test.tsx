@@ -20,10 +20,10 @@ describe('BioInfoContext', () => {
       expect(result.current.calorieTypeLists).toEqual(DEFAULT_CALORIE_TYPE_SETTINGS)
     })
   
-    test('provides correct initial TDEE', () => {
+    test('provides correct initial calorie range', () => {
       const { result } = renderHook(() => useBioInfo(), { wrapper })
-  
-      expect(result.current.tdee).toBe("")
+
+      expect(result.current.calorieRange).toEqual({ min: "", max: "" })
     })
   
     test('provides correct initial protein range', () => {
@@ -135,14 +135,14 @@ describe('BioInfoContext', () => {
     })
   });
 
-  describe('update TDEE', () => {
-    test('sets TDEE correctly', () => {
+  describe('update calorie range', () => {
+    test('sets calorie range correctly', () => {
       const { result } = renderHook(() => useBioInfo(), { wrapper })
-  
+
       act(() => {
-        result.current.setTdee(2200)
+        result.current.setCalorieRange({ min: 1800, max: 2200 })
       })
-      expect(result.current.tdee).toBe(2200)
+      expect(result.current.calorieRange).toEqual({ min: 1800, max: 2200 })
     })
   });
 

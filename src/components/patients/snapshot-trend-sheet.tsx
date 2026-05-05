@@ -105,7 +105,10 @@ export function SnapshotTrendSheet({
   }
 
   const weightSummary = summarize(trend.weight.map((p) => p.value))
-  const calorieSummary = summarize(trend.calorie.map((p) => p.value))
+  const calorieSummary =
+    trend.calorie.length >= 2
+      ? `${trend.calorie[0].min}–${trend.calorie[0].max} → ${trend.calorie[trend.calorie.length - 1].min}–${trend.calorie[trend.calorie.length - 1].max}`
+      : undefined
   const proteinSummary =
     trend.protein.length >= 2
       ? `${trend.protein[0].min}–${trend.protein[0].max} → ${trend.protein[trend.protein.length - 1].min}–${trend.protein[trend.protein.length - 1].max}`
