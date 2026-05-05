@@ -29,6 +29,7 @@ import {
 import { getEffectiveDate } from "@/lib/snapshot-date"
 import { formatNumber } from "@/lib/utils"
 import { calculateAgeAt, formatBirthday } from "@/lib/age"
+import { calcBMI, calcABW } from "@/utils/nutrition-calculations"
 import type { Patient, PatientSnapshot } from "@/types/patient"
 
 interface SnapshotCardProps {
@@ -233,6 +234,9 @@ export default function SnapshotCard({
       ? `${protein_range.min ?? "—"} ~ ${protein_range.max ?? "—"}`
       : null
 
+  const bmi = calcBMI(bio_info.height ?? 0, bio_info.weight ?? 0)
+  const abw = calcABW(bio_info.height ?? 0, bio_info.weight ?? 0)
+
   return (
     <Card className="overflow-hidden p-0">
       {/* Header — 點擊切換展開；旁邊有編輯日期、刪除 */}
@@ -356,6 +360,8 @@ export default function SnapshotCard({
                 unit="歲"
               />
               <Stat label="性別" value={genderLabel} />
+              <Stat label="BMI" value={bmi} />
+              <Stat label="調整體重" value={abw} unit="kg" />
             </div>
             {(bio_info.edema || bio_info.pressure_sore) && (
               <div className="flex flex-wrap gap-2 mt-1">

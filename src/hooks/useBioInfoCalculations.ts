@@ -3,6 +3,7 @@
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import { useCallback, useMemo } from "react"
 import { NutritionCalculationsReturn } from "@/types"
+import { calcBMI, calcIBW, calcABW } from "@/utils/nutrition-calculations"
 
 const rounding = (value: number, digits: number = 2): number => {
   if (!isFinite(value) || isNaN(value)) return 0
@@ -19,21 +20,12 @@ export function useBioInfoCalculations(): NutritionCalculationsReturn {
 
   const bmi = useMemo((): number => {
     const { height, weight } = safeSubmittedValues
-    if (!height || !weight || height <= 0 || weight <= 0) return 0
-
-    const bmi = weight / ((height / 100) ** 2)
-
-    if (!isFinite(bmi) || isNaN(bmi)) return 0
-    return rounding(bmi, 1)
+    return calcBMI(height, weight) ?? 0
   }, [safeSubmittedValues])
 
   const ibw = useMemo((): number => {
     const { height } = safeSubmittedValues
-    if (!height || height <= 0) return 0
-
-    const idealWeight = (height / 100) ** 2 * 22
-    if (!isFinite(idealWeight) || isNaN(idealWeight)) return 0
-    return rounding(idealWeight, 0)
+    return calcIBW(height) ?? 0
   }, [safeSubmittedValues])
 
   const pbw = useMemo((): number => {
@@ -44,10 +36,9 @@ export function useBioInfoCalculations(): NutritionCalculationsReturn {
   }, [safeSubmittedValues])
 
   const abw = useMemo((): number => {
-    if (ibw <= 0 || pbw <= 0) return 0
-
-    return rounding(ibw + 0.25 * (pbw - ibw), 0)
-  }, [ibw, pbw])
+    const { height, weight } = safeSubmittedValues
+    return calcABW(height, weight) ?? 0
+  }, [safeSubmittedValues])
 
   // 沒有體重感覺也可以算
   const calculateTDEE = useCallback((adjustedFactor: number): number => {

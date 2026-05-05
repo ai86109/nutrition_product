@@ -1,5 +1,28 @@
 import { IngredientsData } from "@/types"
 
+/** BMI = 體重(kg) / 身高(m)²，四捨五入到小數第一位；資料不足時回傳 null */
+export function calcBMI(height: number, weight: number): number | null {
+  if (!height || !weight || height <= 0 || weight <= 0) return null
+  const val = weight / (height / 100) ** 2
+  if (!isFinite(val) || isNaN(val)) return null
+  return Math.round(val * 10) / 10
+}
+
+/** IBW = 身高(m)² × 22，四捨五入到整數；資料不足時回傳 null */
+export function calcIBW(height: number): number | null {
+  if (!height || height <= 0) return null
+  const val = (height / 100) ** 2 * 22
+  if (!isFinite(val) || isNaN(val)) return null
+  return Math.round(val)
+}
+
+/** ABW = IBW + 0.25 × (體重 - IBW)，四捨五入到整數；資料不足時回傳 null */
+export function calcABW(height: number, weight: number): number | null {
+  const ibw = calcIBW(height)
+  if (ibw === null || !weight || weight <= 0) return null
+  return Math.round(ibw + 0.25 * (weight - ibw))
+}
+
 export type MacroRatios = {
   carb: number
   protein: number
