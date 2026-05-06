@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState, type ReactNode } from "react"
+import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react"
 import { Columns2, ExternalLink, X as XIcon } from "lucide-react"
 import {
   Dialog,
@@ -84,6 +84,26 @@ const validKeysOf = (ingredients: IngredientsData): string[] =>
 const formatValue = (raw: number | undefined): string => {
   if (raw === undefined || Number.isNaN(raw)) return "-"
   return Number(raw.toFixed(2)).toString()
+}
+
+// 依 kcal 模式縮放所有營養素數值；與 ProductPanelContent 內部使用的邏輯一致，
+// 抽出來讓手機比較版面也能共用。
+const applyKcalScaling = (
+  ingredients: IngredientsData,
+  isKcalMode: boolean,
+  kcalInput: string
+): IngredientsData => {
+  const calories = ingredients["calories"] ?? 0
+  if (!isKcalMode || calories <= 0) return ingredients
+  const kcal = parseFloat(kcalInput)
+  if (!kcal || kcal <= 0 || isNaN(kcal)) return ingredients
+  const factor = kcal / calories
+  const result: IngredientsData = {}
+  for (const key of Object.keys(ingredients)) {
+    const v = ingredients[key]
+    result[key] = v !== undefined ? v * factor : undefined
+  }
+  return result
 }
 
 
@@ -199,7 +219,7 @@ interface CompareTriggerProps {
 
 function CompareTrigger({ open, onOpenChange, query, setQuery, options, onSelect }: CompareTriggerProps) {
   return (
-    <div className="relative group/tip hidden md:block shrink-0">
+    <div className="relative group/tip shrink-0">
       <Popover open={open} onOpenChange={onOpenChange}>
         <PopoverTrigger asChild>
           <button
@@ -475,19 +495,11 @@ function ProductPanelContent({
   const singleColumn = isCompareMode
   const calories = ingredients["calories"] ?? 0
 
-  // 依 kcal 模式縮放所有營養素數值
-  const displayIngredients = useMemo((): IngredientsData => {
-    if (!isKcalMode || calories <= 0) return ingredients
-    const kcal = parseFloat(kcalInput)
-    if (!kcal || kcal <= 0 || isNaN(kcal)) return ingredients
-    const factor = kcal / calories
-    const result: IngredientsData = {}
-    for (const key of Object.keys(ingredients)) {
-      const v = ingredients[key]
-      result[key] = v !== undefined ? v * factor : undefined
-    }
-    return result
-  }, [isKcalMode, kcalInput, ingredients, calories])
+  // 依 kcal 模式縮放所有營養素數值（共用 helper，與手機比較版面一致）
+  const displayIngredients = useMemo(
+    () => applyKcalScaling(ingredients, isKcalMode, kcalInput),
+    [ingredients, isKcalMode, kcalInput]
+  )
 
   // "100 ml" → "ml"、"100 g" → "g"，作為切回原單位的按鈕文字
   const unitShort = unitLabel.split(" ").slice(1).join(" ")
@@ -561,6 +573,269 @@ function ProductPanelContent({
           ))}
         </div>
       )}
+    </div>
+  )
+}
+
+// ─── 手機比較版面 ─────────────────────────────────────────────────────────────
+// 桌機版維持原本左右兩個獨立 panel；手機版改成統一的「成分名 | A | B」三欄比較表，
+// 上方兩個 mini header 並排，sticky 列僅固定純品名（不含其他資訊）。
+
+interface MobileCompareViewProps {
+  mainItem: ProductDetailDialogItem
+  compareItem: ProductDetailDialogItem
+  mainDetail: ApiProductData | undefined
+  compareDetail: ApiProductData | undefined
+  mainLoading: boolean
+  compareLoading: boolean
+  mainIngredients: IngredientsData
+  compareIngredients: IngredientsData
+  mainUnitLabel: string
+  compareUnitLabel: string
+  orderedGroups: OrderedGroup[]
+  isKcalMode: boolean
+  kcalInput: string
+  onToggleKcal: () => void
+  onKcalInputChange: (value: string) => void
+  onCloseMain: () => void
+  onCloseCompare: () => void
+}
+
+function MobileCompareView({
+  mainItem,
+  compareItem,
+  mainDetail,
+  compareDetail,
+  mainLoading,
+  compareLoading,
+  mainIngredients,
+  compareIngredients,
+  mainUnitLabel,
+  compareUnitLabel,
+  orderedGroups,
+  isKcalMode,
+  kcalInput,
+  onToggleKcal,
+  onKcalInputChange,
+  onCloseMain,
+  onCloseCompare,
+}: MobileCompareViewProps) {
+  const mainDisplay = useMemo(
+    () => applyKcalScaling(mainIngredients, isKcalMode, kcalInput),
+    [mainIngredients, isKcalMode, kcalInput]
+  )
+  const compareDisplay = useMemo(
+    () => applyKcalScaling(compareIngredients, isKcalMode, kcalInput),
+    [compareIngredients, isKcalMode, kcalInput]
+  )
+
+  const mainCalories = mainIngredients["calories"] ?? 0
+  const compareCalories = compareIngredients["calories"] ?? 0
+  // 只要其中一品有 calories 就允許切換 kcal 模式（與桌機版單品行為對齊）
+  const canToggleKcal = mainCalories > 0 || compareCalories > 0
+
+  // 當兩品單位相同顯示一行；不同時讓兩個欄位各自顯示自己的單位
+  const sameUnit = mainUnitLabel === compareUnitLabel
+  const unitShortMain = mainUnitLabel.split(" ").slice(1).join(" ")
+  const unitShortCompare = compareUnitLabel.split(" ").slice(1).join(" ")
+  const unitToggleLabel = isKcalMode
+    ? sameUnit
+      ? unitShortMain
+      : `${unitShortMain}/${unitShortCompare}`
+    : "kcal"
+
+  const isLoading = mainLoading || compareLoading
+
+  const mainRatios = calcMacroRatios(mainIngredients)
+  const compareRatios = calcMacroRatios(compareIngredients)
+  const showRatios = Boolean(mainRatios || compareRatios)
+
+  return (
+    <div className="md:hidden flex flex-col overflow-hidden">
+      <div className="overflow-y-auto max-h-[80vh]">
+        {/* 完整 mini header 區（左右並排，會被滾走） */}
+        <div className="grid grid-cols-2 border-b border-border/60">
+          <ProductPanelHeader
+            item={mainItem}
+            detail={mainDetail}
+            slotAction={
+              <PanelRemoveButton
+                onClick={onCloseMain}
+                label="關閉此營養品（退出比較）"
+              />
+            }
+            className="px-3 pt-3 pb-2 border-r border-border/60"
+          />
+          <ProductPanelHeader
+            item={compareItem}
+            detail={compareDetail}
+            slotAction={
+              <PanelRemoveButton
+                onClick={onCloseCompare}
+                label="關閉此營養品（退出比較）"
+              />
+            }
+            className="px-3 pt-3 pb-2"
+          />
+        </div>
+
+        {/* sticky 純品名列（不含其他資訊） */}
+        <div className="sticky top-0 z-10 grid grid-cols-2 bg-background/95 backdrop-blur border-b border-border/60">
+          <div className="px-3 py-2 text-sm font-semibold truncate border-r border-border/60">
+            {mainItem.name}
+          </div>
+          <div className="px-3 py-2 text-sm font-semibold truncate">
+            {compareItem.name}
+          </div>
+        </div>
+
+        {/* 標題 + 單位切換列 */}
+        <div className="flex items-center justify-between px-3 py-2 border-b border-border/40">
+          <h3 className="text-sm font-semibold">營養素成分</h3>
+          <div className="flex items-center gap-2">
+            {isKcalMode ? (
+              <span className="flex items-center gap-1 text-xs text-muted-foreground">
+                每
+                <Input
+                  type="number"
+                  value={kcalInput}
+                  onChange={(e) => onKcalInputChange(e.target.value)}
+                  className="h-5 w-14 text-xs px-1.5 text-right [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  min={1}
+                />
+                kcal
+              </span>
+            ) : sameUnit ? (
+              <span className="text-xs text-muted-foreground">
+                每 {mainUnitLabel}
+              </span>
+            ) : (
+              <span className="text-xs text-muted-foreground">
+                每 {unitShortMain}/{unitShortCompare}
+              </span>
+            )}
+            <button
+              type="button"
+              onClick={onToggleKcal}
+              disabled={!canToggleKcal}
+              className={cn(
+                "text-[10px] px-1.5 py-0.5 rounded border transition-colors",
+                "border-border/60 text-muted-foreground hover:border-foreground/30 hover:text-foreground",
+                !canToggleKcal && "opacity-40 cursor-not-allowed"
+              )}
+            >
+              {unitToggleLabel}
+            </button>
+          </div>
+        </div>
+
+        {/* 三大營養素佔比（兩品分行顯示，便於比較） */}
+        {!isLoading && showRatios && (
+          <div className="px-3 py-2 space-y-1.5 border-b border-border/40">
+            {mainRatios && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] text-muted-foreground w-4 shrink-0 font-medium">
+                  A
+                </span>
+                {MACRO_CHIPS.map(({ key, label, bg, color }) => (
+                  <span
+                    key={key}
+                    className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                    style={{ backgroundColor: bg, color }}
+                  >
+                    {label} {mainRatios[key]}%
+                  </span>
+                ))}
+              </div>
+            )}
+            {compareRatios && (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-[10px] text-muted-foreground w-4 shrink-0 font-medium">
+                  B
+                </span>
+                {MACRO_CHIPS.map(({ key, label, bg, color }) => (
+                  <span
+                    key={key}
+                    className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                    style={{ backgroundColor: bg, color }}
+                  >
+                    {label} {compareRatios[key]}%
+                  </span>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* 三欄營養素表 */}
+        {isLoading && (
+          <div className="px-3 py-3 space-y-4">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-3 w-20" />
+                <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 gap-y-2">
+                  {Array.from({ length: 4 }).map((_, j) => (
+                    <Fragment key={j}>
+                      <Skeleton className="h-4 w-16" />
+                      <Skeleton className="h-4 w-12" />
+                      <Skeleton className="h-4 w-12" />
+                    </Fragment>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {!isLoading && orderedGroups.length === 0 && (
+          <p className="text-sm text-muted-foreground py-6 text-center">
+            無營養素資料
+          </p>
+        )}
+
+        {!isLoading && orderedGroups.length > 0 && (
+          <div className="px-3 py-3 space-y-4">
+            {orderedGroups.map((group) => (
+              <section key={group.key}>
+                <h3 className="text-xs font-bold text-amber-800 mb-1.5 tracking-wide">
+                  {NUTRIENTS_GROUP[group.key] ?? group.key}
+                </h3>
+                <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 gap-y-1.5">
+                  {group.items.map((key) => {
+                    const label = NUTRIENT_LABELS[key] ?? key
+                    const unit = NUTRIENT_UNITS[key] ?? ""
+                    const aValue = mainDisplay[key]
+                    const bValue = compareDisplay[key]
+                    return (
+                      <Fragment key={key}>
+                        <span className="text-sm text-foreground/80 leading-tight py-0.5">
+                          {label}
+                        </span>
+                        <span className="text-sm font-medium tabular-nums text-right whitespace-nowrap py-0.5">
+                          {formatValue(aValue)}
+                          {aValue !== undefined && unit && (
+                            <span className="text-[10px] text-muted-foreground ml-0.5">
+                              {unit}
+                            </span>
+                          )}
+                        </span>
+                        <span className="text-sm font-medium tabular-nums text-right whitespace-nowrap py-0.5">
+                          {formatValue(bValue)}
+                          {bValue !== undefined && unit && (
+                            <span className="text-[10px] text-muted-foreground ml-0.5">
+                              {unit}
+                            </span>
+                          )}
+                        </span>
+                      </Fragment>
+                    )
+                  })}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }
@@ -705,61 +980,84 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
         <DialogTitle className="sr-only">{dialogTitleText}</DialogTitle>
 
         {isCompareMode ? (
-          // ── 比較模式：header 並排（等高）+ 內容共用一個 scroll 容器 ──
-          <div className="flex flex-col overflow-hidden">
-            {/* 兩個 header 是同一個 flex-row 的直接子元素，自動等高 */}
-            <div className="flex flex-col md:flex-row border-b border-border/60">
-              <ProductPanelHeader
-                item={mainItem}
-                detail={mainDetail}
-                slotAction={
-                  <PanelRemoveButton
-                    onClick={handleCloseMain}
-                    label="關閉此營養品（退出比較）"
-                  />
-                }
-                className="flex-1 md:border-r md:border-border/60"
-              />
-              <ProductPanelHeader
-                item={compareItem}
-                detail={compareDetail}
-                slotAction={
-                  <PanelRemoveButton
-                    onClick={handleCloseCompare}
-                    label="關閉此營養品（退出比較）"
-                  />
-                }
-                className="flex-1 border-t border-border/60 md:border-t-0"
-              />
+          <>
+            {/* 桌機版：左右兩個獨立 panel（維持原本版面，僅以 hidden md:flex 限定顯示） */}
+            <div className="hidden md:flex md:flex-col overflow-hidden">
+              {/* 兩個 header 是同一個 flex-row 的直接子元素，自動等高 */}
+              <div className="flex flex-col md:flex-row border-b border-border/60">
+                <ProductPanelHeader
+                  item={mainItem}
+                  detail={mainDetail}
+                  slotAction={
+                    <PanelRemoveButton
+                      onClick={handleCloseMain}
+                      label="關閉此營養品（退出比較）"
+                    />
+                  }
+                  className="flex-1 md:border-r md:border-border/60"
+                />
+                <ProductPanelHeader
+                  item={compareItem}
+                  detail={compareDetail}
+                  slotAction={
+                    <PanelRemoveButton
+                      onClick={handleCloseCompare}
+                      label="關閉此營養品（退出比較）"
+                    />
+                  }
+                  className="flex-1 border-t border-border/60 md:border-t-0"
+                />
+              </div>
+              {/* 單一 scroll 容器：兩側內容一起滾動 */}
+              <div className="flex flex-col md:flex-row overflow-y-auto max-h-[60vh]">
+                <ProductPanelContent
+                  isLoading={mainLoading}
+                  orderedGroups={mainGroups}
+                  ingredients={mainIngredients}
+                  isCompareMode={true}
+                  unitLabel={mainUnitLabel}
+                  isKcalMode={isKcalMode}
+                  kcalInput={kcalInput}
+                  onToggleKcal={handleToggleKcal}
+                  onKcalInputChange={setKcalInput}
+                  className="flex-1"
+                />
+                <ProductPanelContent
+                  isLoading={compareLoading}
+                  orderedGroups={compareGroups}
+                  ingredients={compareIngredients}
+                  isCompareMode={true}
+                  unitLabel={compareUnitLabel}
+                  isKcalMode={isKcalMode}
+                  kcalInput={kcalInput}
+                  onToggleKcal={handleToggleKcal}
+                  onKcalInputChange={setKcalInput}
+                  className="flex-1 border-t border-border/60 md:border-t-0 md:border-l md:border-border/60"
+                />
+              </div>
             </div>
-            {/* 單一 scroll 容器：兩側內容一起滾動 */}
-            <div className="flex flex-col md:flex-row overflow-y-auto max-h-[60vh]">
-              <ProductPanelContent
-                isLoading={mainLoading}
-                orderedGroups={mainGroups}
-                ingredients={mainIngredients}
-                isCompareMode={true}
-                unitLabel={mainUnitLabel}
-                isKcalMode={isKcalMode}
-                kcalInput={kcalInput}
-                onToggleKcal={handleToggleKcal}
-                onKcalInputChange={setKcalInput}
-                className="flex-1"
-              />
-              <ProductPanelContent
-                isLoading={compareLoading}
-                orderedGroups={compareGroups}
-                ingredients={compareIngredients}
-                isCompareMode={true}
-                unitLabel={compareUnitLabel}
-                isKcalMode={isKcalMode}
-                kcalInput={kcalInput}
-                onToggleKcal={handleToggleKcal}
-                onKcalInputChange={setKcalInput}
-                className="flex-1 border-t border-border/60 md:border-t-0 md:border-l md:border-border/60"
-              />
-            </div>
-          </div>
+
+            {/* 手機版：統一「成分名 | A | B」三欄比較表（sticky 純品名列） */}
+            <MobileCompareView
+              mainItem={mainItem}
+              compareItem={compareItem}
+              mainDetail={mainDetail}
+              compareDetail={compareDetail}
+              mainLoading={mainLoading}
+              compareLoading={compareLoading}
+              mainIngredients={mainIngredients}
+              compareIngredients={compareIngredients}
+              mainUnitLabel={mainUnitLabel}
+              compareUnitLabel={compareUnitLabel}
+              orderedGroups={orderedGroupsForBoth ?? []}
+              isKcalMode={isKcalMode}
+              kcalInput={kcalInput}
+              onToggleKcal={handleToggleKcal}
+              onKcalInputChange={setKcalInput}
+              onCloseMain={handleCloseMain}
+              onCloseCompare={handleCloseCompare}
+            />
+          </>
         ) : (
           // ── 單品模式：header + 獨立 scroll 內容 ──
           <div className="flex flex-col overflow-hidden">
