@@ -90,7 +90,7 @@ function GoalCard({ label, unit, rangeMin, rangeMax, actual }: GoalCardProps) {
           </span>
         )}
       </div>
-      <div className="grid grid-cols-2 gap-2">
+      <div className="grid grid-cols-[1fr_auto] gap-2">
         <div className="rounded-md bg-background px-3 py-2 min-w-0">
           <div className="text-xs text-muted-foreground">目標範圍</div>
           <div className="mt-0.5 flex items-baseline gap-1 flex-nowrap overflow-hidden">
@@ -249,10 +249,10 @@ export default function SnapshotDetailPanel({
           )}
         </div>
 
-        {/* 每日目標 — 熱量、蛋白質各一張組合卡，餐數另放 */}
+        {/* 每日目標 — 熱量、蛋白質、每日餐數同一列 */}
         <div className="space-y-2">
           <SectionHeader icon={<Target />} label="每日目標" />
-          <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-2 sm:grid-cols-[1fr_1fr_auto]">
             <GoalCard
               label="熱量"
               unit="kcal"
@@ -267,18 +267,20 @@ export default function SnapshotDetailPanel({
               rangeMax={protein_range?.max}
               actual={snapshot.actual_protein}
             />
-          </div>
-          <div className="grid grid-cols-2 gap-2 sm:max-w-xs">
-            <Stat
-              label={
-                <>
-                  <Utensils className="size-3 text-muted-foreground" />
-                  每日餐數
-                </>
-              }
-              value={meals_per_day}
-              unit="餐"
-            />
+            <div className="rounded-lg border bg-muted/30 p-3 space-y-2 min-w-0 flex flex-col">
+              <h3 className="text-sm font-semibold flex items-center gap-1.5">
+                <Utensils className="size-3.5 text-muted-foreground" />
+                每日餐數
+              </h3>
+              <div className="rounded-md bg-background px-3 py-2 min-w-0 flex-1 flex items-end">
+                <div className="flex items-baseline gap-1">
+                  <span className="text-base font-semibold tabular-nums">
+                    {meals_per_day ?? "—"}
+                  </span>
+                  <span className="text-xs text-muted-foreground">餐</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 

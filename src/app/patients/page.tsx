@@ -333,7 +333,7 @@ export default function PatientsPage() {
               {/* 左側：病人列表 + snapshot 列表 */}
               <div className="flex w-[380px] shrink-0 rounded-lg border overflow-hidden">
                 {/* 左1：病人列表 */}
-                <div className="w-1/2 flex flex-col border-r">
+                <div className="flex-1 flex flex-col border-r min-w-0">
                   <div className="px-3 py-2 border-b text-xs font-semibold text-muted-foreground bg-muted/40 shrink-0">
                     病人
                   </div>
@@ -343,7 +343,7 @@ export default function PatientsPage() {
                 </div>
 
                 {/* 左2：snapshot 列表 */}
-                <div className="w-1/2 flex flex-col">
+                <div className="w-[148px] shrink-0 flex flex-col">
                   <div className="px-3 py-2 border-b text-xs font-semibold text-muted-foreground bg-muted/40 shrink-0">
                     紀錄
                   </div>
