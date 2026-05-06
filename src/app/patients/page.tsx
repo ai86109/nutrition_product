@@ -12,9 +12,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useAuth } from "@/contexts/AuthContext"
 import { getPatients } from "@/lib/supabase/queries/patients"
 import { getAllSnapshotsByUser } from "@/lib/supabase/queries/patient-snapshots"
+import {
+  getPatientGroups,
+  getGroupMembershipsByUser,
+} from "@/lib/supabase/queries/patient-groups"
 import { updatePatientSortOrders } from "@/lib/supabase/mutations/patients"
 import { getEffectiveDateMs } from "@/lib/snapshot-date"
 import type { Patient, PatientSnapshot } from "@/types/patient"
+import type { GroupMembershipMap, PatientGroup } from "@/types/patient-group"
 import { Skeleton } from "@/components/ui/skeleton"
 
 type MobileTab = "patients" | "snapshots" | "detail"
@@ -25,6 +30,8 @@ export default function PatientsPage() {
 
   const [patients, setPatients] = useState<Patient[]>([])
   const [snapshots, setSnapshots] = useState<PatientSnapshot[]>([])
+  const [groups, setGroups] = useState<PatientGroup[]>([])
+  const [membershipMap, setMembershipMap] = useState<GroupMembershipMap>({})
   const [loading, setLoading] = useState(true)
 
   // 選取狀態
@@ -39,11 +46,13 @@ export default function PatientsPage() {
   const [nameQuery, setNameQuery] = useState("")
   const [dateFrom, setDateFrom] = useState("") // YYYY-MM-DD
   const [dateTo, setDateTo] = useState("")     // YYYY-MM-DD
+  const [selectedGroupId, setSelectedGroupId] = useState<string>("") // "" = 全部
 
   const handleResetFilters = useCallback(() => {
     setNameQuery("")
     setDateFrom("")
     setDateTo("")
+    setSelectedGroupId("")
   }, [])
 
   // 未登入導去 /auth
@@ -57,12 +66,16 @@ export default function PatientsPage() {
 
   const reload = useCallback(async () => {
     if (!userId) return
-    const [p, s] = await Promise.all([
+    const [p, s, g, m] = await Promise.all([
       getPatients(userId),
       getAllSnapshotsByUser(userId),
+      getPatientGroups(userId),
+      getGroupMembershipsByUser(userId),
     ])
     setPatients(p)
     setSnapshots(s)
+    setGroups(g)
+    setMembershipMap(m)
   }, [userId])
 
   useEffect(() => {
@@ -82,7 +95,11 @@ export default function PatientsPage() {
   }, [snapshots])
 
   // 套用篩選
-  const isFiltered = nameQuery !== "" || dateFrom !== "" || dateTo !== ""
+  const isFiltered =
+    nameQuery !== "" ||
+    dateFrom !== "" ||
+    dateTo !== "" ||
+    selectedGroupId !== ""
 
   const filteredPatients = useMemo(() => {
     const trimmedName = nameQuery.trim().toLowerCase()
@@ -99,6 +116,11 @@ export default function PatientsPage() {
         return []
       }
 
+      if (selectedGroupId) {
+        const groupIds = membershipMap[p.id] ?? []
+        if (!groupIds.includes(selectedGroupId)) return []
+      }
+
       const allSnapshots = snapshotsByPatient[p.id] ?? []
 
       if (hasDateFilter) {
@@ -112,7 +134,15 @@ export default function PatientsPage() {
 
       return [{ patient: p, snapshots: allSnapshots }]
     })
-  }, [patients, snapshotsByPatient, nameQuery, dateFrom, dateTo])
+  }, [
+    patients,
+    snapshotsByPatient,
+    nameQuery,
+    dateFrom,
+    dateTo,
+    selectedGroupId,
+    membershipMap,
+  ])
 
   // 初次載入後預設選取第一個病人及其第一筆 snapshot
   useEffect(() => {
@@ -154,6 +184,13 @@ export default function PatientsPage() {
       setSelectedSnapshotId(snaps[0].id)
     }
   }, [filteredPatients, selectedPatientId, selectedSnapshotId])
+
+  // 若選取的群組已被刪除，自動清空 group filter
+  useEffect(() => {
+    if (selectedGroupId && !groups.find((g) => g.id === selectedGroupId)) {
+      setSelectedGroupId("")
+    }
+  }, [groups, selectedGroupId])
 
   // 當篩選後選取的病人不在 filteredPatients 中，改選第一個
   useEffect(() => {
@@ -244,6 +281,7 @@ export default function PatientsPage() {
     <>
       {filteredPatients.map(({ patient: p, snapshots: ss }) => {
         const fullIdx = patients.findIndex((x) => x.id === p.id)
+        const patientGroupIds = membershipMap[p.id] ?? []
         return (
           <PatientListItem
             key={p.id}
@@ -252,9 +290,12 @@ export default function PatientsPage() {
             isSelected={p.id === selectedPatientId}
             canMoveUp={!isFiltered && fullIdx > 0}
             canMoveDown={!isFiltered && fullIdx < patients.length - 1}
+            groups={groups}
+            patientGroupIds={patientGroupIds}
             onSelect={() => handleSelectPatient(p.id, ss)}
             onMoveUp={() => swap(fullIdx, fullIdx - 1)}
             onMoveDown={() => swap(fullIdx, fullIdx + 1)}
+            onClickGroupTag={(groupId) => setSelectedGroupId(groupId)}
             onChanged={reload}
           />
         )
@@ -316,9 +357,12 @@ export default function PatientsPage() {
           nameQuery={nameQuery}
           dateFrom={dateFrom}
           dateTo={dateTo}
+          groups={groups}
+          selectedGroupId={selectedGroupId}
           onNameQueryChange={setNameQuery}
           onDateFromChange={setDateFrom}
           onDateToChange={setDateTo}
+          onSelectedGroupIdChange={setSelectedGroupId}
           onReset={handleResetFilters}
         />
 

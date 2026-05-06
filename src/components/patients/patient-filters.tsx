@@ -3,41 +3,63 @@
 import { Search, RotateCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import type { PatientGroup } from "@/types/patient-group"
+
+const ALL_GROUPS = "__all__"
 
 interface PatientFiltersProps {
   nameQuery: string
   dateFrom: string
   dateTo: string
+  groups: PatientGroup[]
+  selectedGroupId: string // "" 表示全部
   onNameQueryChange: (value: string) => void
   onDateFromChange: (value: string) => void
   onDateToChange: (value: string) => void
+  onSelectedGroupIdChange: (value: string) => void
   onReset: () => void
 }
 
 /**
- * 病人追蹤頁的篩選列：名字搜尋 + memo 建立日期區間 + 重置。
+ * 病人追蹤頁的篩選列：名字搜尋 + 群組單選 + memo 建立日期區間 + 重置。
  * 僅是 UI，所有 state 由父層 (patients/page.tsx) 管理。
  */
 export default function PatientFilters({
   nameQuery,
   dateFrom,
   dateTo,
+  groups,
+  selectedGroupId,
   onNameQueryChange,
   onDateFromChange,
   onDateToChange,
+  onSelectedGroupIdChange,
   onReset,
 }: PatientFiltersProps) {
   const hasAnyFilter =
-    nameQuery !== "" || dateFrom !== "" || dateTo !== ""
+    nameQuery !== "" ||
+    dateFrom !== "" ||
+    dateTo !== "" ||
+    selectedGroupId !== ""
   // YYYY-MM-DD 字串可直接做字典序比較
   const hasInvalidRange =
     dateFrom !== "" && dateTo !== "" && dateFrom > dateTo
 
+  // Radix Select 不允許用 "" 當 value，內部用 sentinel 對應「全部」
+  const selectValue = selectedGroupId === "" ? ALL_GROUPS : selectedGroupId
+
   return (
     <div className="mb-4 space-y-2 rounded-lg border bg-muted/40 p-3 sm:p-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:flex-wrap">
         {/* 名字搜尋 */}
-        <div className="relative flex-1 min-w-0">
+        <div className="relative flex-1 min-w-0 sm:min-w-[180px]">
           <Search className="pointer-events-none absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             type="search"
@@ -47,6 +69,26 @@ export default function PatientFilters({
             className="pl-8"
           />
         </div>
+
+        {/* 群組篩選 */}
+        <Select
+          value={selectValue}
+          onValueChange={(v) =>
+            onSelectedGroupIdChange(v === ALL_GROUPS ? "" : v)
+          }
+        >
+          <SelectTrigger className="w-full sm:w-[160px]" aria-label="群組篩選">
+            <SelectValue placeholder="所有群組" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={ALL_GROUPS}>所有群組</SelectItem>
+            {groups.map((g) => (
+              <SelectItem key={g.id} value={g.id}>
+                {g.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
 
         {/* 日期區間 */}
         <div className="flex items-center gap-2">
