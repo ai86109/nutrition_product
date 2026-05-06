@@ -3,7 +3,7 @@ import { upsertUserPreferences } from "@/lib/supabase/mutations/user-preferences
 import { useCallback } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
-type SettingField = 'calorie' | 'tdee' | 'protein' | 'history' | 'favorite';
+type SettingField = 'calorie' | 'tdee' | 'protein' | 'history' | 'favorite' | 'noteTemplates';
 
 const FIELD_TO_COLUMN: Record<SettingField, string> = {
   calorie: 'calorie_factors',
@@ -11,10 +11,11 @@ const FIELD_TO_COLUMN: Record<SettingField, string> = {
   protein: 'protein_factors',
   history: 'search_history',
   favorite: 'favorites',
+  noteTemplates: 'note_templates',
 }
 
 export function useUserSetting() {
-  const { calorieFactors, tdeeFactors, proteinFactors, history, favorites, refresh } = useUserPreferences();
+  const { calorieFactors, tdeeFactors, proteinFactors, history, favorites, noteTemplates, refresh } = useUserPreferences();
   const { session } = useAuth();
   const { id: userId } = session?.user || {};
 
@@ -25,9 +26,10 @@ export function useUserSetting() {
       protein: proteinFactors,
       history,
       favorite: favorites,
+      noteTemplates,
     };
     return currentSettings[field] || [];
-  }, [calorieFactors, tdeeFactors, proteinFactors, history, favorites]);
+  }, [calorieFactors, tdeeFactors, proteinFactors, history, favorites, noteTemplates]);
 
   const updateSetting = useCallback(async (field: SettingField, newSettings: unknown) => {
     if (!userId) return alert("此功能請登入後使用");

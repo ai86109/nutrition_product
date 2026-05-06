@@ -9,6 +9,7 @@ import {
   DEFAULT_PROTEIN_SETTINGS,
   DEFAULT_HISTORY_SETTINGS,
   DEFAULT_FAVORITE_SETTINGS,
+  DEFAULT_NOTE_TEMPLATES_SETTINGS,
 } from '@/utils/constants'
 
 type CalorieFactors = typeof DEFAULT_CALORIE_SETTINGS
@@ -16,6 +17,7 @@ type TdeeFactors = typeof DEFAULT_TDEE_SETTINGS
 type ProteinFactors = typeof DEFAULT_PROTEIN_SETTINGS
 type HistoryList = typeof DEFAULT_HISTORY_SETTINGS
 type FavoriteList = typeof DEFAULT_FAVORITE_SETTINGS
+type NoteTemplateList = typeof DEFAULT_NOTE_TEMPLATES_SETTINGS
 
 type UserPreferencesContextValue = {
   calorieFactors: CalorieFactors
@@ -23,6 +25,7 @@ type UserPreferencesContextValue = {
   proteinFactors: ProteinFactors
   history: HistoryList
   favorites: FavoriteList
+  noteTemplates: NoteTemplateList
   refresh: () => Promise<void>
 }
 
@@ -36,6 +39,7 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
   const [proteinFactors, setProteinFactors] = useState(DEFAULT_PROTEIN_SETTINGS)
   const [history, setHistory] = useState(DEFAULT_HISTORY_SETTINGS)
   const [favorites, setFavorites] = useState(DEFAULT_FAVORITE_SETTINGS)
+  const [noteTemplates, setNoteTemplates] = useState<NoteTemplateList>(DEFAULT_NOTE_TEMPLATES_SETTINGS)
 
   const loadUserPreferences = useCallback( async () => {
     if (!userId) {
@@ -44,6 +48,7 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
       setProteinFactors(DEFAULT_PROTEIN_SETTINGS)
       setHistory(DEFAULT_HISTORY_SETTINGS)
       setFavorites(DEFAULT_FAVORITE_SETTINGS)
+      setNoteTemplates(DEFAULT_NOTE_TEMPLATES_SETTINGS)
       return
     }
 
@@ -55,6 +60,7 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
         setProteinFactors(data.protein_factors || DEFAULT_PROTEIN_SETTINGS)
         setHistory(data.search_history || DEFAULT_HISTORY_SETTINGS)
         setFavorites(data.favorites || DEFAULT_FAVORITE_SETTINGS)
+        setNoteTemplates(data.note_templates || DEFAULT_NOTE_TEMPLATES_SETTINGS)
       }
     } catch (error) {
       console.error('Error loading user preferences:', error)
@@ -72,6 +78,7 @@ export function UserPreferencesProvider({ children }: { children: React.ReactNod
       proteinFactors,
       history,
       favorites,
+      noteTemplates,
       refresh: loadUserPreferences,
     }}>
       {children}

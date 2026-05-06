@@ -1,4 +1,5 @@
 import { TDEEList, CalorieFactorList, ProteinList, DRISData } from "@/types";
+import type { NoteTemplate } from "@/types/note-template";
 
 interface UnitMapping {
   [key: string]: string;
@@ -326,6 +327,8 @@ export const DEFAULT_PROTEIN_SETTINGS: ProteinList[] = [
 export const DEFAULT_HISTORY_SETTINGS: string[] = []
 
 export const DEFAULT_FAVORITE_SETTINGS: string[] = []
+
+export const DEFAULT_NOTE_TEMPLATES_SETTINGS: NoteTemplate[] = []
 
 export const DRIS: DRISData = {
   calories: {

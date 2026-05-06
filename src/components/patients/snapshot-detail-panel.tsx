@@ -4,6 +4,8 @@ import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Pencil, User, Target, Pill, StickyNote, Utensils } from "lucide-react"
 import EditSnapshotDialog from "./edit-snapshot-dialog"
+import NoteTemplatePicker from "@/components/patient-tracking/note-template-picker"
+import { appendTemplate } from "@/lib/note-template"
 import { updatePatientSnapshotNotes } from "@/lib/supabase/mutations/patient-snapshots"
 import { getEffectiveDate } from "@/lib/snapshot-date"
 import { formatNumber } from "@/lib/utils"
@@ -344,6 +346,13 @@ export default function SnapshotDetailPanel({
 
           {isEditingNotes ? (
             <div className="space-y-2">
+              <div className="flex justify-end">
+                <NoteTemplatePicker
+                  onPick={(content) =>
+                    setDraftNotes((prev) => appendTemplate(prev, content))
+                  }
+                />
+              </div>
               <textarea
                 className="border-input flex w-full min-h-[80px] rounded-md border bg-background px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
                 placeholder="想記下的細節（選填）"

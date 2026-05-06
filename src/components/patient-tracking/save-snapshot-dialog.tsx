@@ -18,6 +18,8 @@ import { Separator } from "@/components/ui/separator"
 import PatientSelector, {
   type PatientMode,
 } from "./patient-selector"
+import NoteTemplatePicker from "./note-template-picker"
+import { appendTemplate } from "@/lib/note-template"
 import { getPatients } from "@/lib/supabase/queries/patients"
 import { createPatient } from "@/lib/supabase/mutations/patients"
 import { createPatientSnapshot } from "@/lib/supabase/mutations/patient-snapshots"
@@ -498,9 +500,16 @@ export default function SaveSnapshotDialog({
 
           {/* Notes */}
           <div className="space-y-2">
-            <Label htmlFor="dialog-notes" className="text-sm font-bold">
-              備註
-            </Label>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="dialog-notes" className="text-sm font-bold">
+                備註
+              </Label>
+              <NoteTemplatePicker
+                onPick={(content) =>
+                  setNotes((prev) => appendTemplate(prev, content))
+                }
+              />
+            </div>
             <textarea
               id="dialog-notes"
               className="border-input flex w-full min-h-[80px] rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
