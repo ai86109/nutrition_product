@@ -25,6 +25,8 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useProduct } from "@/contexts/ProductContext"
+import { useBioInfo } from "@/contexts/BioInfoContext"
+import { useDRIsCalculation } from "@/hooks/useDRIsCalculation"
 import { ApiProductData, ApiProductListData, IngredientsData } from "@/types"
 import type { ProcessedSpec } from "@/types/api"
 import type { ProductImagePublic } from "@/types/product-images"
@@ -146,19 +148,82 @@ function MacroRatioLine({ ingredients }: { ingredients: IngredientsData }) {
 const getUnitLabel = (type: string) =>
   type === "液劑" ? "100 ml" : type === "粉劑" ? "100 g" : "100 g/ml"
 
-function NutrientRow({ nutrientKey, value }: { nutrientKey: string; value: number | undefined }) {
+// 把 useDRIsCalculation 的 drisContent + 縮放後的營養素值，拆成多段純文字。
+// 範例：
+//   - rda/ai/ul/cdrr：「RDA 50g（60%）」
+//   - amdr（範圍）：「AMDR 30%-40%（目前 18%）」
+//   - amdr（單一上限）：「AMDR <10%（目前 18%）」
+// 渲染時呼叫端各自決定要怎麼接（目前是各佔一行）。
+function formatDriParts(
+  drisContent: { item: string; value: number | number[] }[],
+  unit: string,
+  scaledValue: number | undefined,
+  amdrPct: number,
+): string[] {
+  if (drisContent.length === 0) return []
+  return drisContent.map(({ item, value }) => {
+    const itemUp = item.toUpperCase()
+    if (item === "amdr") {
+      const range = Array.isArray(value)
+        ? `${value[0]}%-${value[1]}%`
+        : `<${value}%`
+      return `${itemUp} ${range}（目前 ${amdrPct}%）`
+    }
+    const target = value as number
+    if (scaledValue === undefined || target <= 0) {
+      return `${itemUp} ${target}${unit}`
+    }
+    const pct = Number(((scaledValue / target) * 100).toFixed(1))
+    return `${itemUp} ${target}${unit}（${pct}%）`
+  })
+}
+
+function NutrientRow({
+  nutrientKey,
+  value,
+  caloriesValue,
+}: {
+  nutrientKey: string
+  value: number | undefined
+  caloriesValue: number
+}) {
   const label = NUTRIENT_LABELS[nutrientKey] ?? nutrientKey
   const unit = NUTRIENT_UNITS[nutrientKey] ?? ""
 
+  const { submittedValues } = useBioInfo()
+  const hasBioInfo = !!submittedValues.gender && submittedValues.age > 0
+
+  // state 傳 null：dialog 內不考慮孕/哺乳，孕哺切換留在計算頁
+  const { drisContent, calculatedValue } = useDRIsCalculation(
+    nutrientKey,
+    value ?? 0,
+    null,
+    caloriesValue,
+  )
+
+  const driParts =
+    hasBioInfo && value !== undefined && drisContent && drisContent.length > 0
+      ? formatDriParts(drisContent, unit, value, calculatedValue)
+      : []
+
   return (
-    <div className="flex items-baseline justify-between gap-2 py-1.5 border-b border-border/40 last:border-b-0">
-      <span className="text-sm text-foreground/80">{label}</span>
-      <span className="text-sm font-medium tabular-nums whitespace-nowrap">
-        {formatValue(value)}
-        {value !== undefined && unit && (
-          <span className="text-xs text-muted-foreground ml-1">{unit}</span>
-        )}
-      </span>
+    <div className="flex flex-col gap-0.5 py-1.5 border-b border-border/40 last:border-b-0">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-sm text-foreground/80">{label}</span>
+        <span className="text-sm font-medium tabular-nums whitespace-nowrap">
+          {formatValue(value)}
+          {value !== undefined && unit && (
+            <span className="text-xs text-muted-foreground ml-1">{unit}</span>
+          )}
+        </span>
+      </div>
+      {driParts.length > 0 && (
+        <div className="text-[11px] text-muted-foreground tabular-nums text-right leading-snug space-y-0.5">
+          {driParts.map((part, i) => (
+            <div key={i}>{part}</div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
@@ -168,11 +233,13 @@ function NutrientGroupBlock({
   items,
   ingredients,
   singleColumn,
+  caloriesValue,
 }: {
   groupKey: string
   items: string[]
   ingredients: IngredientsData
   singleColumn: boolean
+  caloriesValue: number
 }) {
   return (
     <section>
@@ -186,7 +253,12 @@ function NutrientGroupBlock({
         )}
       >
         {items.map((key) => (
-          <NutrientRow key={key} nutrientKey={key} value={ingredients[key]} />
+          <NutrientRow
+            key={key}
+            nutrientKey={key}
+            value={ingredients[key]}
+            caloriesValue={caloriesValue}
+          />
         ))}
       </div>
     </section>
@@ -779,6 +851,7 @@ function ProductPanelContent({
               items={group.items}
               ingredients={displayIngredients}
               singleColumn={singleColumn}
+              caloriesValue={displayIngredients["calories"] ?? 0}
             />
           ))}
         </div>
@@ -1049,35 +1122,16 @@ function MobileCompareView({
                   {NUTRIENTS_GROUP[group.key] ?? group.key}
                 </h3>
                 <div className="grid grid-cols-[1fr_auto_auto] gap-x-3 gap-y-1.5">
-                  {group.items.map((key) => {
-                    const label = NUTRIENT_LABELS[key] ?? key
-                    const unit = NUTRIENT_UNITS[key] ?? ""
-                    const aValue = mainDisplay[key]
-                    const bValue = compareDisplay[key]
-                    return (
-                      <Fragment key={key}>
-                        <span className="text-sm text-foreground/80 leading-tight py-0.5">
-                          {label}
-                        </span>
-                        <span className="text-sm font-medium tabular-nums text-right whitespace-nowrap py-0.5">
-                          {formatValue(aValue)}
-                          {aValue !== undefined && unit && (
-                            <span className="text-[10px] text-muted-foreground ml-0.5">
-                              {unit}
-                            </span>
-                          )}
-                        </span>
-                        <span className="text-sm font-medium tabular-nums text-right whitespace-nowrap py-0.5">
-                          {formatValue(bValue)}
-                          {bValue !== undefined && unit && (
-                            <span className="text-[10px] text-muted-foreground ml-0.5">
-                              {unit}
-                            </span>
-                          )}
-                        </span>
-                      </Fragment>
-                    )
-                  })}
+                  {group.items.map((key) => (
+                    <MobileCompareNutrientRow
+                      key={key}
+                      nutrientKey={key}
+                      aValue={mainDisplay[key]}
+                      bValue={compareDisplay[key]}
+                      aCalories={mainDisplay["calories"] ?? 0}
+                      bCalories={compareDisplay["calories"] ?? 0}
+                    />
+                  ))}
                 </div>
               </section>
             ))}
@@ -1085,6 +1139,76 @@ function MobileCompareView({
         )}
       </div>
     </div>
+  )
+}
+
+// 手機比較版面的單列：左側成分名、A、B 三欄；下方再依 BioInfo 顯示 A/B 各自的 DRIs 行。
+function MobileCompareNutrientRow({
+  nutrientKey,
+  aValue,
+  bValue,
+  aCalories,
+  bCalories,
+}: {
+  nutrientKey: string
+  aValue: number | undefined
+  bValue: number | undefined
+  aCalories: number
+  bCalories: number
+}) {
+  const label = NUTRIENT_LABELS[nutrientKey] ?? nutrientKey
+  const unit = NUTRIENT_UNITS[nutrientKey] ?? ""
+
+  const { submittedValues } = useBioInfo()
+  const hasBioInfo = !!submittedValues.gender && submittedValues.age > 0
+
+  const a = useDRIsCalculation(nutrientKey, aValue ?? 0, null, aCalories)
+  const b = useDRIsCalculation(nutrientKey, bValue ?? 0, null, bCalories)
+
+  const aDriParts =
+    hasBioInfo && aValue !== undefined && a.drisContent && a.drisContent.length > 0
+      ? formatDriParts(a.drisContent, unit, aValue, a.calculatedValue)
+      : []
+  const bDriParts =
+    hasBioInfo && bValue !== undefined && b.drisContent && b.drisContent.length > 0
+      ? formatDriParts(b.drisContent, unit, bValue, b.calculatedValue)
+      : []
+
+  const showDriRow = aDriParts.length > 0 || bDriParts.length > 0
+
+  return (
+    <Fragment>
+      <span className="text-sm text-foreground/80 leading-tight py-0.5">
+        {label}
+      </span>
+      <span className="text-sm font-medium tabular-nums text-right whitespace-nowrap py-0.5">
+        {formatValue(aValue)}
+        {aValue !== undefined && unit && (
+          <span className="text-[10px] text-muted-foreground ml-0.5">{unit}</span>
+        )}
+      </span>
+      <span className="text-sm font-medium tabular-nums text-right whitespace-nowrap py-0.5">
+        {formatValue(bValue)}
+        {bValue !== undefined && unit && (
+          <span className="text-[10px] text-muted-foreground ml-0.5">{unit}</span>
+        )}
+      </span>
+      {showDriRow && (
+        <Fragment>
+          <span aria-hidden />
+          <span className="text-[10px] text-muted-foreground tabular-nums text-right leading-snug pb-1 flex flex-col gap-0.5">
+            {aDriParts.length > 0
+              ? aDriParts.map((part, i) => <span key={i}>{part}</span>)
+              : <span>—</span>}
+          </span>
+          <span className="text-[10px] text-muted-foreground tabular-nums text-right leading-snug pb-1 flex flex-col gap-0.5">
+            {bDriParts.length > 0
+              ? bDriParts.map((part, i) => <span key={i}>{part}</span>)
+              : <span>—</span>}
+          </span>
+        </Fragment>
+      )}
+    </Fragment>
   )
 }
 
