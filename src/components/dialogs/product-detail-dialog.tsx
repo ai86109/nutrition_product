@@ -1190,7 +1190,6 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
     )
     const q = searchQuery.trim().toLowerCase()
     return allProducts
-      .filter((p) => !exclude.has(p.id))
       .filter((p) => {
         if (!q) return true
         const name = p.name?.toLowerCase() ?? ""
