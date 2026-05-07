@@ -4,11 +4,12 @@ import ConditionalContent from "@/components/conditional-content"
 import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations"
 
 export default function BioCard() {
-  const { bmi, abw } = useBioInfoCalculations()
+  const { bmi, ibw, abw } = useBioInfoCalculations()
   const isValidBMI = bmi > 0
-  
+  const isValidIBW = ibw > 0
+
   return (
-    <Card className="max-h-[160px]">
+    <Card>
       <CardContent>
         <div className="flex items-center gap-1">
           <ConditionalContent condition={isValidBMI} fallback="請填寫身高、體重來計算 BMI">
@@ -17,6 +18,15 @@ export default function BioCard() {
           </ConditionalContent>
           <InfoPopover>
             <p>BMI = 體重（公斤）/ 身高²（公尺）</p>
+          </InfoPopover>
+        </div>
+        <div className="flex items-center gap-1 mt-4">
+          <ConditionalContent condition={isValidIBW} fallback="請填寫身高來計算理想體重">
+            <span className="font-bold">理想體重：</span>
+            <span>{ibw}</span>
+          </ConditionalContent>
+          <InfoPopover>
+            <p>理想體重 = 身高²（公尺）× 22</p>
           </InfoPopover>
         </div>
         <div className="flex items-center gap-1 mt-4">
