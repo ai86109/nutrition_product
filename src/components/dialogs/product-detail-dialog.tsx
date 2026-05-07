@@ -1,6 +1,6 @@
 "use client"
 
-import { Fragment, useEffect, useMemo, useState, type ReactNode } from "react"
+import { Fragment, useEffect, useId, useMemo, useState, type ReactNode } from "react"
 import { Columns2, ExternalLink, X as XIcon } from "lucide-react"
 import {
   Dialog,
@@ -9,9 +9,11 @@ import {
 } from "@/components/ui/dialog"
 import {
   Popover,
+  PopoverAnchor,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import { Checkbox } from "@/components/ui/checkbox"
 import {
   Select,
   SelectContent,
@@ -25,6 +27,7 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useProduct } from "@/contexts/ProductContext"
+import { useAuth } from "@/contexts/AuthContext"
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import { useDRIsCalculation } from "@/hooks/useDRIsCalculation"
 import { ApiProductData, ApiProductListData, IngredientsData } from "@/types"
@@ -182,10 +185,12 @@ function NutrientRow({
   nutrientKey,
   value,
   caloriesValue,
+  showDris,
 }: {
   nutrientKey: string
   value: number | undefined
   caloriesValue: number
+  showDris: boolean
 }) {
   const label = NUTRIENT_LABELS[nutrientKey] ?? nutrientKey
   const unit = NUTRIENT_UNITS[nutrientKey] ?? ""
@@ -202,7 +207,7 @@ function NutrientRow({
   )
 
   const driParts =
-    hasBioInfo && value !== undefined && drisContent && drisContent.length > 0
+    showDris && hasBioInfo && value !== undefined && drisContent && drisContent.length > 0
       ? formatDriParts(drisContent, unit, value, calculatedValue)
       : []
 
@@ -234,12 +239,14 @@ function NutrientGroupBlock({
   ingredients,
   singleColumn,
   caloriesValue,
+  showDris,
 }: {
   groupKey: string
   items: string[]
   ingredients: IngredientsData
   singleColumn: boolean
   caloriesValue: number
+  showDris: boolean
 }) {
   return (
     <section>
@@ -258,6 +265,7 @@ function NutrientGroupBlock({
             nutrientKey={key}
             value={ingredients[key]}
             caloriesValue={caloriesValue}
+            showDris={showDris}
           />
         ))}
       </div>
@@ -727,6 +735,71 @@ function KcalUnitDisplay({
   )
 }
 
+// ─── DRIs 顯示切換 ─────────────────────────────────────────────────────────────
+// 控制是否顯示每個營養素下方的 DRIs 文字。
+// 點擊時若未登入或缺 gender/age，用 controlled popover 顯示提示，state 不變動。
+// 用 PopoverAnchor（而不是 PopoverTrigger）避免點 checkbox 同時觸發 popover。
+interface DrisToggleProps {
+  showDris: boolean
+  onShowDrisChange: (next: boolean) => void
+  className?: string
+}
+
+function DrisToggle({ showDris, onShowDrisChange, className }: DrisToggleProps) {
+  const { isLoggedIn } = useAuth()
+  const { submittedValues } = useBioInfo()
+  const hasBioInfo = !!submittedValues.gender && submittedValues.age > 0
+
+  const [popoverOpen, setPopoverOpen] = useState(false)
+  const [message, setMessage] = useState("")
+
+  const handleCheckedChange = (next: boolean | "indeterminate") => {
+    if (!isLoggedIn) {
+      setMessage("此功能請登入後使用")
+      setPopoverOpen(true)
+      return
+    }
+    if (!hasBioInfo) {
+      setMessage("請於計算機填寫年齡、性別送出後查看")
+      setPopoverOpen(true)
+      return
+    }
+    onShowDrisChange(next === true)
+  }
+
+  // checkboxId 讓原生 <label htmlFor> 連結到 Radix Checkbox（內部會渲染 button）
+  const checkboxId = "dris-toggle-" + useId()
+
+  return (
+    <Popover open={popoverOpen} onOpenChange={setPopoverOpen}>
+      <PopoverAnchor asChild>
+        <div className={cn("flex items-center gap-1.5", className)}>
+          <Checkbox
+            id={checkboxId}
+            checked={showDris}
+            onCheckedChange={handleCheckedChange}
+            className="size-3.5"
+          />
+          <label
+            htmlFor={checkboxId}
+            className="text-xs text-muted-foreground cursor-pointer select-none"
+          >
+            顯示 DRIs
+          </label>
+        </div>
+      </PopoverAnchor>
+      <PopoverContent
+        side="bottom"
+        align="end"
+        className="w-auto p-2 text-xs"
+        onOpenAutoFocus={(e) => e.preventDefault()}
+      >
+        {message}
+      </PopoverContent>
+    </Popover>
+  )
+}
+
 // ─── 產品面板營養素內容區 ──────────────────────────────────────────────────────
 
 interface ProductPanelContentProps {
@@ -743,6 +816,8 @@ interface ProductPanelContentProps {
   type?: string
   selectedSpecKey: string | null
   onSelectedSpecKeyChange: (key: string) => void
+  showDris: boolean
+  onShowDrisChange: (next: boolean) => void
   className?: string
 }
 
@@ -760,6 +835,8 @@ function ProductPanelContent({
   type,
   selectedSpecKey,
   onSelectedSpecKeyChange,
+  showDris,
+  onShowDrisChange,
   className,
 }: ProductPanelContentProps) {
   const singleColumn = isCompareMode
@@ -831,9 +908,13 @@ function ProductPanelContent({
           kcalInput={kcalInput}
           selectedKey={selectedSpecKey}
           onSelectedKeyChange={onSelectedSpecKeyChange}
-          className="mb-3 justify-end"
+          className="mb-1 justify-end"
         />
       )}
+
+      <div className="flex justify-end mb-3">
+        <DrisToggle showDris={showDris} onShowDrisChange={onShowDrisChange} />
+      </div>
 
       {isLoading && <NutritionSkeleton singleColumn={singleColumn} />}
 
@@ -852,6 +933,7 @@ function ProductPanelContent({
               ingredients={displayIngredients}
               singleColumn={singleColumn}
               caloriesValue={displayIngredients["calories"] ?? 0}
+              showDris={showDris}
             />
           ))}
         </div>
@@ -886,6 +968,8 @@ interface MobileCompareViewProps {
   compareSelectedSpecKey: string | null
   onMainSelectedSpecKeyChange: (key: string) => void
   onCompareSelectedSpecKeyChange: (key: string) => void
+  showDris: boolean
+  onShowDrisChange: (next: boolean) => void
 }
 
 function MobileCompareView({
@@ -910,6 +994,8 @@ function MobileCompareView({
   compareSelectedSpecKey,
   onMainSelectedSpecKeyChange,
   onCompareSelectedSpecKeyChange,
+  showDris,
+  onShowDrisChange,
 }: MobileCompareViewProps) {
   const mainDisplay = useMemo(
     () => applyKcalScaling(mainIngredients, isKcalMode, kcalInput),
@@ -1050,6 +1136,11 @@ function MobileCompareView({
           </div>
         )}
 
+        {/* DRIs 顯示切換（兩欄共用） */}
+        <div className="flex justify-end px-3 py-2 border-b border-border/40">
+          <DrisToggle showDris={showDris} onShowDrisChange={onShowDrisChange} />
+        </div>
+
         {/* 三大營養素佔比（兩品分行顯示，便於比較） */}
         {!isLoading && showRatios && (
           <div className="px-3 py-2 space-y-1.5 border-b border-border/40">
@@ -1130,6 +1221,7 @@ function MobileCompareView({
                       bValue={compareDisplay[key]}
                       aCalories={mainDisplay["calories"] ?? 0}
                       bCalories={compareDisplay["calories"] ?? 0}
+                      showDris={showDris}
                     />
                   ))}
                 </div>
@@ -1149,12 +1241,14 @@ function MobileCompareNutrientRow({
   bValue,
   aCalories,
   bCalories,
+  showDris,
 }: {
   nutrientKey: string
   aValue: number | undefined
   bValue: number | undefined
   aCalories: number
   bCalories: number
+  showDris: boolean
 }) {
   const label = NUTRIENT_LABELS[nutrientKey] ?? nutrientKey
   const unit = NUTRIENT_UNITS[nutrientKey] ?? ""
@@ -1166,11 +1260,11 @@ function MobileCompareNutrientRow({
   const b = useDRIsCalculation(nutrientKey, bValue ?? 0, null, bCalories)
 
   const aDriParts =
-    hasBioInfo && aValue !== undefined && a.drisContent && a.drisContent.length > 0
+    showDris && hasBioInfo && aValue !== undefined && a.drisContent && a.drisContent.length > 0
       ? formatDriParts(a.drisContent, unit, aValue, a.calculatedValue)
       : []
   const bDriParts =
-    hasBioInfo && bValue !== undefined && b.drisContent && b.drisContent.length > 0
+    showDris && hasBioInfo && bValue !== undefined && b.drisContent && b.drisContent.length > 0
       ? formatDriParts(b.drisContent, unit, bValue, b.calculatedValue)
       : []
 
@@ -1227,6 +1321,9 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
   const [isKcalMode, setIsKcalMode] = useState(false)
   const [kcalInput, setKcalInput] = useState("100")
 
+  // 是否顯示每個營養素下方的 DRIs 文字（兩個面板共用，預設不顯示）
+  const [showDris, setShowDris] = useState(false)
+
   // 各 panel 各自的「以 X = Y」參考單位選擇（key 來自 buildSpecVariantOptions）
   const [mainSelectedSpecKey, setMainSelectedSpecKey] = useState<string | null>(null)
   const [compareSelectedSpecKey, setCompareSelectedSpecKey] = useState<string | null>(null)
@@ -1242,6 +1339,7 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
       setSearchQuery("")
       setIsKcalMode(false)
       setKcalInput("100")
+      setShowDris(false)
       setMainSelectedSpecKey(null)
       setCompareSelectedSpecKey(null)
     }
@@ -1410,6 +1508,8 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
                   type={mainItem.type ?? mainDetail?.type ?? ""}
                   selectedSpecKey={mainSelectedSpecKey}
                   onSelectedSpecKeyChange={setMainSelectedSpecKey}
+                  showDris={showDris}
+                  onShowDrisChange={setShowDris}
                   className="flex-1"
                 />
                 <ProductPanelContent
@@ -1426,6 +1526,8 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
                   type={compareItem.type ?? compareDetail?.type ?? ""}
                   selectedSpecKey={compareSelectedSpecKey}
                   onSelectedSpecKeyChange={setCompareSelectedSpecKey}
+                  showDris={showDris}
+                  onShowDrisChange={setShowDris}
                   className="flex-1 border-t border-border/60 md:border-t-0 md:border-l md:border-border/60"
                 />
               </div>
@@ -1454,6 +1556,8 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
               compareSelectedSpecKey={compareSelectedSpecKey}
               onMainSelectedSpecKeyChange={setMainSelectedSpecKey}
               onCompareSelectedSpecKeyChange={setCompareSelectedSpecKey}
+              showDris={showDris}
+              onShowDrisChange={setShowDris}
             />
           </>
         ) : (
@@ -1489,6 +1593,8 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
                 type={mainItem.type ?? mainDetail?.type ?? ""}
                 selectedSpecKey={mainSelectedSpecKey}
                 onSelectedSpecKeyChange={setMainSelectedSpecKey}
+                showDris={showDris}
+                onShowDrisChange={setShowDris}
               />
             </div>
           </div>
