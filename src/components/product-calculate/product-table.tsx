@@ -11,6 +11,7 @@ import { useProductCalculationEvents } from "@/hooks/useProductCalculationEvents
 import { ProductName } from "./product-name"
 import { ProductQuantityInput } from "./product-quantity-input"
 import { ProductTypeSelector } from "./product-type-selector"
+import { ProductTotalAmount } from "./product-total-amount"
 import { MealServingsCalculation } from "./meal-servings-calculation"
 
 export default function ProductTable({
@@ -53,11 +54,14 @@ export default function ProductTable({
                 <ProductQuantityInput item={item} onChange={handleInputChange} />
               </TableCell>
               <TableCell>
-                <ProductTypeSelector 
-                  selectData={item.select} 
-                  handleValueChange={handleValueChange} 
-                  productId={item.id} 
+                <ProductTypeSelector
+                  selectData={item.select}
+                  handleValueChange={handleValueChange}
+                  productId={item.id}
                 />
+              </TableCell>
+              <TableCell>
+                <ProductTotalAmount item={item} />
               </TableCell>
               <TableCell>
                 <Button className="cursor-pointer" variant="outline" onClick={() => handleRemoveProduct(item.id)}>移除</Button>
