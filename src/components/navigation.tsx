@@ -7,6 +7,7 @@ import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import ConditionalContent from "@/components/conditional-content";
 import { Skeleton } from "@/components/ui/skeleton"
 import { ArrowLeft } from "lucide-react"
+import WishPoolButton from "@/components/wish-pool-button"
 
 export default function Navigation() {
   const { session, loading, role } = useAuth();
@@ -48,6 +49,7 @@ export default function Navigation() {
             管理後台
           </Button>
         )}
+        <WishPoolButton />
         <Button className="cursor-pointer" onClick={() => router.push('/auth')}>{user ? "登出" : "註冊 / 登入"}</Button>
       </ConditionalContent>
     </nav>
