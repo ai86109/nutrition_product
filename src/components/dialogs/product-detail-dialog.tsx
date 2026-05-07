@@ -12,11 +12,21 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useProduct } from "@/contexts/ProductContext"
 import { ApiProductData, ApiProductListData, IngredientsData } from "@/types"
+import type { ProcessedSpec } from "@/types/api"
 import type { ProductImagePublic } from "@/types/product-images"
 import { getLinkPath } from "@/utils/external-links"
 import ProductImageLightbox from "@/components/dialogs/product-image-lightbox"
@@ -28,6 +38,8 @@ import {
   VITAMINS,
   NUTRIENT_LABELS,
   NUTRIENT_UNITS,
+  UNIT_MAPPINGS,
+  CALC_UNIT_MAPPINGS,
 } from "@/utils/constants"
 import { calcMacroRatios } from "@/utils/nutrition-calculations"
 import { cn } from "@/lib/utils"
@@ -465,6 +477,184 @@ function ProductPanelHeader({ item, detail, slotAction, className }: ProductPane
   )
 }
 
+// ─── kcal-對應-單位顯示（240ml ≈ 1罐（以 1罐=240ml）） ─────────────────────────
+//
+// 計算邏輯：
+//   factor = kcal / caloriesPer100
+//   mass   = factor * 100        // g（粉劑）或 ml（液劑）
+//   count  = mass / volume       // volume = 選定變體的「每單位 g/ml」
+//
+// 變體：來自 ApiProductData.spec[]。每筆 { unit, defaultAmount, volume }，
+//       同一個 unit 下可能有多筆（不同匙規）。多變體時用 Select 切換，
+//       單一變體則純文字顯示。
+
+interface SpecVariantOption {
+  key: string
+  unit: string
+  defaultAmount: number
+  volume: number
+}
+
+const buildSpecVariantOptions = (spec: ProcessedSpec[] | undefined): SpecVariantOption[] => {
+  if (!spec || spec.length === 0) return []
+  const counters: Record<string, number> = {}
+  return spec
+    .map((s) => {
+      const unit = s.unit ?? ""
+      const defaultAmount = Number(s.defaultAmount)
+      const volume = Number(s.volume)
+      if (!unit || !isFinite(defaultAmount) || !isFinite(volume) || volume <= 0) {
+        return null
+      }
+      const slug = UNIT_MAPPINGS[unit] ?? unit
+      counters[slug] = (counters[slug] ?? 0) + 1
+      return {
+        key: `${slug}-${counters[slug]}`,
+        unit,
+        defaultAmount,
+        volume,
+      } as SpecVariantOption
+    })
+    .filter((v): v is SpecVariantOption => v !== null)
+}
+
+// 把同 unit 的變體聚合成 Select 用的群組
+const groupSpecVariants = (
+  options: SpecVariantOption[]
+): { unit: string; items: SpecVariantOption[] }[] => {
+  const groups: { unit: string; items: SpecVariantOption[] }[] = []
+  for (const o of options) {
+    const last = groups[groups.length - 1]
+    if (last && last.unit === o.unit) last.items.push(o)
+    else groups.push({ unit: o.unit, items: [o] })
+  }
+  return groups
+}
+
+// 顯示用的小數處理：去尾零、最多保留 1 位（與 250kcal→55.1g 描述一致）
+const formatAmount = (value: number): string => {
+  if (!isFinite(value) || isNaN(value)) return "-"
+  return Number(value.toFixed(1)).toString()
+}
+
+// 根據劑型決定 mass 顯示單位（ml / g / g/ml fallback）
+const getMassUnit = (type: string): string =>
+  type === "液劑" ? "ml" : type === "粉劑" ? "g" : "g/ml"
+
+interface KcalUnitDisplayProps {
+  spec: ProcessedSpec[] | undefined
+  type: string
+  caloriesPer100: number
+  kcalInput: string
+  selectedKey: string | null
+  onSelectedKeyChange: (key: string) => void
+  className?: string
+}
+
+function KcalUnitDisplay({
+  spec,
+  type,
+  caloriesPer100,
+  kcalInput,
+  selectedKey,
+  onSelectedKeyChange,
+  className,
+}: KcalUnitDisplayProps) {
+  const variants = useMemo(() => buildSpecVariantOptions(spec), [spec])
+  const groups = useMemo(() => groupSpecVariants(variants), [variants])
+
+  const kcal = parseFloat(kcalInput)
+  if (!kcal || kcal <= 0 || isNaN(kcal)) return null
+  if (!caloriesPer100 || caloriesPer100 <= 0) return null
+
+  const massUnit = getMassUnit(type)
+  const mass = (kcal / caloriesPer100) * 100
+
+  // 找到目前選定的變體；若 selectedKey 不在 variants 內（例如剛切換產品）就退回第一筆
+  const selected =
+    variants.find((v) => v.key === selectedKey) ?? variants[0] ?? null
+
+  // 沒有任何變體 → 只顯示 mass，無 count、無括號
+  if (!selected) {
+    return (
+      <div className={cn("text-xs text-muted-foreground", className)}>
+        ≈ {formatAmount(mass)}
+        {massUnit}
+      </div>
+    )
+  }
+
+  const count = mass / selected.volume
+  const refTotal = selected.defaultAmount * selected.volume
+  const refUnit = CALC_UNIT_MAPPINGS[selected.unit] ?? massUnit
+  const isMultiVariant = variants.length > 1
+
+  // 共用：括號內單一變體時的純文字
+  const refText = (v: SpecVariantOption) =>
+    `${formatAmount(v.defaultAmount)}${v.unit}=${formatAmount(
+      v.defaultAmount * v.volume
+    )}${CALC_UNIT_MAPPINGS[v.unit] ?? getMassUnit(type)}`
+
+  return (
+    <div
+      className={cn(
+        "flex items-center gap-1.5 flex-wrap text-xs text-muted-foreground",
+        className
+      )}
+    >
+      <span className="tabular-nums">
+        {formatAmount(mass)}
+        {massUnit}
+      </span>
+      <span>≈</span>
+      <span className="tabular-nums">
+        {formatAmount(count)}
+        {selected.unit}
+      </span>
+      {isMultiVariant ? (
+        <span className="flex items-center gap-1">
+          <span>（以</span>
+          <Select value={selected.key} onValueChange={onSelectedKeyChange}>
+            <SelectTrigger
+              size="sm"
+              className="h-6 px-2 py-0 text-xs gap-1 w-auto min-w-0"
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {groups.map((g) =>
+                groups.length > 1 ? (
+                  <SelectGroup key={g.unit}>
+                    <SelectLabel>{g.unit}</SelectLabel>
+                    {g.items.map((v) => (
+                      <SelectItem key={v.key} value={v.key}>
+                        {refText(v)}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                ) : (
+                  g.items.map((v) => (
+                    <SelectItem key={v.key} value={v.key}>
+                      {refText(v)}
+                    </SelectItem>
+                  ))
+                )
+              )}
+            </SelectContent>
+          </Select>
+          <span>）</span>
+        </span>
+      ) : (
+        <span>
+          （以 {formatAmount(selected.defaultAmount)}
+          {selected.unit}={formatAmount(refTotal)}
+          {refUnit}）
+        </span>
+      )}
+    </div>
+  )
+}
+
 // ─── 產品面板營養素內容區 ──────────────────────────────────────────────────────
 
 interface ProductPanelContentProps {
@@ -477,6 +667,10 @@ interface ProductPanelContentProps {
   kcalInput: string
   onToggleKcal: () => void
   onKcalInputChange: (value: string) => void
+  spec?: ProcessedSpec[]
+  type?: string
+  selectedSpecKey: string | null
+  onSelectedSpecKeyChange: (key: string) => void
   className?: string
 }
 
@@ -490,6 +684,10 @@ function ProductPanelContent({
   kcalInput,
   onToggleKcal,
   onKcalInputChange,
+  spec,
+  type,
+  selectedSpecKey,
+  onSelectedSpecKeyChange,
   className,
 }: ProductPanelContentProps) {
   const singleColumn = isCompareMode
@@ -506,7 +704,7 @@ function ProductPanelContent({
 
   return (
     <div className={cn("px-5 py-4", className)}>
-      <div className="flex items-center justify-between mb-3">
+      <div className={cn("flex items-center justify-between", isKcalMode ? "mb-1.5" : "mb-3")}>
         <h3 className="text-sm font-semibold">營養素成分</h3>
         <div className="flex items-center gap-2">
           {isKcalMode ? (
@@ -552,6 +750,18 @@ function ProductPanelContent({
           </div>
         </div>
       </div>
+
+      {isKcalMode && (
+        <KcalUnitDisplay
+          spec={spec}
+          type={type ?? ""}
+          caloriesPer100={calories}
+          kcalInput={kcalInput}
+          selectedKey={selectedSpecKey}
+          onSelectedKeyChange={onSelectedSpecKeyChange}
+          className="mb-3 justify-end"
+        />
+      )}
 
       {isLoading && <NutritionSkeleton singleColumn={singleColumn} />}
 
@@ -599,6 +809,10 @@ interface MobileCompareViewProps {
   onKcalInputChange: (value: string) => void
   onCloseMain: () => void
   onCloseCompare: () => void
+  mainSelectedSpecKey: string | null
+  compareSelectedSpecKey: string | null
+  onMainSelectedSpecKeyChange: (key: string) => void
+  onCompareSelectedSpecKeyChange: (key: string) => void
 }
 
 function MobileCompareView({
@@ -619,6 +833,10 @@ function MobileCompareView({
   onKcalInputChange,
   onCloseMain,
   onCloseCompare,
+  mainSelectedSpecKey,
+  compareSelectedSpecKey,
+  onMainSelectedSpecKeyChange,
+  onCompareSelectedSpecKeyChange,
 }: MobileCompareViewProps) {
   const mainDisplay = useMemo(
     () => applyKcalScaling(mainIngredients, isKcalMode, kcalInput),
@@ -711,7 +929,7 @@ function MobileCompareView({
               </span>
             ) : (
               <span className="text-xs text-muted-foreground">
-                每 {unitShortMain}/{unitShortCompare}
+                每 100 {unitShortMain}/{unitShortCompare}
               </span>
             )}
             <button
@@ -728,6 +946,36 @@ function MobileCompareView({
             </button>
           </div>
         </div>
+
+        {/* kcal 模式時，兩欄各自的 kcal-對應-單位顯示 */}
+        {isKcalMode && (
+          <div className="grid grid-cols-2 gap-x-3 px-3 py-2 border-b border-border/40">
+            <div className="border-r border-border/60 pr-2 min-w-0">
+              <span className="text-[10px] text-muted-foreground mr-1 font-medium">A</span>
+              <KcalUnitDisplay
+                spec={mainDetail?.spec}
+                type={mainItem.type ?? mainDetail?.type ?? ""}
+                caloriesPer100={mainCalories}
+                kcalInput={kcalInput}
+                selectedKey={mainSelectedSpecKey}
+                onSelectedKeyChange={onMainSelectedSpecKeyChange}
+                className="inline-flex"
+              />
+            </div>
+            <div className="pl-2 min-w-0">
+              <span className="text-[10px] text-muted-foreground mr-1 font-medium">B</span>
+              <KcalUnitDisplay
+                spec={compareDetail?.spec}
+                type={compareItem.type ?? compareDetail?.type ?? ""}
+                caloriesPer100={compareCalories}
+                kcalInput={kcalInput}
+                selectedKey={compareSelectedSpecKey}
+                onSelectedKeyChange={onCompareSelectedSpecKeyChange}
+                className="inline-flex"
+              />
+            </div>
+          </div>
+        )}
 
         {/* 三大營養素佔比（兩品分行顯示，便於比較） */}
         {!isLoading && showRatios && (
@@ -855,6 +1103,10 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
   const [isKcalMode, setIsKcalMode] = useState(false)
   const [kcalInput, setKcalInput] = useState("100")
 
+  // 各 panel 各自的「以 X = Y」參考單位選擇（key 來自 buildSpecVariantOptions）
+  const [mainSelectedSpecKey, setMainSelectedSpecKey] = useState<string | null>(null)
+  const [compareSelectedSpecKey, setCompareSelectedSpecKey] = useState<string | null>(null)
+
   const isCompareMode = compareItem !== null
 
   // 開啟 dialog（或切換 item）時重置內部狀態
@@ -866,6 +1118,8 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
       setSearchQuery("")
       setIsKcalMode(false)
       setKcalInput("100")
+      setMainSelectedSpecKey(null)
+      setCompareSelectedSpecKey(null)
     }
     // 只在 open 切換或 item.id 變動時重置
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -886,6 +1140,15 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
   useEffect(() => {
     if (open && compareItem) fetchProductDetail(compareItem.id)
   }, [open, compareItem, fetchProductDetail])
+
+  // mainItem / compareItem 切換時清掉舊的 spec 選擇，讓 KcalUnitDisplay 退回新 spec 第一筆
+  useEffect(() => {
+    setMainSelectedSpecKey(null)
+  }, [mainItem.id])
+
+  useEffect(() => {
+    setCompareSelectedSpecKey(null)
+  }, [compareItem?.id])
 
   const mainDetail = productDetails[mainItem.id]
   const compareDetail = compareItem ? productDetails[compareItem.id] : undefined
@@ -1020,6 +1283,10 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
                   kcalInput={kcalInput}
                   onToggleKcal={handleToggleKcal}
                   onKcalInputChange={setKcalInput}
+                  spec={mainDetail?.spec}
+                  type={mainItem.type ?? mainDetail?.type ?? ""}
+                  selectedSpecKey={mainSelectedSpecKey}
+                  onSelectedSpecKeyChange={setMainSelectedSpecKey}
                   className="flex-1"
                 />
                 <ProductPanelContent
@@ -1032,6 +1299,10 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
                   kcalInput={kcalInput}
                   onToggleKcal={handleToggleKcal}
                   onKcalInputChange={setKcalInput}
+                  spec={compareDetail?.spec}
+                  type={compareItem.type ?? compareDetail?.type ?? ""}
+                  selectedSpecKey={compareSelectedSpecKey}
+                  onSelectedSpecKeyChange={setCompareSelectedSpecKey}
                   className="flex-1 border-t border-border/60 md:border-t-0 md:border-l md:border-border/60"
                 />
               </div>
@@ -1056,6 +1327,10 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
               onKcalInputChange={setKcalInput}
               onCloseMain={handleCloseMain}
               onCloseCompare={handleCloseCompare}
+              mainSelectedSpecKey={mainSelectedSpecKey}
+              compareSelectedSpecKey={compareSelectedSpecKey}
+              onMainSelectedSpecKeyChange={setMainSelectedSpecKey}
+              onCompareSelectedSpecKeyChange={setCompareSelectedSpecKey}
             />
           </>
         ) : (
@@ -1087,6 +1362,10 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
                 kcalInput={kcalInput}
                 onToggleKcal={handleToggleKcal}
                 onKcalInputChange={setKcalInput}
+                spec={mainDetail?.spec}
+                type={mainItem.type ?? mainDetail?.type ?? ""}
+                selectedSpecKey={mainSelectedSpecKey}
+                onSelectedSpecKeyChange={setMainSelectedSpecKey}
               />
             </div>
           </div>
