@@ -8,19 +8,23 @@ import { IngredientsData } from "@/types"
 import { useMemo } from "react"
 import { Cell, Pie, PieChart } from "recharts"
 import { calcMacroRatios } from "@/utils/nutrition-calculations"
+import { MACRO_DISPLAY } from "@/utils/macro-display"
 
+// 與 product-detail-dialog 的 MacroRatioLine 共用同一份色票（@/utils/macro-display）。
+// chart 的 nameKey 慣用 "carbohydrates"，因此這裡保留與 MACRO_DISPLAY 不同的鍵名，
+// 但 label / color 一律從 MACRO_DISPLAY 取用。
 const pieChartConfig: ChartConfig = {
   carbohydrates: {
-    label: "碳水化合物",
-    color: "#2f6f92",
+    label: MACRO_DISPLAY.carb.labelLong,
+    color: MACRO_DISPLAY.carb.color,
   },
   protein: {
-    label: "蛋白質",
-    color: "#d47a4a",
+    label: MACRO_DISPLAY.protein.label,
+    color: MACRO_DISPLAY.protein.color,
   },
   fat: {
-    label: "脂肪",
-    color: "#6f8f3a",
+    label: MACRO_DISPLAY.fat.label,
+    color: MACRO_DISPLAY.fat.color,
   },
 }
 

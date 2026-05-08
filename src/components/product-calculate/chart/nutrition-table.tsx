@@ -2,13 +2,11 @@ import { useBioInfo } from "@/contexts/BioInfoContext"
 import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations"
 import { IngredientsData } from "@/types"
 import { Fragment, useMemo, useState } from "react"
+import { NUTRIENTS_GROUP } from "@/utils/constants"
 import {
-  NUTRIENTS_GROUP,
-  MACRO_NUTRIENTS,
-  MACRO_MINERALS,
-  TRACE_MINERALS,
-  VITAMINS,
-} from "@/utils/constants"
+  getValidNutrientKeys,
+  groupNutrientsByCategory,
+} from "@/utils/nutrition-groups"
 import { Switch } from "@/components/ui/switch"
 import { WomanStateSelector } from "@/components/product-calculate/chart/woman-state-selector"
 import { CalorieHeroCard } from "./calorie-hero-card"
@@ -41,56 +39,34 @@ export function NutritionTable({
     }
   }, [isShowWomanStateOptions, womanState, pregnancyState])
 
-  const {
-    macroNutrientsList,
-    macroMineralsList,
-    traceMineralsList,
-    vitaminsList,
-    otherNutrientsList,
-  } = useMemo(() => {
-    const validKeys = Object.keys(ingredientsData).filter(key => {
-      const value = ingredientsData[key]
-      return value !== undefined && value >= 0
-    })
+  const validKeys = useMemo(
+    () => getValidNutrientKeys(ingredientsData),
+    [ingredientsData],
+  )
 
-    const othersList = validKeys.filter(
-      key =>
-        !MACRO_NUTRIENTS.includes(key) &&
-        !MACRO_MINERALS.includes(key) &&
-        !TRACE_MINERALS.includes(key) &&
-        !VITAMINS.includes(key),
-    )
+  const baseGroups = useMemo(
+    () => groupNutrientsByCategory(validKeys),
+    [validKeys],
+  )
 
-    return {
-      macroNutrientsList: MACRO_NUTRIENTS.filter(key => validKeys.includes(key)),
-      macroMineralsList: MACRO_MINERALS.filter(key => validKeys.includes(key)),
-      traceMineralsList: TRACE_MINERALS.filter(key => validKeys.includes(key)),
-      vitaminsList: VITAMINS.filter(key => validKeys.includes(key)),
-      otherNutrientsList: othersList.sort(),
-    }
-  }, [ingredientsData])
+  const hasCalories = validKeys.includes("calories")
+  const hasProtein = validKeys.includes("protein")
 
+  // 熱量、蛋白質改由 hero card 呈現，這裡的 macroNutrients 群組要把它們濾掉
   const orderedGroups = useMemo(() => {
-    // 熱量、蛋白質改由 hero card 呈現，這裡的 list 不再顯示這兩列
-    const macroNutrientsListWithoutHero = macroNutrientsList.filter(
-      key => key !== "calories" && key !== "protein",
-    )
-    const groups = [
-      { key: "macroNutrients", items: macroNutrientsListWithoutHero },
-      { key: "macroMinerals", items: macroMineralsList },
-      { key: "traceMinerals", items: traceMineralsList },
-      { key: "vitamins", items: vitaminsList },
-      { key: "others", items: otherNutrientsList },
-    ]
-
-    return groups.filter(group => group.items.length > 0)
-  }, [
-    macroNutrientsList,
-    macroMineralsList,
-    traceMineralsList,
-    vitaminsList,
-    otherNutrientsList,
-  ])
+    return baseGroups
+      .map(g =>
+        g.key === "macroNutrients"
+          ? {
+              ...g,
+              items: g.items.filter(
+                k => k !== "calories" && k !== "protein",
+              ),
+            }
+          : g,
+      )
+      .filter(g => g.items.length > 0)
+  }, [baseGroups])
 
   const handleWomanStateToggle = (state: "pregnancy" | "lactation") => {
     setWomanState(prev => (prev === state ? "none" : state))
@@ -105,12 +81,13 @@ export function NutritionTable({
     [ingredientsData, rounding],
   )
 
+  // 精簡模式只顯示巨量營養素（同樣去掉 calories/protein，那兩個由 hero card 呈現）
   const simpleList = useMemo(
     () =>
-      macroNutrientsList.filter(
-        key => key !== "calories" && key !== "protein",
-      ),
-    [macroNutrientsList],
+      baseGroups
+        .find(g => g.key === "macroNutrients")
+        ?.items.filter(k => k !== "calories" && k !== "protein") ?? [],
+    [baseGroups],
   )
 
   return (
@@ -133,11 +110,11 @@ export function NutritionTable({
         />
       )}
 
-      {macroNutrientsList.includes("calories") && (
+      {hasCalories && (
         <CalorieHeroCard value={caloriesValue} state={state} />
       )}
 
-      {macroNutrientsList.includes("protein") && (
+      {hasProtein && (
         <ProteinHeroCard value={proteinValue} state={state} />
       )}
 
