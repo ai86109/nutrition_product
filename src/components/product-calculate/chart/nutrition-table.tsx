@@ -12,17 +12,25 @@ import { WomanStateSelector } from "@/components/product-calculate/chart/woman-s
 import { CalorieHeroCard } from "./calorie-hero-card"
 import { ProteinHeroCard } from "./protein-hero-card"
 import { NutrientRow } from "./nutrient-row"
+import { ReportTrigger } from "@/components/dialogs/product-detail-dialog/report-trigger"
+import ProductReportDialog from "@/components/dialogs/product-report-dialog"
 
 export function NutritionTable({
   ingredientsData,
+  productId,
+  productName,
 }: {
   ingredientsData: IngredientsData
+  productId?: string
+  productName?: string
 }) {
   const { rounding } = useBioInfoCalculations()
   const { submittedValues } = useBioInfo()
   const { gender, age } = submittedValues
 
   const [isShowDetail, setIsShowDetail] = useState(false)
+  const [reportOpen, setReportOpen] = useState(false)
+  const isSingleProduct = !!productId && !!productName
   const [womanState, setWomanState] = useState<
     "none" | "pregnancy" | "lactation"
   >("none")
@@ -91,6 +99,7 @@ export function NutritionTable({
   )
 
   return (
+    <>
     <div className="flex flex-col space-y-4 w-full max-w-[400px]">
       <div className="flex items-center space-x-2 font-medium text-sm">
         <Switch
@@ -99,6 +108,12 @@ export function NutritionTable({
           className="cursor-pointer"
         />
         <span>顯示全部營養素</span>
+        {isSingleProduct && (
+          <ReportTrigger
+            onClick={() => setReportOpen(true)}
+            className="ml-2"
+          />
+        )}
       </div>
 
       {isShowWomanStateOptions && (
@@ -155,5 +170,14 @@ export function NutritionTable({
         )
       )}
     </div>
+    {isSingleProduct && (
+      <ProductReportDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        productId={productId}
+        productName={productName}
+      />
+    )}
+    </>
   )
 }

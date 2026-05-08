@@ -105,7 +105,7 @@ export default function ProductCalculateSection() {
           {listData.length > 0 && (
             <>
               <Separator className="my-4" />
-              <ChartSection ingredientsData={ingredientsData} />
+              <ChartSection ingredientsData={ingredientsData} listData={listData} />
             </>
           )}
         </div>
