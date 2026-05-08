@@ -1,0 +1,40 @@
+export type ProductReportStatus = 'planned' | 'in-progress' | 'completed'
+
+export type ProductReportCategory =
+  | 'nutrition'        // 營養品成分有誤
+  | 'spec'             // 包裝 / 容量 / 匙數有誤
+  | 'classification'   // 營養品分類有誤
+  | 'other'            // 其他問題
+
+export interface ProductReport {
+  id: string
+  product_id: string
+  user_id: string | null
+  reporter_name: string | null
+  category: ProductReportCategory
+  description: string
+  status: ProductReportStatus
+  admin_note: string | null
+  created_at: string
+  updated_at: string
+}
+
+/**
+ * Admin 列表用：含產品中文名與回報者 email（join 後取得，可能為 null）。
+ * - product_name 為 null：對應的 products row 已被刪除（因 FK on delete cascade，
+ *   實務上不會出現 null，但保留欄位以對齊 RPC 回傳型別）。
+ * - user_email 為 null：訪客回報，或登入用戶帳號已刪除。
+ */
+export interface ProductReportWithMeta extends ProductReport {
+  product_name: string | null
+  user_email: string | null
+}
+
+/** 送出 report 時的 payload。user_id 由前端依登入狀態決定。 */
+export interface CreateProductReportInput {
+  product_id: string
+  user_id: string | null
+  reporter_name: string | null
+  category: ProductReportCategory
+  description: string
+}

@@ -3,10 +3,11 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Users, Package, Sparkles, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Users, Package, Sparkles, Flag, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const PRODUCTS_HREF = '/admin/products'
+const REPORTS_HREF = '/admin/reports'
 
 const navItems = [
   {
@@ -20,6 +21,11 @@ const navItems = [
     icon: Package,
   },
   {
+    label: '錯誤回報',
+    href: REPORTS_HREF,
+    icon: Flag,
+  },
+  {
     label: '許願池',
     href: '/admin/wishes',
     icon: Sparkles,
@@ -29,13 +35,18 @@ const navItems = [
 interface AdminSidebarProps {
   /** 待處理產品數，用來在「營養品管理」那列顯示紅點 badge */
   pendingProductCount?: number
+  /** 待處理錯誤回報數，用來在「錯誤回報」那列顯示紅點 badge */
+  pendingReportCount?: number
 }
 
 function formatBadgeCount(n: number): string {
   return n > 99 ? '99+' : String(n)
 }
 
-export default function AdminSidebar({ pendingProductCount = 0 }: AdminSidebarProps) {
+export default function AdminSidebar({
+  pendingProductCount = 0,
+  pendingReportCount = 0,
+}: AdminSidebarProps) {
   const [expanded, setExpanded] = useState(true)
   const pathname = usePathname()
 
@@ -65,7 +76,12 @@ export default function AdminSidebar({ pendingProductCount = 0 }: AdminSidebarPr
       <nav className="flex flex-col gap-1 p-2 flex-1">
         {navItems.map(({ label, href, icon: Icon }) => {
           const isActive = pathname === href
-          const badgeCount = href === PRODUCTS_HREF ? pendingProductCount : 0
+          const badgeCount =
+            href === PRODUCTS_HREF
+              ? pendingProductCount
+              : href === REPORTS_HREF
+                ? pendingReportCount
+                : 0
           const showBadge = badgeCount > 0
 
           return (

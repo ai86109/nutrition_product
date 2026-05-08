@@ -35,6 +35,7 @@ import type { ProcessedSpec } from "@/types/api"
 import type { ProductImagePublic } from "@/types/product-images"
 import { getLinkPath } from "@/utils/external-links"
 import ProductImageLightbox from "@/components/dialogs/product-image-lightbox"
+import ProductReportDialog from "@/components/dialogs/product-report-dialog"
 import {
   NUTRIENTS_GROUP,
   MACRO_NUTRIENTS,
@@ -735,6 +736,33 @@ function KcalUnitDisplay({
   )
 }
 
+// ─── 錯誤回報觸發按鈕 ─────────────────────────────────────────────────────────
+// 「數據有誤？點我回報」小字按鈕，點擊後開啟 ProductReportDialog。
+// 不論是否登入皆可使用（dialog 內部自行依 isLoggedIn 切換 reporter_name 欄位）。
+interface ReportTriggerProps {
+  onClick: () => void
+  /** 比較模式時用來標示「回報 A / B 錯誤」；單品模式不傳 */
+  panelLabel?: string
+  className?: string
+}
+
+function ReportTrigger({ onClick, panelLabel, className }: ReportTriggerProps) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={cn(
+        "text-xs text-muted-foreground hover:text-foreground transition-colors",
+        "underline-offset-2 hover:underline",
+        "focus:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded",
+        className,
+      )}
+    >
+      {panelLabel ? `回報 ${panelLabel} 錯誤` : "數據有誤？點我回報"}
+    </button>
+  )
+}
+
 // ─── DRIs 顯示切換 ─────────────────────────────────────────────────────────────
 // 控制是否顯示每個營養素下方的 DRIs 文字。
 // 點擊時若未登入或缺 gender/age，用 controlled popover 顯示提示，state 不變動。
@@ -818,6 +846,9 @@ interface ProductPanelContentProps {
   onSelectedSpecKeyChange: (key: string) => void
   showDris: boolean
   onShowDrisChange: (next: boolean) => void
+  /** 用於錯誤回報 dialog 自動帶入產品識別 */
+  productId: string
+  productName: string
   className?: string
 }
 
@@ -837,8 +868,11 @@ function ProductPanelContent({
   onSelectedSpecKeyChange,
   showDris,
   onShowDrisChange,
+  productId,
+  productName,
   className,
 }: ProductPanelContentProps) {
+  const [reportOpen, setReportOpen] = useState(false)
   const singleColumn = isCompareMode
   const calories = ingredients["calories"] ?? 0
 
@@ -912,7 +946,8 @@ function ProductPanelContent({
         />
       )}
 
-      <div className="flex justify-end mb-3">
+      <div className="flex items-center justify-between mb-3 gap-2">
+        <ReportTrigger onClick={() => setReportOpen(true)} />
         <DrisToggle showDris={showDris} onShowDrisChange={onShowDrisChange} />
       </div>
 
@@ -938,6 +973,13 @@ function ProductPanelContent({
           ))}
         </div>
       )}
+
+      <ProductReportDialog
+        open={reportOpen}
+        onOpenChange={setReportOpen}
+        productId={productId}
+        productName={productName}
+      />
     </div>
   )
 }
@@ -997,6 +1039,10 @@ function MobileCompareView({
   showDris,
   onShowDrisChange,
 }: MobileCompareViewProps) {
+  // 比較模式下使用單一 dialog，由 reportTarget 決定要回報哪一品
+  const [reportTarget, setReportTarget] = useState<"A" | "B" | null>(null)
+  const reportItem = reportTarget === "A" ? mainItem : reportTarget === "B" ? compareItem : null
+
   const mainDisplay = useMemo(
     () => applyKcalScaling(mainIngredients, isKcalMode, kcalInput),
     [mainIngredients, isKcalMode, kcalInput]
@@ -1136,8 +1182,18 @@ function MobileCompareView({
           </div>
         )}
 
-        {/* DRIs 顯示切換（兩欄共用） */}
-        <div className="flex justify-end px-3 py-2 border-b border-border/40">
+        {/* DRIs 顯示切換（兩欄共用） + 各自的回報按鈕 */}
+        <div className="flex items-center justify-between gap-2 px-3 py-2 border-b border-border/40">
+          <div className="flex items-center gap-3">
+            <ReportTrigger
+              onClick={() => setReportTarget("A")}
+              panelLabel="A"
+            />
+            <ReportTrigger
+              onClick={() => setReportTarget("B")}
+              panelLabel="B"
+            />
+          </div>
           <DrisToggle showDris={showDris} onShowDrisChange={onShowDrisChange} />
         </div>
 
@@ -1230,6 +1286,17 @@ function MobileCompareView({
           </div>
         )}
       </div>
+
+      {reportItem && (
+        <ProductReportDialog
+          open={reportTarget !== null}
+          onOpenChange={(open) => {
+            if (!open) setReportTarget(null)
+          }}
+          productId={reportItem.id}
+          productName={reportItem.name}
+        />
+      )}
     </div>
   )
 }
@@ -1510,6 +1577,8 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
                   onSelectedSpecKeyChange={setMainSelectedSpecKey}
                   showDris={showDris}
                   onShowDrisChange={setShowDris}
+                  productId={mainItem.id}
+                  productName={mainItem.name}
                   className="flex-1"
                 />
                 <ProductPanelContent
@@ -1528,6 +1597,8 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
                   onSelectedSpecKeyChange={setCompareSelectedSpecKey}
                   showDris={showDris}
                   onShowDrisChange={setShowDris}
+                  productId={compareItem.id}
+                  productName={compareItem.name}
                   className="flex-1 border-t border-border/60 md:border-t-0 md:border-l md:border-border/60"
                 />
               </div>
@@ -1595,6 +1666,8 @@ export function ProductDetailDialog({ item, open, onOpenChange }: ProductDetailD
                 onSelectedSpecKeyChange={setMainSelectedSpecKey}
                 showDris={showDris}
                 onShowDrisChange={setShowDris}
+                productId={mainItem.id}
+                productName={mainItem.name}
               />
             </div>
           </div>
