@@ -61,7 +61,7 @@ function InfoCard({
           background: accentBg,
           padding: "4px 10px",
           borderRadius: "6px",
-          width: "fit-content",
+          alignSelf: "flex-start",
         }}
       >
         {label}

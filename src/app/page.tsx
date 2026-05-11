@@ -5,6 +5,8 @@ import { SearchProvider } from "@/contexts/SearchContext";
 import { getProductListFromSupabase } from "@/lib/products-server";
 import Navigation from "@/components/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
   const products = await getProductListFromSupabase();
 
