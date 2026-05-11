@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: "/",
       disallow: ["/admin/", "/api/"],
     },
-    sitemap: `${process.env.SITE_URL}/sitemap.xml`,
+    sitemap: `${process.env.SITE_URL ?? "https://nutrition-product.vercel.app"}/sitemap.xml`,
   };
 }

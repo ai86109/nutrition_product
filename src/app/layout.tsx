@@ -15,11 +15,32 @@ const geistMono = Geist_Mono({
 });
 
 const siteUrl = process.env.SITE_URL ?? "https://nutrition-product.vercel.app";
-const siteDescription = "專業的營養品資料查詢平台，提供完整的產品資訊、營養成分和規格查詢服務";
+const siteDescription = "專業的營養品資料查詢平台，提供完整的產品資訊、營養成分和規格查詢服務，專為臨床營養師設計，支援 TDEE、IBW、ABW 估算與多產品比較。";
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "NutriBase",
+  url: siteUrl,
+  description:
+    "衛福部核准特定疾病配方食品資料庫，提供管灌配方、口服補充品的熱量、蛋白質、DRIs 計算。專為臨床營養師設計，支援 TDEE、IBW、ABW 估算與多產品比較。",
+  applicationCategory: "HealthApplication",
+  operatingSystem: "Web",
+  inLanguage: "zh-TW",
+  audience: {
+    "@type": "Audience",
+    audienceType: "臨床營養師",
+  },
+  offers: {
+    "@type": "Offer",
+    price: "0",
+    priceCurrency: "TWD",
+  },
+};
 
 export const metadata: Metadata = {
   title: {
-    default: "NutriBase | 營養品查詢計算",
+    default: "營養品查詢計算 | NutriBase 營養師工具",
     template: "%s | NutriBase",
   },
   description: siteDescription,
@@ -54,6 +75,10 @@ export default function RootLayout({
     <html lang="zh-TW">
       <head>
         <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"></link>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-200`}
