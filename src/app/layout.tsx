@@ -17,6 +17,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "NutriBase",
   description: "專業的營養品資料查詢平台，提供完整的產品資訊、營養成分和規格查詢服務",
+  verification: {
+    google: "YgmxiBR8p0Ay-ZnXVpG2N0V_-9lJMBucav5vhfRYKgA",
+  },
 };
 
 export default function RootLayout({
