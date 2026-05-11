@@ -75,6 +75,42 @@ export async function getProductDetailFromSupabase(id: string) {
   }
 }
 
+/**
+ * 取得 products 表最後同步時間，給 footer 顯示「資料最後同步」。
+ * 優先用 updated_at，欄位不存在則 fallback 到 created_at；都查不到回傳 null（footer 就不顯示日期）。
+ */
+export async function getProductsLastSyncedAt(): Promise<string | null> {
+  const supabase = await createClientForServer()
+
+  // 嘗試 updated_at
+  const updatedResult = await supabase
+    .from('products')
+    .select('updated_at')
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (!updatedResult.error) {
+    const row = updatedResult.data as { updated_at?: string | null } | null
+    if (row?.updated_at) return row.updated_at
+  }
+
+  // fallback created_at
+  const createdResult = await supabase
+    .from('products')
+    .select('created_at')
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle()
+
+  if (!createdResult.error) {
+    const row = createdResult.data as { created_at?: string | null } | null
+    if (row?.created_at) return row.created_at
+  }
+
+  return null
+}
+
 // 保留舊函式，供既有程式碼相容
 export async function getProductFromSupabase() {
   try {
