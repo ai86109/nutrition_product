@@ -17,11 +17,19 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useState } from "react"
+import { toast } from "sonner"
 import { TDEEList } from "@/types"
 import { useUserSetting } from '@/hooks/useUserSetting'
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { useTdeeSettings } from "@/hooks/localStorage-related/useTdeeSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  MAX_TDEE_NAME_LENGTH,
+  TDEE_ACTIVITY_FACTOR_MIN,
+  TDEE_ACTIVITY_FACTOR_MAX,
+  TDEE_STRESS_FACTOR_MIN,
+  TDEE_STRESS_FACTOR_MAX,
+} from "@/utils/constants";
 
 const DEFAULT_TDEE_ITEM: TDEEList = {
   name: '',
@@ -46,7 +54,7 @@ export function TDEEEditDialog() {
   }
 
   const checkLogin = () => {
-    if (!isLoggedIn) alert("此功能請登入後使用");
+    if (!isLoggedIn) toast.error("此功能請登入後使用");
     return isLoggedIn;
   }
 
@@ -58,29 +66,62 @@ export function TDEEEditDialog() {
   const handleAdd = () => {
     if (!checkLogin()) return;
     const { name, activityFactor, stressFactor } = newTDEEFactors;
-    if (!name || !activityFactor || !stressFactor) {
-      alert("欄位不能為空");
+    const trimmedName = String(name).trim();
+
+    // 空欄位
+    if (!trimmedName || activityFactor === '' || stressFactor === '') {
+      toast.error("欄位不能為空");
       return;
     }
 
-    // add to list
-    const newItem = {
-      name: name.trim(),
-      activityFactor: Number(activityFactor),
-      stressFactor: Number(stressFactor),
+    // name 字數
+    if (trimmedName.length > MAX_TDEE_NAME_LENGTH) {
+      toast.error(`名稱請控制在 ${MAX_TDEE_NAME_LENGTH} 字以內`);
+      return;
     }
-    addList(newItem);
+
+    // 數值範圍
+    const a = Number(activityFactor);
+    const s = Number(stressFactor);
+    if (!Number.isFinite(a) || a < TDEE_ACTIVITY_FACTOR_MIN || a > TDEE_ACTIVITY_FACTOR_MAX) {
+      toast.error(`活動因子請介於 ${TDEE_ACTIVITY_FACTOR_MIN}–${TDEE_ACTIVITY_FACTOR_MAX} 之間`);
+      return;
+    }
+    if (!Number.isFinite(s) || s < TDEE_STRESS_FACTOR_MIN || s > TDEE_STRESS_FACTOR_MAX) {
+      toast.error(`壓力因子請介於 ${TDEE_STRESS_FACTOR_MIN}–${TDEE_STRESS_FACTOR_MAX} 之間`);
+      return;
+    }
+
+    // add to list（cap 由 hook 內部檢查 + toast）
+    const newItem = {
+      name: trimmedName,
+      activityFactor: a,
+      stressFactor: s,
+    }
+    const ok = addList(newItem);
+    if (!ok) return; // cap 已擋下
 
     // reset input fields
     setNewTDEEFactors(DEFAULT_TDEE_ITEM);
   }
 
-  const handleDialogOpen = (isOpen: boolean) => {
+  const handleDialogOpen = async (isOpen: boolean) => {
     setOpen(isOpen);
     if (isOpen && isLoggedIn && JSON.stringify(tdeeList) !== JSON.stringify(tdeeFactors)) {
       setTDEEList(tdeeFactors);
+      return;
     }
-    if (!isOpen && isLoggedIn) updateSetting('tdee', tdeeList);
+    if (!isOpen && isLoggedIn) {
+      // 只有實際有變更才寫回 + toast，避免單純打開又關掉也跳訊息
+      if (JSON.stringify(tdeeList) === JSON.stringify(tdeeFactors)) return;
+      try {
+        await updateSetting('tdee', tdeeList);
+        toast.success("已更新 TDEE 參數");
+      } catch (err) {
+        console.error(err);
+        toast.error("儲存失敗，請稍後再試");
+      }
+    }
   }
 
   return (
@@ -116,13 +157,41 @@ export function TDEEEditDialog() {
             ))}
             <TableRow>
               <TableCell>
-                <Input className="w-[60px] sm:w-[100px]" id="name" type="text" placeholder="" value={newTDEEFactors.name} onChange={handleNewFactorInputChange} />
+                <Input
+                  className="w-[60px] sm:w-[100px]"
+                  id="name"
+                  type="text"
+                  placeholder=""
+                  value={newTDEEFactors.name}
+                  onChange={handleNewFactorInputChange}
+                  maxLength={MAX_TDEE_NAME_LENGTH + 5}
+                />
               </TableCell>
               <TableCell>
-                <Input className="w-[55px] sm:w-[60px]" id="activityFactor" type="number" step={0.1} placeholder="" value={newTDEEFactors.activityFactor} onChange={handleNewFactorInputChange} />
+                <Input
+                  className="w-[55px] sm:w-[60px]"
+                  id="activityFactor"
+                  type="number"
+                  step={0.1}
+                  min={TDEE_ACTIVITY_FACTOR_MIN}
+                  max={TDEE_ACTIVITY_FACTOR_MAX}
+                  placeholder=""
+                  value={newTDEEFactors.activityFactor}
+                  onChange={handleNewFactorInputChange}
+                />
               </TableCell>
               <TableCell>
-                <Input className="w-[55px] sm:w-[60px]" id="stressFactor" type="number" step={0.1} placeholder="" value={newTDEEFactors.stressFactor} onChange={handleNewFactorInputChange} />
+                <Input
+                  className="w-[55px] sm:w-[60px]"
+                  id="stressFactor"
+                  type="number"
+                  step={0.1}
+                  min={TDEE_STRESS_FACTOR_MIN}
+                  max={TDEE_STRESS_FACTOR_MAX}
+                  placeholder=""
+                  value={newTDEEFactors.stressFactor}
+                  onChange={handleNewFactorInputChange}
+                />
               </TableCell>
               <TableCell>
                 <Button className="text-xs sm:text-sm" onClick={handleAdd}>新增</Button>

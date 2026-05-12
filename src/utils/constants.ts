@@ -336,6 +336,16 @@ export const MAX_NOTE_TEMPLATES = 3
 export const MAX_NOTE_TEMPLATE_TITLE_LENGTH = 30
 export const MAX_NOTE_TEMPLATE_CONTENT_LENGTH = 300
 
+/** TDEE 自訂組合上限（含 DEFAULT_TDEE_SETTINGS 預設那 1 筆）。 */
+export const MAX_TDEE_ENTRIES = 5
+export const MAX_TDEE_NAME_LENGTH = 20
+/** 活動因子範圍 */
+export const TDEE_ACTIVITY_FACTOR_MIN = 0.1
+export const TDEE_ACTIVITY_FACTOR_MAX = 5
+/** 壓力因子範圍 */
+export const TDEE_STRESS_FACTOR_MIN = 0.1
+export const TDEE_STRESS_FACTOR_MAX = 5
+
 export const DEFAULT_NOTE_TEMPLATES_SETTINGS: NoteTemplate[] = []
 
 export const DRIS: DRISData = {
