@@ -126,4 +126,14 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* 防止 iOS Safari 在聚焦 input / select / textarea 時自動放大畫面
+     （iOS 只要 font-size < 16px 就會觸發 zoom，用 max() 僅在必要時補到 16px） */
+  @media screen and (max-width: 767px) {
+    input,
+    select,
+    textarea {
+      font-size: max(16px, 1em);
+    }
+  }
 }

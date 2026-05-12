@@ -113,7 +113,7 @@ export function MobileCompareView({
   const showRatios = Boolean(mainRatios || compareRatios)
 
   return (
-    <div className="md:hidden flex flex-col overflow-hidden">
+    <div className="md:hidden flex flex-col">
       <div className="overflow-y-auto max-h-[80vh]">
         {/* 完整 mini header 區（左右並排，會被滾走） */}
         <div className="grid grid-cols-2 border-b border-border/60">
@@ -142,7 +142,7 @@ export function MobileCompareView({
         </div>
 
         {/* sticky 純品名列（不含其他資訊） */}
-        <div className="sticky top-0 z-10 grid grid-cols-2 bg-background/95 backdrop-blur border-b border-border/60">
+        <div className="sticky top-0 z-10 grid grid-cols-2 bg-background border-b border-border/60">
           <div className="px-3 py-2 text-sm font-semibold truncate border-r border-border/60">
             {mainItem.name}
           </div>
