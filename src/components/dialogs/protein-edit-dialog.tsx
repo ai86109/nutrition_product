@@ -18,6 +18,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { useState } from "react"
+import { toast } from "sonner"
 import { useProteinSettings } from "@/hooks/localStorage-related/useProteinSettings";
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
@@ -31,7 +32,7 @@ export function ProteinEditDialog() {
   const [open, setOpen] = useState(false);
 
   const checkLogin = () => {
-    if (!isLoggedIn) alert("此功能請登入後使用");
+    if (!isLoggedIn) toast.error("此功能請登入後使用");
     return isLoggedIn;
   }
 

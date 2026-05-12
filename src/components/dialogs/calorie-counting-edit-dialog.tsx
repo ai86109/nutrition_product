@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input"
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { useCalorieSettings } from "@/hooks/localStorage-related/useCalorieSettings";
 import { useState } from "react";
+import { toast } from "sonner";
 import { useUserSetting } from '@/hooks/useUserSetting'
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -31,7 +32,7 @@ export function CalorieCountingEditDialog() {
   const [open, setOpen] = useState(false);
 
   const checkLogin = () => {
-    if (!isLoggedIn) alert("此功能請登入後使用");
+    if (!isLoggedIn) toast.error("此功能請登入後使用");
     return isLoggedIn;
   }
 

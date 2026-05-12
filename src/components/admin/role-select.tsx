@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import {
   Select,
   SelectContent,
@@ -38,7 +39,7 @@ export default function RoleSelect({ userId, currentRole, disabled }: RoleSelect
     } catch (error) {
       console.error('Failed to update role:', error)
       setRole(previousRole)
-      alert('更新角色失敗，請稍後再試')
+      toast.error('更新角色失敗，請稍後再試')
     } finally {
       setLoading(false)
     }

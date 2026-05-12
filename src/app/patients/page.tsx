@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 import Navigation from "@/components/navigation"
 import PatientFilters from "@/components/patients/patient-filters"
 import PatientListItem from "@/components/patients/patient-list-item"
@@ -228,7 +229,7 @@ export default function PatientsPage() {
         reload()
       } catch (err) {
         console.error(err)
-        alert("更新排序失敗，請稍後再試")
+        toast.error("更新排序失敗，請稍後再試")
         reload()
       }
     },

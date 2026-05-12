@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 import {
   DndContext,
   PointerSensor,
@@ -74,7 +75,7 @@ export default function AdminProductImagesSheet({
       setImages(list)
     } catch (err) {
       console.error('Failed to load product images:', err)
-      alert('載入圖片清單失敗，請重新開啟此面板')
+      toast.error('載入圖片清單失敗，請重新開啟此面板')
     } finally {
       setLoading(false)
     }
@@ -104,11 +105,11 @@ export default function AdminProductImagesSheet({
     // 前端先擋：超過上限的部分截掉
     const acceptCount = Math.min(fileArr.length, remainingSlots)
     if (acceptCount === 0) {
-      alert(`已達 ${PRODUCT_IMAGE_MAX_COUNT} 張上限`)
+      toast.error(`已達 ${PRODUCT_IMAGE_MAX_COUNT} 張上限`)
       return
     }
     if (acceptCount < fileArr.length) {
-      alert(
+      toast.warning(
         `目前只能再上傳 ${remainingSlots} 張，已自動取前 ${acceptCount} 張處理`
       )
     }
@@ -153,7 +154,7 @@ export default function AdminProductImagesSheet({
       } catch (err) {
         console.error(`Upload failed for ${file.name}:`, err)
         const msg = err instanceof Error ? err.message : '未知錯誤'
-        alert(`上傳「${file.name}」失敗：${msg}`)
+        toast.error(`上傳「${file.name}」失敗：${msg}`)
         // 失敗後中斷批次，不繼續處理剩下的
         break
       }
@@ -192,7 +193,7 @@ export default function AdminProductImagesSheet({
       )
     } catch (err) {
       console.error('Reorder failed:', err)
-      alert('重新排序失敗，已還原順序')
+      toast.error('重新排序失敗，已還原順序')
       setImages(previous)
     }
   }
@@ -207,7 +208,7 @@ export default function AdminProductImagesSheet({
       await deleteProductImage(image.id)
     } catch (err) {
       console.error('Delete failed:', err)
-      alert('刪除失敗，已還原')
+      toast.error('刪除失敗，已還原')
       setImages(previous)
     }
   }

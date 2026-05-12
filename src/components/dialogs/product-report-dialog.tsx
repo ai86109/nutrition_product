@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
@@ -108,7 +109,7 @@ export default function ProductReportDialog({
         description,
       })
       onOpenChange(false)
-      alert("已收到你的回報，謝謝！")
+      toast.success("已收到你的回報，謝謝！")
     } catch (err) {
       console.error(err)
       setError("送出失敗，請稍後再試")

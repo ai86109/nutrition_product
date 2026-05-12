@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import {
   Select,
   SelectContent,
@@ -40,7 +41,7 @@ export default function ProductStatusSelect({
     } catch (error) {
       console.error('Failed to update product status:', error)
       setStatus(previous)
-      alert('更新產品狀態失敗，請稍後再試')
+      toast.error('更新產品狀態失敗，請稍後再試')
     } finally {
       setLoading(false)
     }

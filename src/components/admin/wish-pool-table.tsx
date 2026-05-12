@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import {
   Table,
   TableBody,
@@ -79,7 +80,7 @@ export default function WishPoolTable({ wishes: initialWishes }: WishPoolTablePr
     } catch (err) {
       console.error('Failed to update wish status:', err)
       setWishes(prev)
-      alert('更新狀態失敗，請稍後再試')
+      toast.error('更新狀態失敗，請稍後再試')
     }
   }
 
@@ -100,7 +101,7 @@ export default function WishPoolTable({ wishes: initialWishes }: WishPoolTablePr
     } catch (err) {
       console.error('Failed to update admin note:', err)
       setWishes(prev)
-      alert('更新備註失敗，請稍後再試')
+      toast.error('更新備註失敗，請稍後再試')
     }
   }
 

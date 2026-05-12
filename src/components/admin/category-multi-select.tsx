@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 import { ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
@@ -40,7 +41,7 @@ export default function CategoryMultiSelect({
     } catch (error) {
       console.error('Failed to update categories:', error)
       setCategories(previous)
-      alert('更新配方種類失敗，請稍後再試')
+      toast.error('更新配方種類失敗，請稍後再試')
     } finally {
       setLoading(false)
     }

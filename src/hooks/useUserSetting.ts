@@ -1,6 +1,7 @@
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { upsertUserPreferences } from "@/lib/supabase/mutations/user-preferences";
 import { useCallback } from "react";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
 type SettingField = 'calorie' | 'tdee' | 'protein' | 'history' | 'favorite' | 'noteTemplates';
@@ -32,7 +33,10 @@ export function useUserSetting() {
   }, [calorieFactors, tdeeFactors, proteinFactors, history, favorites, noteTemplates]);
 
   const updateSetting = useCallback(async (field: SettingField, newSettings: unknown) => {
-    if (!userId) return alert("此功能請登入後使用");
+    if (!userId) {
+      toast.error("此功能請登入後使用");
+      return;
+    }
     if (JSON.stringify(newSettings) === JSON.stringify(getCurrentSettings(field))) return;
 
     const columnName = FIELD_TO_COLUMN[field];

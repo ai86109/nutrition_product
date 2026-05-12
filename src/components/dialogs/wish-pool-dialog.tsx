@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
@@ -60,8 +61,7 @@ export default function WishPoolDialog({ open, onOpenChange }: WishPoolDialogPro
     try {
       await createWish(userId, content)
       onOpenChange(false)
-      // 簡單的成功提示，後續若引入 toast 元件可改成 toast
-      alert("已收到你的許願，謝謝！")
+      toast.success("已收到你的許願，謝謝！")
     } catch (err) {
       console.error(err)
       setError("送出失敗，請稍後再試")

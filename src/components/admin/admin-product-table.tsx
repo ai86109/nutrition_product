@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import {
   Table,
   TableBody,
@@ -109,7 +110,7 @@ function ApprovedSwitch({
     } catch (error) {
       console.error('Failed to update is_approved:', error)
       setChecked(previous)
-      alert('更新「配方種類是否顯示」失敗，請稍後再試')
+      toast.error('更新「配方種類是否顯示」失敗，請稍後再試')
     } finally {
       setLoading(false)
     }
