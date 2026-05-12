@@ -328,6 +328,9 @@ export const DEFAULT_HISTORY_SETTINGS: string[] = []
 
 export const DEFAULT_FAVORITE_SETTINGS: string[] = []
 
+/** 收藏上限。未來上 tier 制可以改成 getFavoriteLimit(plan) 之類的函式。 */
+export const MAX_FAVORITES = 5
+
 export const DEFAULT_NOTE_TEMPLATES_SETTINGS: NoteTemplate[] = []
 
 export const DRIS: DRISData = {
