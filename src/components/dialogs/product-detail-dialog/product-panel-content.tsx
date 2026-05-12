@@ -89,7 +89,7 @@ export function ProductPanelContent({
                 type="number"
                 value={kcalInput}
                 onChange={(e) => onKcalInputChange(e.target.value)}
-                className="h-5 w-14 text-xs px-1.5 text-right [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                className="h-5 w-14 text-base sm:text-xs px-1.5 text-right [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 min={1}
               />
               kcal

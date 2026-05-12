@@ -61,10 +61,11 @@ export function CompareTrigger({
               className="h-8 text-sm"
             />
           </div>
-          {/* onWheel stopPropagation 防止 Dialog scroll lock 攔截滾輪事件 */}
+          {/* onWheel / onTouchMove stopPropagation 防止 Dialog scroll lock 攔截滾輪與觸控事件 */}
           <ul
             className="max-h-[280px] overflow-y-auto py-1"
             onWheel={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
           >
             {options.length === 0 && (
               <li className="px-3 py-6 text-center text-sm text-muted-foreground">
