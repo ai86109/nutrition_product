@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { renamePatient } from "@/lib/supabase/mutations/patients"
+import { MAX_PATIENT_NAME_LENGTH } from "@/utils/constants"
 
 interface RenamePatientDialogProps {
   open: boolean
@@ -84,6 +85,7 @@ export default function RenamePatientDialog({
               setName(e.target.value)
               setError(null)
             }}
+            maxLength={MAX_PATIENT_NAME_LENGTH}
           />
           {error && <p className="text-sm text-red-500">{error}</p>}
         </div>

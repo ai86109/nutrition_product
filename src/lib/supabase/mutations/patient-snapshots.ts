@@ -1,5 +1,7 @@
 import { createClient } from '@/utils/supabase/client'
 import type { PatientSnapshot, PatientSnapshotInput, SnapshotBioInfo, SnapshotCalorieRange, SnapshotProteinRange, SnapshotSelectedProduct } from '@/types/patient'
+import { CapLimitError } from '@/lib/errors'
+import { MAX_SNAPSHOTS_PER_PATIENT } from '@/utils/constants'
 
 export interface SnapshotEditableFields {
   bio_info: SnapshotBioInfo
@@ -13,12 +15,30 @@ export interface SnapshotEditableFields {
 
 /**
  * 建立新的 snapshot。snapshot 設計上不可編輯（DB 層也不開放 UPDATE policy）。
+ *
+ * 上限為「每位病人」最多 MAX_SNAPSHOTS_PER_PATIENT 筆。
+ * 達上限會 throw CapLimitError，由前端 catch 後 toast。
  */
 export async function createPatientSnapshot(
   userId: string,
   input: PatientSnapshotInput
 ): Promise<PatientSnapshot> {
   const supabase = createClient()
+
+  // Per-patient cap 檢查
+  const { count, error: countError } = await supabase
+    .from('patient_snapshots')
+    .select('*', { count: 'exact', head: true })
+    .eq('patient_id', input.patient_id)
+  if (countError) {
+    console.error('Error counting snapshots:', countError)
+    throw countError
+  }
+  if (count !== null && count >= MAX_SNAPSHOTS_PER_PATIENT) {
+    throw new CapLimitError(
+      `此病人的歷史紀錄已達上限 ${MAX_SNAPSHOTS_PER_PATIENT} 筆，請先刪除舊紀錄`
+    )
+  }
 
   const { data, error } = await supabase
     .from('patient_snapshots')

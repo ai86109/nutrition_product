@@ -12,11 +12,14 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
 import { useAuth } from "@/contexts/AuthContext"
 import {
   addPatientToGroup,
   createPatientGroup,
 } from "@/lib/supabase/mutations/patient-groups"
+import { CapLimitError } from "@/lib/errors"
+import { MAX_PATIENT_GROUP_NAME_LENGTH } from "@/utils/constants"
 
 interface GroupCreateDialogProps {
   open: boolean
@@ -63,6 +66,10 @@ export default function GroupCreateDialog({
       onCreated()
       onOpenChange(false)
     } catch (err: unknown) {
+      if (err instanceof CapLimitError) {
+        toast.error(err.message)
+        return
+      }
       const code = (err as { code?: string })?.code
       if (code === "23505") {
         setError("已存在同名群組")
@@ -97,6 +104,7 @@ export default function GroupCreateDialog({
             }}
             placeholder="例如：糖尿病、洗腎、住院"
             autoFocus
+            maxLength={MAX_PATIENT_GROUP_NAME_LENGTH}
           />
           {error && <p className="text-sm text-red-500">{error}</p>}
         </div>

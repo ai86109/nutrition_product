@@ -346,6 +346,14 @@ export const TDEE_ACTIVITY_FACTOR_MAX = 5
 export const TDEE_STRESS_FACTOR_MIN = 0.1
 export const TDEE_STRESS_FACTOR_MAX = 5
 
+/** 病人 / 群組 / Snapshot 上限。同樣未來可隨 tier 調整。 */
+export const MAX_PATIENTS = 10
+export const MAX_PATIENT_GROUPS = 5
+/** 每位病人最多可儲存的 snapshot 筆數。 */
+export const MAX_SNAPSHOTS_PER_PATIENT = 20
+export const MAX_PATIENT_NAME_LENGTH = 30
+export const MAX_PATIENT_GROUP_NAME_LENGTH = 30
+
 export const DEFAULT_NOTE_TEMPLATES_SETTINGS: NoteTemplate[] = []
 
 export const DRIS: DRISData = {

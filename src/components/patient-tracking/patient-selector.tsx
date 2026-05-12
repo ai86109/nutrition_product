@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { MAX_PATIENT_NAME_LENGTH } from "@/utils/constants"
 import type { Patient } from "@/types/patient"
 
 export type PatientMode = "existing" | "new"
@@ -86,6 +87,7 @@ export default function PatientSelector({
               placeholder="輸入病人名稱"
               value={newPatientName}
               onChange={(e) => onNewPatientNameChange(e.target.value)}
+              maxLength={MAX_PATIENT_NAME_LENGTH}
             />
           )}
         </div>

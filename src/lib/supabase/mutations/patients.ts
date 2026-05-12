@@ -1,10 +1,13 @@
 import { createClient } from '@/utils/supabase/client'
 import type { Patient } from '@/types/patient'
 import type { Gender } from '@/types'
+import { CapLimitError } from '@/lib/errors'
+import { MAX_PATIENTS } from '@/utils/constants'
 
 /**
  * 建立新病人。sort_order 自動接在現有最大值之後。
- * 若同名（UNIQUE(user_id, name)）會 throw，由前端 catch 並提示使用者。
+ * - 達上限會 throw CapLimitError，由前端 catch 後 toast
+ * - 同名（UNIQUE(user_id, name)）會 throw Postgres error code 23505，由前端處理
  */
 export async function createPatient(
   userId: string,
@@ -14,6 +17,21 @@ export async function createPatient(
   diseaseHistory?: string | null // 疾病史（選填）
 ): Promise<Patient> {
   const supabase = createClient()
+
+  // Cap 檢查
+  const { count, error: countError } = await supabase
+    .from('patients')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+  if (countError) {
+    console.error('Error counting patients:', countError)
+    throw countError
+  }
+  if (count !== null && count >= MAX_PATIENTS) {
+    throw new CapLimitError(
+      `病人數已達上限 ${MAX_PATIENTS} 位，請先刪除其他病人`
+    )
+  }
 
   // 取目前最大的 sort_order
   const { data: maxRow } = await supabase

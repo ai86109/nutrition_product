@@ -25,6 +25,8 @@ import { createPatient } from "@/lib/supabase/mutations/patients"
 import { createPatientSnapshot } from "@/lib/supabase/mutations/patient-snapshots"
 import { useAuth } from "@/contexts/AuthContext"
 import { calculateAgeAt, formatBirthday } from "@/lib/age"
+import { CapLimitError } from "@/lib/errors"
+import { toast } from "sonner"
 import type { Patient, PatientSnapshotInput } from "@/types/patient"
 import type { Gender } from "@/types"
 
@@ -155,7 +157,7 @@ export default function SaveSnapshotDialog({
 
   const handleSave = async () => {
     if (!userId) {
-      alert("請先登入")
+      toast.error("請先登入")
       return
     }
 
@@ -182,6 +184,10 @@ export default function SaveSnapshotDialog({
         )
         patientId = created.id
       } catch (err: unknown) {
+        if (err instanceof CapLimitError) {
+          toast.error(err.message)
+          return
+        }
         const code = (err as { code?: string })?.code
         if (code === "23505") {
           setPatientError("已存在同名病人")
@@ -240,10 +246,15 @@ export default function SaveSnapshotDialog({
     setSaving(true)
     try {
       await createPatientSnapshot(userId, input)
+      toast.success("已儲存病人紀錄")
       onOpenChange(false)
     } catch (err) {
       console.error(err)
-      alert("儲存失敗，請稍後再試")
+      if (err instanceof CapLimitError) {
+        toast.error(err.message)
+      } else {
+        toast.error("儲存失敗，請稍後再試")
+      }
     } finally {
       setSaving(false)
     }

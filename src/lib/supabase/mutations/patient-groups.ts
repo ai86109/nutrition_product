@@ -1,15 +1,33 @@
 import { createClient } from '@/utils/supabase/client'
 import type { PatientGroup } from '@/types/patient-group'
+import { CapLimitError } from '@/lib/errors'
+import { MAX_PATIENT_GROUPS } from '@/utils/constants'
 
 /**
  * 建立新群組。sort_order 自動接在現有最大值之後。
- * 同名（UNIQUE(user_id, name)）會 throw（PG code 23505），由前端 catch。
+ * - 達上限會 throw CapLimitError
+ * - 同名（UNIQUE(user_id, name)）會 throw PG code 23505，由前端 catch
  */
 export async function createPatientGroup(
   userId: string,
   name: string
 ): Promise<PatientGroup> {
   const supabase = createClient()
+
+  // Cap 檢查
+  const { count, error: countError } = await supabase
+    .from('patient_groups')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', userId)
+  if (countError) {
+    console.error('Error counting patient groups:', countError)
+    throw countError
+  }
+  if (count !== null && count >= MAX_PATIENT_GROUPS) {
+    throw new CapLimitError(
+      `群組數已達上限 ${MAX_PATIENT_GROUPS} 個，請先刪除其他群組`
+    )
+  }
 
   const { data: maxRow } = await supabase
     .from('patient_groups')

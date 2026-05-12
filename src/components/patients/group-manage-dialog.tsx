@@ -12,11 +12,13 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Check, Pencil, Trash2, X } from "lucide-react"
+import { toast } from "sonner"
 import ConfirmDialog from "./confirm-dialog"
 import {
   deletePatientGroup,
   renamePatientGroup,
 } from "@/lib/supabase/mutations/patient-groups"
+import { MAX_PATIENT_GROUP_NAME_LENGTH } from "@/utils/constants"
 import type { PatientGroup } from "@/types/patient-group"
 
 interface GroupManageDialogProps {
@@ -104,7 +106,7 @@ export default function GroupManageDialog({
       setPendingDelete(null)
     } catch (err) {
       console.error(err)
-      alert("刪除群組失敗，請稍後再試")
+      toast.error("刪除群組失敗，請稍後再試")
     } finally {
       setDeleting(false)
     }
@@ -155,6 +157,7 @@ export default function GroupManageDialog({
                             disabled={saving}
                             autoFocus
                             className="h-8"
+                            maxLength={MAX_PATIENT_GROUP_NAME_LENGTH}
                           />
                           {editError && (
                             <p className="mt-1 text-xs text-red-500">
