@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { useBioInfo } from "@/contexts/BioInfoContext"
 import { CardContent } from "@/components/ui/card"
 import { FormData, Gender } from "@/types";
+import { toast } from "sonner"
 
 const formFieldUnits = {
   height: "cm",
@@ -79,6 +80,8 @@ export default function BioInfoSection() {
       age: convertToNumber(formData.age),
       gender,
     })
+
+    toast.success("已成功送出")
   }
 
   return (

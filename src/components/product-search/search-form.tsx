@@ -11,6 +11,7 @@ import { TYPE_OPTIONS } from "@/utils/constants"
 import { useProduct } from "@/contexts/ProductContext";
 import { useSearch } from "@/contexts/SearchContext";
 import { SearchState } from "@/types";
+import { toast } from "sonner"
 
 interface SearchInputProps {
   value: string;
@@ -104,10 +105,18 @@ export default function SearchForm({
   const { brandOptions } = useProduct()
   const { formState, updateField, applySearch, reset } = useSearch()
 
-  const handleSearchSubmit = (): void => {
-    applySearch()
-    handlePageChange(1) // Reset to the first page after search
-    onSearchSubmit?.()
+  const handleSearchSubmit = async (): Promise<void> => {
+    const toastId = toast.loading("搜尋中...")
+
+    try {
+      applySearch()
+      handlePageChange(1) // Reset to the first page after search
+      await Promise.resolve(onSearchSubmit?.())
+
+      toast.success("搜尋完成", { id: toastId })
+    } catch {
+      toast.error("搜尋失敗，請稍後再試", { id: toastId })
+    }
   }
 
   // const handleSelectCateChange = (value: string, index: number): void => {
