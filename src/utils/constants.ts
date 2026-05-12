@@ -331,6 +331,11 @@ export const DEFAULT_FAVORITE_SETTINGS: string[] = []
 /** 收藏上限。未來上 tier 制可以改成 getFavoriteLimit(plan) 之類的函式。 */
 export const MAX_FAVORITES = 5
 
+/** 備註模板上限。同樣未來可隨 tier 調整。 */
+export const MAX_NOTE_TEMPLATES = 3
+export const MAX_NOTE_TEMPLATE_TITLE_LENGTH = 30
+export const MAX_NOTE_TEMPLATE_CONTENT_LENGTH = 300
+
 export const DEFAULT_NOTE_TEMPLATES_SETTINGS: NoteTemplate[] = []
 
 export const DRIS: DRISData = {

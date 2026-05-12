@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,11 @@ import { Separator } from "@/components/ui/separator"
 import { Pencil, Trash2, Plus, X, Check } from "lucide-react"
 import { useNoteTemplates } from "@/hooks/useNoteTemplates"
 import { useAuth } from "@/contexts/AuthContext"
+import {
+  MAX_NOTE_TEMPLATE_TITLE_LENGTH,
+  MAX_NOTE_TEMPLATE_CONTENT_LENGTH,
+} from "@/utils/constants"
+import { cn } from "@/lib/utils"
 import type { NoteTemplate } from "@/types/note-template"
 
 interface NoteTemplateManagerDialogProps {
@@ -54,24 +60,33 @@ export default function NoteTemplateManagerDialog({
     const title = draft.title.trim()
     const content = draft.content
     if (title === "") {
-      alert("請輸入範本標題")
+      toast.error("請輸入範本標題")
       return
     }
     if (content.trim() === "") {
-      alert("請輸入範本內容")
+      toast.error("請輸入範本內容")
+      return
+    }
+    if (title.length > MAX_NOTE_TEMPLATE_TITLE_LENGTH) {
+      toast.error(`標題請控制在 ${MAX_NOTE_TEMPLATE_TITLE_LENGTH} 字以內`)
+      return
+    }
+    if (content.length > MAX_NOTE_TEMPLATE_CONTENT_LENGTH) {
+      toast.error(`內容請控制在 ${MAX_NOTE_TEMPLATE_CONTENT_LENGTH} 字以內`)
       return
     }
     setSaving(true)
     try {
       if (draft.kind === "creating") {
-        await addTemplate(title, content)
+        const ok = await addTemplate(title, content)
+        if (!ok) return // cap 已擋下，hook 內已 toast
       } else {
         await updateTemplate(draft.id, { title, content })
       }
       resetDraft()
     } catch (err) {
       console.error(err)
-      alert("儲存失敗，請稍後再試")
+      toast.error("儲存失敗，請稍後再試")
     } finally {
       setSaving(false)
     }
@@ -83,7 +98,7 @@ export default function NoteTemplateManagerDialog({
       await removeTemplate(t.id)
     } catch (err) {
       console.error(err)
-      alert("刪除失敗，請稍後再試")
+      toast.error("刪除失敗，請稍後再試")
     }
   }
 
@@ -119,6 +134,10 @@ export default function NoteTemplateManagerDialog({
                   const isEditingThis =
                     draft.kind === "editing" && draft.id === t.id
                   if (isEditingThis) {
+                    const titleOver =
+                      draft.title.length > MAX_NOTE_TEMPLATE_TITLE_LENGTH
+                    const contentOver =
+                      draft.content.length > MAX_NOTE_TEMPLATE_CONTENT_LENGTH
                     return (
                       <li
                         key={t.id}
@@ -130,6 +149,7 @@ export default function NoteTemplateManagerDialog({
                           onChange={(e) =>
                             setDraft({ ...draft, title: e.target.value })
                           }
+                          maxLength={MAX_NOTE_TEMPLATE_TITLE_LENGTH + 10}
                           autoFocus
                         />
                         <textarea
@@ -139,7 +159,20 @@ export default function NoteTemplateManagerDialog({
                           onChange={(e) =>
                             setDraft({ ...draft, content: e.target.value })
                           }
+                          maxLength={MAX_NOTE_TEMPLATE_CONTENT_LENGTH + 10}
                         />
+                        <div className="flex items-center justify-between text-xs text-muted-foreground">
+                          <span className={cn(titleOver && "text-destructive")}>
+                            標題 {draft.title.length} /{" "}
+                            {MAX_NOTE_TEMPLATE_TITLE_LENGTH}
+                          </span>
+                          <span
+                            className={cn(contentOver && "text-destructive")}
+                          >
+                            內容 {draft.content.length} /{" "}
+                            {MAX_NOTE_TEMPLATE_CONTENT_LENGTH}
+                          </span>
+                        </div>
                         <div className="flex justify-end gap-2">
                           <Button
                             variant="outline"
@@ -215,6 +248,7 @@ export default function NoteTemplateManagerDialog({
                     onChange={(e) =>
                       setDraft({ ...draft, title: e.target.value })
                     }
+                    maxLength={MAX_NOTE_TEMPLATE_TITLE_LENGTH + 10}
                     autoFocus
                   />
                   <textarea
@@ -224,7 +258,30 @@ export default function NoteTemplateManagerDialog({
                     onChange={(e) =>
                       setDraft({ ...draft, content: e.target.value })
                     }
+                    maxLength={MAX_NOTE_TEMPLATE_CONTENT_LENGTH + 10}
                   />
+                  <div className="flex items-center justify-between text-xs text-muted-foreground">
+                    <span
+                      className={cn(
+                        draft.title.length >
+                          MAX_NOTE_TEMPLATE_TITLE_LENGTH &&
+                          "text-destructive"
+                      )}
+                    >
+                      標題 {draft.title.length} /{" "}
+                      {MAX_NOTE_TEMPLATE_TITLE_LENGTH}
+                    </span>
+                    <span
+                      className={cn(
+                        draft.content.length >
+                          MAX_NOTE_TEMPLATE_CONTENT_LENGTH &&
+                          "text-destructive"
+                      )}
+                    >
+                      內容 {draft.content.length} /{" "}
+                      {MAX_NOTE_TEMPLATE_CONTENT_LENGTH}
+                    </span>
+                  </div>
                   <div className="flex justify-end gap-2">
                     <Button
                       variant="outline"
