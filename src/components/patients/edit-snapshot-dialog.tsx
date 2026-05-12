@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
@@ -153,7 +154,7 @@ export default function EditSnapshotDialog({
       onOpenChange(false)
     } catch (err) {
       console.error(err)
-      alert("儲存失敗，請稍後再試")
+      toast.error("儲存失敗，請稍後再試")
     } finally {
       setSaving(false)
     }

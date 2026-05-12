@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -76,7 +77,7 @@ export default function PatientActionsMenu({
       setDeleteOpen(false)
     } catch (err) {
       console.error(err)
-      alert("刪除病人失敗，請稍後再試")
+      toast.error("刪除病人失敗，請稍後再試")
     } finally {
       setDeleting(false)
     }
@@ -92,7 +93,7 @@ export default function PatientActionsMenu({
       onChanged()
     } catch (err) {
       console.error(err)
-      alert("更新群組失敗，請稍後再試")
+      toast.error("更新群組失敗，請稍後再試")
     }
   }
 

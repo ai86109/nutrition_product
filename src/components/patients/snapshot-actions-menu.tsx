@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import {
   DropdownMenu,
@@ -40,7 +41,7 @@ export default function SnapshotActionsMenu({
       setConfirmOpen(false)
     } catch (err) {
       console.error(err)
-      alert("刪除失敗，請稍後再試")
+      toast.error("刪除失敗，請稍後再試")
     } finally {
       setDeleting(false)
     }

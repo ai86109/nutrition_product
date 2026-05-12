@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 import {
   Dialog,
   DialogContent,
@@ -69,7 +70,7 @@ export default function EditSnapshotDateDialog({
       onOpenChange(false)
     } catch (err) {
       console.error(err)
-      alert("儲存日期失敗，請稍後再試")
+      toast.error("儲存日期失敗，請稍後再試")
     } finally {
       setSaving(false)
     }
@@ -87,7 +88,7 @@ export default function EditSnapshotDateDialog({
       onOpenChange(false)
     } catch (err) {
       console.error(err)
-      alert("清空日期失敗，請稍後再試")
+      toast.error("清空日期失敗，請稍後再試")
     } finally {
       setSaving(false)
     }

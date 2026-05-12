@@ -27,6 +27,11 @@ import { useAuth } from "@/contexts/AuthContext"
 import { calculateAgeAt, formatBirthday } from "@/lib/age"
 import { CapLimitError } from "@/lib/errors"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
+import {
+  MAX_PATIENT_DISEASE_HISTORY_LENGTH,
+  MAX_SNAPSHOT_NOTES_LENGTH,
+} from "@/utils/constants"
 import type { Patient, PatientSnapshotInput } from "@/types/patient"
 import type { Gender } from "@/types"
 
@@ -158,6 +163,20 @@ export default function SaveSnapshotDialog({
   const handleSave = async () => {
     if (!userId) {
       toast.error("請先登入")
+      return
+    }
+
+    // 字數驗證
+    if (
+      mode === "new" &&
+      newPatientDiseaseHistory.trim().length >
+        MAX_PATIENT_DISEASE_HISTORY_LENGTH
+    ) {
+      toast.error(`疾病史請控制在 ${MAX_PATIENT_DISEASE_HISTORY_LENGTH} 字以內`)
+      return
+    }
+    if (notes.trim().length > MAX_SNAPSHOT_NOTES_LENGTH) {
+      toast.error(`備註請控制在 ${MAX_SNAPSHOT_NOTES_LENGTH} 字以內`)
       return
     }
 
@@ -503,7 +522,20 @@ export default function SaveSnapshotDialog({
                   placeholder="病人的疾病史（選填）"
                   value={newPatientDiseaseHistory}
                   onChange={(e) => setNewPatientDiseaseHistory(e.target.value)}
+                  maxLength={MAX_PATIENT_DISEASE_HISTORY_LENGTH + 10}
                 />
+                <div className="flex items-center justify-end text-xs text-muted-foreground">
+                  <span
+                    className={cn(
+                      newPatientDiseaseHistory.length >
+                        MAX_PATIENT_DISEASE_HISTORY_LENGTH &&
+                        "text-destructive"
+                    )}
+                  >
+                    {newPatientDiseaseHistory.length} /{" "}
+                    {MAX_PATIENT_DISEASE_HISTORY_LENGTH}
+                  </span>
+                </div>
               </div>
               <Separator />
             </>
@@ -527,7 +559,18 @@ export default function SaveSnapshotDialog({
               placeholder="想記下的細節（選填）"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
+              maxLength={MAX_SNAPSHOT_NOTES_LENGTH + 10}
             />
+            <div className="flex items-center justify-end text-xs text-muted-foreground">
+              <span
+                className={cn(
+                  notes.length > MAX_SNAPSHOT_NOTES_LENGTH &&
+                    "text-destructive"
+                )}
+              >
+                {notes.length} / {MAX_SNAPSHOT_NOTES_LENGTH}
+              </span>
+            </div>
           </div>
         </div>
 

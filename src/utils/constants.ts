@@ -353,6 +353,9 @@ export const MAX_PATIENT_GROUPS = 5
 export const MAX_SNAPSHOTS_PER_PATIENT = 20
 export const MAX_PATIENT_NAME_LENGTH = 30
 export const MAX_PATIENT_GROUP_NAME_LENGTH = 30
+/** 疾病史 / Snapshot 備註字數上限。 */
+export const MAX_PATIENT_DISEASE_HISTORY_LENGTH = 500
+export const MAX_SNAPSHOT_NOTES_LENGTH = 500
 
 export const DEFAULT_NOTE_TEMPLATES_SETTINGS: NoteTemplate[] = []
 

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import {
   Popover,
   PopoverContent,
@@ -31,7 +32,7 @@ export default function NoteTemplatePicker({ onPick }: NoteTemplatePickerProps) 
   const handleTriggerClick = (e: React.MouseEvent) => {
     if (!isLoggedIn) {
       e.preventDefault()
-      alert("此功能請登入後使用")
+      toast.error("此功能請登入後使用")
     }
   }
 

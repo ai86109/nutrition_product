@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Check, X, TrendingUp, Pencil } from "lucide-react"
@@ -10,6 +11,8 @@ import {
   updatePatientDiseaseHistory,
 } from "@/lib/supabase/mutations/patients"
 import { calculateAgeAt, formatBirthday } from "@/lib/age"
+import { MAX_PATIENT_DISEASE_HISTORY_LENGTH } from "@/utils/constants"
+import { cn } from "@/lib/utils"
 import type { Patient, PatientSnapshot } from "@/types/patient"
 
 interface PatientInfoPanelProps {
@@ -51,7 +54,7 @@ export default function PatientInfoPanel({
       setIsEditingBirthday(false)
     } catch (err) {
       console.error(err)
-      alert("儲存生日失敗，請稍後再試")
+      toast.error("儲存生日失敗，請稍後再試")
     } finally {
       setSavingBirthday(false)
     }
@@ -59,6 +62,10 @@ export default function PatientInfoPanel({
 
   const handleSaveDiseaseHistory = async () => {
     const value = draftDiseaseHistory.trim()
+    if (value.length > MAX_PATIENT_DISEASE_HISTORY_LENGTH) {
+      toast.error(`疾病史請控制在 ${MAX_PATIENT_DISEASE_HISTORY_LENGTH} 字以內`)
+      return
+    }
     const next = value || null
     if (next === (patient.disease_history ?? null)) {
       setIsEditingDiseaseHistory(false)
@@ -71,7 +78,7 @@ export default function PatientInfoPanel({
       setIsEditingDiseaseHistory(false)
     } catch (err) {
       console.error(err)
-      alert("儲存疾病史失敗，請稍後再試")
+      toast.error("儲存疾病史失敗，請稍後再試")
     } finally {
       setSavingDiseaseHistory(false)
     }
@@ -166,8 +173,22 @@ export default function PatientInfoPanel({
                   value={draftDiseaseHistory}
                   onChange={(e) => setDraftDiseaseHistory(e.target.value)}
                   disabled={savingDiseaseHistory}
+                  maxLength={MAX_PATIENT_DISEASE_HISTORY_LENGTH + 10}
                   autoFocus
                 />
+                <div className="flex items-center justify-between text-xs text-muted-foreground">
+                  <span />
+                  <span
+                    className={cn(
+                      draftDiseaseHistory.length >
+                        MAX_PATIENT_DISEASE_HISTORY_LENGTH &&
+                        "text-destructive"
+                    )}
+                  >
+                    {draftDiseaseHistory.length} /{" "}
+                    {MAX_PATIENT_DISEASE_HISTORY_LENGTH}
+                  </span>
+                </div>
                 <div className="flex gap-1 justify-end">
                   <Button
                     variant="ghost"

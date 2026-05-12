@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
 import { Pencil, User, Target, Pill, StickyNote, Utensils } from "lucide-react"
 import EditSnapshotDialog from "./edit-snapshot-dialog"
@@ -8,9 +9,10 @@ import NoteTemplatePicker from "@/components/patient-tracking/note-template-pick
 import { appendTemplate } from "@/lib/note-template"
 import { updatePatientSnapshotNotes } from "@/lib/supabase/mutations/patient-snapshots"
 import { getEffectiveDate } from "@/lib/snapshot-date"
-import { formatNumber } from "@/lib/utils"
+import { formatNumber, cn } from "@/lib/utils"
 import { calculateAgeAt } from "@/lib/age"
 import { calcBMI, calcABW } from "@/utils/nutrition-calculations"
+import { MAX_SNAPSHOT_NOTES_LENGTH } from "@/utils/constants"
 import type { Patient, PatientSnapshot } from "@/types/patient"
 
 interface StatProps {
@@ -154,6 +156,10 @@ export default function SnapshotDetailPanel({
 
   const handleSaveNotes = async () => {
     const trimmed = draftNotes.trim()
+    if (trimmed.length > MAX_SNAPSHOT_NOTES_LENGTH) {
+      toast.error(`備註請控制在 ${MAX_SNAPSHOT_NOTES_LENGTH} 字以內`)
+      return
+    }
     const next = trimmed === "" ? null : trimmed
     if (next === (snapshot.notes ?? null)) {
       setIsEditingNotes(false)
@@ -166,7 +172,7 @@ export default function SnapshotDetailPanel({
       setIsEditingNotes(false)
     } catch (err) {
       console.error(err)
-      alert("儲存備註失敗，請稍後再試")
+      toast.error("儲存備註失敗，請稍後再試")
     } finally {
       setSavingNotes(false)
     }
@@ -358,8 +364,19 @@ export default function SnapshotDetailPanel({
                 placeholder="想記下的細節（選填）"
                 value={draftNotes}
                 onChange={(e) => setDraftNotes(e.target.value)}
+                maxLength={MAX_SNAPSHOT_NOTES_LENGTH + 10}
                 autoFocus
               />
+              <div className="flex items-center justify-end text-xs text-muted-foreground">
+                <span
+                  className={cn(
+                    draftNotes.length > MAX_SNAPSHOT_NOTES_LENGTH &&
+                      "text-destructive"
+                  )}
+                >
+                  {draftNotes.length} / {MAX_SNAPSHOT_NOTES_LENGTH}
+                </span>
+              </div>
               <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
