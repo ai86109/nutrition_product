@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import ConditionalContent from "@/components/conditional-content";
 import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowLeft, Menu } from "lucide-react"
+import { ArrowLeft, BookOpen, Menu } from "lucide-react"
 import WishPoolButton from "@/components/wish-pool-button"
 import {
   Sheet,
@@ -53,6 +53,13 @@ export default function Navigation() {
   // Mobile 左上角的返回按鈕：只在非 admin 頁面顯示
   const showMobileBackButton = !isOnAdminPage && isOnPatientsPage;
 
+  const gettingStartedButton = (
+    <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/getting-started')}>
+      <BookOpen className="size-4" />
+      新手上路
+    </Button>
+  );
+
   const adminButton = isAdmin && (
     <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/admin')}>
       管理後台
@@ -93,6 +100,7 @@ export default function Navigation() {
               <AvatarImage src={avatarUrl} alt="avatar" />
             </Avatar>
           )}
+          {gettingStartedButton}
           {patientsButtonDesktop}
           {adminButton}
           <WishPoolButton />
@@ -121,6 +129,7 @@ export default function Navigation() {
                   {userName && <div>Hi! {userName}</div>}
                 </div>
               )}
+              <SheetClose asChild>{gettingStartedButton}</SheetClose>
               {patientsButtonMobile && (
                 <SheetClose asChild>{patientsButtonMobile}</SheetClose>
               )}
