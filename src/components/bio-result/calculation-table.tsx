@@ -27,10 +27,10 @@ export default function CalculationTable({ factors, valueDigits }: CalculationTa
   return (
     <Table>
       <TableHeader>
-        <TableRow className="bg-gray-100">
+        <TableRow className="bg-muted/60 hover:bg-muted/60">
           <TableHead></TableHead>
           {tableHeaderLists.map((item, index) => (
-            <TableHead key={`head-${index}`}>
+            <TableHead key={`head-${index}`} className="text-center font-medium">
               <span>{item.value}</span>
             </TableHead>
           ))}
@@ -39,9 +39,9 @@ export default function CalculationTable({ factors, valueDigits }: CalculationTa
       <TableBody>
         {calorieTypeLists.map((type) => (
           <TableRow key={type.id}>
-            <TableCell className="bg-gray-100">{type.label}</TableCell>
+            <TableCell className="bg-muted/60 font-medium">{type.label}</TableCell>
             {tableHeaderLists.map((item) => (
-              <TableCell key={`cell-${item.id}`}>
+              <TableCell key={`cell-${item.id}`} className="text-center tabular-nums text-primary font-medium">
                 {calculateValue(type.label, Number(item.value), valueDigits)}
               </TableCell>
             ))}

@@ -21,6 +21,7 @@ import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { useCalorieSettings } from "@/hooks/localStorage-related/useCalorieSettings";
 import { useState } from "react";
 import { toast } from "sonner";
+import { Pencil } from "lucide-react";
 import { useUserSetting } from '@/hooks/useUserSetting'
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -58,9 +59,11 @@ export function CalorieCountingEditDialog() {
   return (
     <Dialog open={open} onOpenChange={handleDialogOpen}>
       <DialogTrigger asChild>
-        <Button>Edit</Button>
+        <Button variant="ghost" size="icon" aria-label="編輯熱量計算參數">
+          <Pencil />
+        </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[240px] sm:max-w-[400px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle>熱量計算參數</DialogTitle>
           <DialogDescription>編輯、管理你的熱量計算參數</DialogDescription>
@@ -69,7 +72,7 @@ export function CalorieCountingEditDialog() {
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead></TableHead>
+              <TableHead className="w-12"></TableHead>
               <TableHead>參數</TableHead>
             </TableRow>
           </TableHeader>
@@ -80,7 +83,7 @@ export function CalorieCountingEditDialog() {
                   <Checkbox id={`check-${index}`} checked={item.checked} onCheckedChange={(checked) => handleCalorieSettingCheck(!!checked, index)} />
                 </TableCell>
                 <TableCell>
-                  <Input className="w-[70px]" id={`input-${index}`} type="number" step="1" placeholder="" value={item.value} onChange={handleCalorieSettingValueChange} />
+                  <Input className="w-20 tabular-nums" id={`input-${index}`} type="number" step="1" placeholder="" value={item.value} onChange={handleCalorieSettingValueChange} />
                 </TableCell>
               </TableRow>
             ))}

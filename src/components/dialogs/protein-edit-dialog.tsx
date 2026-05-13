@@ -23,6 +23,7 @@ import { useProteinSettings } from "@/hooks/localStorage-related/useProteinSetti
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { useUserSetting } from '@/hooks/useUserSetting'
+import { Pencil } from "lucide-react";
 
 export function ProteinEditDialog() {
   const { isLoggedIn } = useAuth();
@@ -63,18 +64,20 @@ export function ProteinEditDialog() {
   return (
     <Dialog open={open} onOpenChange={handleDialogOpen}>
       <DialogTrigger asChild>
-        <Button>Edit</Button>
+        <Button variant="ghost" size="icon" aria-label="編輯蛋白質參數">
+          <Pencil />
+        </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[240px] sm:max-w-[300px]">
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Protein 參數</DialogTitle>
-          <DialogDescription>編輯、管理你的 Protein 參數</DialogDescription>
+          <DialogTitle>蛋白質參數</DialogTitle>
+          <DialogDescription>編輯、管理你的蛋白質參數</DialogDescription>
         </DialogHeader>
 
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead></TableHead>
+              <TableHead className="w-12"></TableHead>
               <TableHead>參數</TableHead>
             </TableRow>
           </TableHeader>
@@ -85,14 +88,16 @@ export function ProteinEditDialog() {
                   <Checkbox id={`check-${index}`} checked={item.checked} onCheckedChange={(checked) => handleProteinSettingCheck(!!checked, index)} />
                 </TableCell>
                 <TableCell>
-                  <Input className="w-[70px]" id={`input-${index}`} type="number" step="0.1" placeholder="" value={item.value} onChange={handleProteinSettingValueChange} />
+                  <Input className="w-20 tabular-nums" id={`input-${index}`} type="number" step="0.1" placeholder="" value={item.value} onChange={handleProteinSettingValueChange} />
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
 
-        <Button className="w-[100px]" variant="destructive" onClick={handleReset}>重置為預設</Button>
+        <div className="flex justify-end pt-2 border-t">
+          <Button variant="outline" size="sm" onClick={handleReset}>重置為預設</Button>
+        </div>
       </DialogContent>
     </Dialog>
   );

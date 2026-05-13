@@ -37,12 +37,23 @@ export default function TdeeCard() {
       <CardContent>
         <ConditionalContent condition={pbw > 0 && height > 0 && age > 0} fallback="請先填寫數值來計算 TDEE">
           <ConditionalContent condition={tdeeFactors.length > 0} fallback="尚未設定 TDEE 參數，請先設定">
-            {tdeeFactors.map((item, index) => (
-              <div key={`${item.name}-${index}`}>
-                <span className="font-bold">- {item.name}（{adjustmentFactor(item)}）：</span>
-                <span>{calculateTDEE(adjustmentFactor(item))}</span>
-              </div>
-            ))}
+            <div className="flex flex-col">
+              {tdeeFactors.map((item, index) => (
+                <div
+                  key={`${item.name}-${index}`}
+                  className="flex items-center justify-between gap-2 py-2 border-b border-border/60 last:border-b-0"
+                >
+                  <div className="flex items-baseline gap-1 min-w-0">
+                    <span className="text-sm font-medium truncate">{item.name}</span>
+                    <span className="text-xs text-muted-foreground shrink-0">×{adjustmentFactor(item)}</span>
+                  </div>
+                  <div className="flex items-baseline gap-1 shrink-0">
+                    <span className="text-base font-semibold text-primary tabular-nums">{calculateTDEE(adjustmentFactor(item))}</span>
+                    <span className="text-xs text-muted-foreground">kcal</span>
+                  </div>
+                </div>
+              ))}
+            </div>
           </ConditionalContent>
         </ConditionalContent>
       </CardContent>

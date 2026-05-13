@@ -23,6 +23,7 @@ import { useUserSetting } from '@/hooks/useUserSetting'
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { useTdeeSettings } from "@/hooks/localStorage-related/useTdeeSettings";
 import { useAuth } from "@/contexts/AuthContext";
+import { Pencil, Trash2 } from "lucide-react";
 import {
   MAX_TDEE_NAME_LENGTH,
   TDEE_ACTIVITY_FACTOR_MIN,
@@ -127,78 +128,96 @@ export function TDEEEditDialog() {
   return (
     <Dialog open={open} onOpenChange={handleDialogOpen}>
       <DialogTrigger asChild>
-        <Button>Edit</Button>
+        <Button variant="ghost" size="icon" aria-label="編輯 TDEE 參數">
+          <Pencil />
+        </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[80vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>TDEE 參數</DialogTitle>
           <DialogDescription>編輯、管理你的 TDEE 參數</DialogDescription>
         </DialogHeader>
 
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>名稱</TableHead>
-              <TableHead>活動因子</TableHead>
-              <TableHead>壓力因子</TableHead>
-              <TableHead></TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {tdeeList.length > 0 && tdeeList.map((factor, index) => (
-              <TableRow key={`${factor.name}-${index}`}>
-                <TableCell className="max-w-[50px] text-wrap whitespace-normal sm:max-w-[100px]">{factor.name}</TableCell>
-                <TableCell>{factor.activityFactor}</TableCell>
-                <TableCell>{factor.stressFactor}</TableCell>
-                <TableCell>
-                  <Button className="text-xs sm:text-sm" variant="destructive" onClick={() => handleDelete(index)}>刪除</Button>
-                </TableCell>
+        {tdeeList.length > 0 ? (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>名稱</TableHead>
+                <TableHead className="text-center">活動因子</TableHead>
+                <TableHead className="text-center">壓力因子</TableHead>
+                <TableHead className="w-10"></TableHead>
               </TableRow>
-            ))}
-            <TableRow>
-              <TableCell>
-                <Input
-                  className="w-[60px] sm:w-[100px]"
-                  id="name"
-                  type="text"
-                  placeholder=""
-                  value={newTDEEFactors.name}
-                  onChange={handleNewFactorInputChange}
-                  maxLength={MAX_TDEE_NAME_LENGTH + 5}
-                />
-              </TableCell>
-              <TableCell>
-                <Input
-                  className="w-[55px] sm:w-[60px]"
-                  id="activityFactor"
-                  type="number"
-                  step={0.1}
-                  min={TDEE_ACTIVITY_FACTOR_MIN}
-                  max={TDEE_ACTIVITY_FACTOR_MAX}
-                  placeholder=""
-                  value={newTDEEFactors.activityFactor}
-                  onChange={handleNewFactorInputChange}
-                />
-              </TableCell>
-              <TableCell>
-                <Input
-                  className="w-[55px] sm:w-[60px]"
-                  id="stressFactor"
-                  type="number"
-                  step={0.1}
-                  min={TDEE_STRESS_FACTOR_MIN}
-                  max={TDEE_STRESS_FACTOR_MAX}
-                  placeholder=""
-                  value={newTDEEFactors.stressFactor}
-                  onChange={handleNewFactorInputChange}
-                />
-              </TableCell>
-              <TableCell>
-                <Button className="text-xs sm:text-sm" onClick={handleAdd}>新增</Button>
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {tdeeList.map((factor, index) => (
+                <TableRow key={`${factor.name}-${index}`}>
+                  <TableCell className="max-w-[80px] text-wrap whitespace-normal sm:max-w-[120px] font-medium">{factor.name}</TableCell>
+                  <TableCell className="text-center tabular-nums">{factor.activityFactor}</TableCell>
+                  <TableCell className="text-center tabular-nums">{factor.stressFactor}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-muted-foreground hover:text-destructive"
+                      aria-label={`刪除 ${factor.name}`}
+                      onClick={() => handleDelete(index)}
+                    >
+                      <Trash2 />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        ) : (
+          <p className="text-sm text-muted-foreground text-center py-4">尚未新增任何 TDEE 參數</p>
+        )}
+
+        <div className="border-t pt-4">
+          <p className="text-xs text-muted-foreground mb-2">新增參數</p>
+          <div className="flex items-end gap-2">
+            <div className="flex-1 min-w-0">
+              <label className="text-xs text-muted-foreground" htmlFor="name">名稱</label>
+              <Input
+                id="name"
+                type="text"
+                placeholder=""
+                value={newTDEEFactors.name}
+                onChange={handleNewFactorInputChange}
+                maxLength={MAX_TDEE_NAME_LENGTH + 5}
+              />
+            </div>
+            <div className="w-16 shrink-0">
+              <label className="text-xs text-muted-foreground" htmlFor="activityFactor">活動</label>
+              <Input
+                className="tabular-nums"
+                id="activityFactor"
+                type="number"
+                step={0.1}
+                min={TDEE_ACTIVITY_FACTOR_MIN}
+                max={TDEE_ACTIVITY_FACTOR_MAX}
+                placeholder=""
+                value={newTDEEFactors.activityFactor}
+                onChange={handleNewFactorInputChange}
+              />
+            </div>
+            <div className="w-16 shrink-0">
+              <label className="text-xs text-muted-foreground" htmlFor="stressFactor">壓力</label>
+              <Input
+                className="tabular-nums"
+                id="stressFactor"
+                type="number"
+                step={0.1}
+                min={TDEE_STRESS_FACTOR_MIN}
+                max={TDEE_STRESS_FACTOR_MAX}
+                placeholder=""
+                value={newTDEEFactors.stressFactor}
+                onChange={handleNewFactorInputChange}
+              />
+            </div>
+            <Button size="sm" onClick={handleAdd}>新增</Button>
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   )
