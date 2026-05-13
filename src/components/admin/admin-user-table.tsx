@@ -46,7 +46,7 @@ function formatDate(dateStr: string | null) {
 
 export default function AdminUserTable({ users, currentUserId }: AdminUserTableProps) {
   const [search, setSearch] = useState('')
-  const { currentPage, setCurrentPage, itemsPerPage } = usePagination()
+  const { currentPage, setCurrentPage, itemsPerPage } = usePagination({ mobile: 25, desktop: 25 })
 
   const filtered = users.filter((user) => {
     const query = search.toLowerCase()

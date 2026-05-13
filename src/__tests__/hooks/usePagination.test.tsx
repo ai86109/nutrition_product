@@ -37,4 +37,18 @@ describe('usePagination', () => {
     });
     expect(result.current.currentPage).toBe(2);
   });
+
+  test('override mobile and desktop itemsPerPage via options', () => {
+    mockScreenWidth.mockReturnValue({ screenWidth: smallScreenWidth });
+    const { result: mobileResult } = renderHook(() =>
+      usePagination({ mobile: 25, desktop: 25 })
+    );
+    expect(mobileResult.current.itemsPerPage).toBe(25);
+
+    mockScreenWidth.mockReturnValue({ screenWidth: largeScreenWidth });
+    const { result: desktopResult } = renderHook(() =>
+      usePagination({ mobile: 25, desktop: 25 })
+    );
+    expect(desktopResult.current.itemsPerPage).toBe(25);
+  });
 })
