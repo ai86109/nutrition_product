@@ -23,7 +23,7 @@ import { useProteinSettings } from "@/hooks/localStorage-related/useProteinSetti
 import { useAuth } from "@/contexts/AuthContext";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { useUserSetting } from '@/hooks/useUserSetting'
-import { Pencil } from "lucide-react";
+import { Beef, Pencil } from "lucide-react";
 
 export function ProteinEditDialog() {
   const { isLoggedIn } = useAuth();
@@ -70,7 +70,12 @@ export function ProteinEditDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>蛋白質參數</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <span className="flex items-center justify-center rounded-md bg-emerald-500/10 p-1.5 text-emerald-600 dark:text-emerald-400">
+              <Beef className="size-4" />
+            </span>
+            蛋白質參數
+          </DialogTitle>
           <DialogDescription>編輯、管理你的蛋白質參數</DialogDescription>
         </DialogHeader>
 

@@ -7,6 +7,7 @@ import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations";
 import ConditionalContent from "@/components/conditional-content";
 import CalculationTable from "./calculation-table";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+import { Beef } from "lucide-react";
 
 export default function ProteinCard() {
   const { proteinFactors } = useUserPreferences();
@@ -14,9 +15,12 @@ export default function ProteinCard() {
   const { pbw, ibw } = useBioInfoCalculations()
 
   return (
-    <Card className="overflow-auto">
+    <Card className="overflow-auto transition-all hover:border-emerald-500/40 hover:shadow-md">
       <CardHeader className="flex items-center justify-between">
-        <CardTitle className="flex items-center gap-1">
+        <CardTitle className="flex items-center gap-2">
+          <span className="flex items-center justify-center rounded-md bg-emerald-500/10 p-1.5 text-emerald-600 dark:text-emerald-400">
+            <Beef className="size-4" />
+          </span>
           <p>蛋白質需求</p>
           <InfoPopover>
             <p className="font-bold">蛋白質需求（g）</p>

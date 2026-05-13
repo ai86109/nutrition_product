@@ -21,7 +21,7 @@ import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { useCalorieSettings } from "@/hooks/localStorage-related/useCalorieSettings";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Pencil } from "lucide-react";
+import { Flame, Pencil } from "lucide-react";
 import { useUserSetting } from '@/hooks/useUserSetting'
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -65,7 +65,12 @@ export function CalorieCountingEditDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>熱量計算參數</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <span className="flex items-center justify-center rounded-md bg-orange-500/10 p-1.5 text-orange-600 dark:text-orange-400">
+              <Flame className="size-4" />
+            </span>
+            熱量計算參數
+          </DialogTitle>
           <DialogDescription>編輯、管理你的熱量計算參數</DialogDescription>
         </DialogHeader>
 

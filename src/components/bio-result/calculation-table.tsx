@@ -25,29 +25,36 @@ export default function CalculationTable({ factors, valueDigits }: CalculationTa
   }
 
   return (
-    <Table>
-      <TableHeader>
-        <TableRow className="bg-muted/60 hover:bg-muted/60">
-          <TableHead></TableHead>
-          {tableHeaderLists.map((item, index) => (
-            <TableHead key={`head-${index}`} className="text-center font-medium">
-              <span>{item.value}</span>
-            </TableHead>
-          ))}
-        </TableRow>
-      </TableHeader>
-      <TableBody>
-        {calorieTypeLists.map((type) => (
-          <TableRow key={type.id}>
-            <TableCell className="bg-muted/60 font-medium">{type.label}</TableCell>
-            {tableHeaderLists.map((item) => (
-              <TableCell key={`cell-${item.id}`} className="text-center tabular-nums text-primary font-medium">
-                {calculateValue(type.label, Number(item.value), valueDigits)}
-              </TableCell>
+    <div className="overflow-hidden rounded-lg ring-1 ring-border/60">
+      <Table>
+        <TableHeader>
+          <TableRow className="bg-muted/60 hover:bg-muted/60 border-b-0">
+            <TableHead className="w-14"></TableHead>
+            {tableHeaderLists.map((item, index) => (
+              <TableHead key={`head-${index}`} className="text-center font-medium text-muted-foreground tabular-nums">
+                <span>{item.value}</span>
+              </TableHead>
             ))}
           </TableRow>
-        ))}
-      </TableBody>
-    </Table>
+        </TableHeader>
+        <TableBody>
+          {calorieTypeLists.map((type) => (
+            <TableRow key={type.id} className="transition-colors hover:bg-muted/30">
+              <TableCell className="relative bg-muted/40 font-semibold text-xs">
+                <span className="absolute inset-y-2 left-0 w-0.5 rounded-r-full bg-primary/60" />
+                {type.label}
+              </TableCell>
+              {tableHeaderLists.map((item) => (
+                <TableCell key={`cell-${item.id}`} className="text-center">
+                  <span className="inline-flex items-center justify-center min-w-[3rem] rounded-md bg-primary/5 ring-1 ring-primary/15 px-2 py-0.5 text-sm tabular-nums text-primary font-medium">
+                    {calculateValue(type.label, Number(item.value), valueDigits)}
+                  </span>
+                </TableCell>
+              ))}
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
   )
 }

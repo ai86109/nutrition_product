@@ -23,7 +23,7 @@ import { useUserSetting } from '@/hooks/useUserSetting'
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
 import { useTdeeSettings } from "@/hooks/localStorage-related/useTdeeSettings";
 import { useAuth } from "@/contexts/AuthContext";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, Zap } from "lucide-react";
 import {
   MAX_TDEE_NAME_LENGTH,
   TDEE_ACTIVITY_FACTOR_MIN,
@@ -134,7 +134,12 @@ export function TDEEEditDialog() {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>TDEE 參數</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            <span className="flex items-center justify-center rounded-md bg-violet-500/10 p-1.5 text-violet-600 dark:text-violet-400">
+              <Zap className="size-4" />
+            </span>
+            TDEE 參數
+          </DialogTitle>
           <DialogDescription>編輯、管理你的 TDEE 參數</DialogDescription>
         </DialogHeader>
 

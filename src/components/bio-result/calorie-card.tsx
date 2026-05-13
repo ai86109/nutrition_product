@@ -7,6 +7,7 @@ import CalorieTypesBlock from "./calorie-types-block";
 import ConditionalContent from "@/components/conditional-content";
 import CalculationTable from "./calculation-table";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+import { Flame } from "lucide-react";
 
 export default function CalorieCard() {
   const { calorieFactors } = useUserPreferences();
@@ -14,9 +15,12 @@ export default function CalorieCard() {
   const { pbw, ibw } = useBioInfoCalculations()
 
   return (
-    <Card className="overflow-auto">
+    <Card className="overflow-auto transition-all hover:border-orange-500/40 hover:shadow-md">
       <CardHeader className="flex items-center justify-between">
-        <CardTitle className="flex items-center gap-1">
+        <CardTitle className="flex items-center gap-2">
+          <span className="flex items-center justify-center rounded-md bg-orange-500/10 p-1.5 text-orange-600 dark:text-orange-400">
+            <Flame className="size-4" />
+          </span>
           <p>熱量計算</p>
           <InfoPopover>
             <p className="font-bold">熱量需求（kcal）</p>

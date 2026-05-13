@@ -1,9 +1,9 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import InfoPopover from "../info-popover"
-import ConditionalContent from "@/components/conditional-content"
 import { useBioInfoCalculations } from "@/hooks/useBioInfoCalculations"
+import { HeartPulse } from "lucide-react"
 
-interface BioMetricRowProps {
+interface BioMetricTileProps {
   label: string
   value: number
   unit?: string
@@ -11,25 +11,21 @@ interface BioMetricRowProps {
   popover: React.ReactNode
 }
 
-function BioMetricRow({ label, value, unit, fallback, popover }: BioMetricRowProps) {
+function BioMetricTile({ label, value, unit, fallback, popover }: BioMetricTileProps) {
   const isValid = value > 0
   return (
-    <div className="flex items-center justify-between gap-2 py-2 border-b border-border/60 last:border-b-0">
-      <ConditionalContent
-        condition={isValid}
-        fallback={<span className="text-sm text-muted-foreground">{fallback}</span>}
-      >
-        <div className="flex items-center gap-1">
-          <span className="text-sm text-muted-foreground">{label}</span>
-          <InfoPopover>{popover}</InfoPopover>
-        </div>
+    <div className="rounded-lg bg-muted/40 ring-1 ring-border/50 px-3 py-2.5 transition-colors hover:bg-muted/60">
+      <div className="flex items-center gap-1 mb-1">
+        <span className="text-xs text-muted-foreground">{label}</span>
+        <InfoPopover>{popover}</InfoPopover>
+      </div>
+      {isValid ? (
         <div className="flex items-baseline gap-1">
-          <span className="text-lg font-semibold text-primary tabular-nums">{value}</span>
+          <span className="text-xl font-semibold text-sky-600 dark:text-sky-400 tabular-nums leading-none">{value}</span>
           {unit && <span className="text-xs text-muted-foreground">{unit}</span>}
         </div>
-      </ConditionalContent>
-      {!isValid && (
-        <InfoPopover>{popover}</InfoPopover>
+      ) : (
+        <span className="text-xs text-muted-foreground/80 leading-tight">{fallback}</span>
       )}
     </div>
   )
@@ -39,29 +35,34 @@ export default function BioCard() {
   const { bmi, ibw, abw } = useBioInfoCalculations()
 
   return (
-    <Card>
+    <Card className="transition-all hover:border-sky-500/40 hover:shadow-md">
       <CardHeader>
-        <CardTitle>生理數值</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <span className="flex items-center justify-center rounded-md bg-sky-500/10 p-1.5 text-sky-600 dark:text-sky-400">
+            <HeartPulse className="size-4" />
+          </span>
+          生理數值
+        </CardTitle>
       </CardHeader>
-      <CardContent>
-        <BioMetricRow
+      <CardContent className="flex flex-col gap-2">
+        <BioMetricTile
           label="BMI"
           value={bmi}
-          fallback="請填寫身高、體重來計算 BMI"
+          fallback="請填寫身高、體重"
           popover={<p>BMI = 體重（公斤）/ 身高²（公尺）</p>}
         />
-        <BioMetricRow
+        <BioMetricTile
           label="理想體重"
           value={ibw}
           unit="kg"
-          fallback="請填寫身高來計算理想體重"
+          fallback="請填寫身高"
           popover={<p>理想體重 = 身高²（公尺）× 22</p>}
         />
-        <BioMetricRow
+        <BioMetricTile
           label="調整體重"
           value={abw}
           unit="kg"
-          fallback="請填寫身高、體重來計算調整體重"
+          fallback="請填寫身高、體重"
           popover={<p>調整體重 = 理想體重 + 0.25 × (實際體重 - 理想體重)</p>}
         />
       </CardContent>
