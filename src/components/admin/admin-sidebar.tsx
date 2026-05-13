@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Users, Package, Sparkles, Flag, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Users, Package, Sparkles, Flag, BookOpen, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const PRODUCTS_HREF = '/admin/products'
@@ -29,6 +29,11 @@ const navItems = [
     label: '許願池',
     href: '/admin/wishes',
     icon: Sparkles,
+  },
+  {
+    label: '新手上路',
+    href: '/admin/tutorials',
+    icon: BookOpen,
   },
 ]
 
