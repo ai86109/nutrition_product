@@ -48,11 +48,28 @@ const categoryProcessor = (categories: string[]): string[] => {
   return categories.map(getCategoryLabel)
 }
 
-const normalizeDefaultUnit = (unit: string | undefined): string => {
+/**
+ * 將 nutrition_facts 裡 AI 抓到的雜亂單位字串，正規化成單純的質量單位 token。
+ *
+ * 涵蓋的變體（皆收斂到 'ug' / 'mg' / 'g'）：
+ *   - 空白：'µg RE'、'mg α-TE'、'ugRE '
+ *   - 連字號：'µg-RE'
+ *   - micro sign：'µg' → 'ug'
+ *   - 美式寫法：'mcg' → 'ug'
+ *   - 當量後綴：RE（視網醇）、NE（菸鹼素）、α-TE / αTE（α-生育醇）
+ *   - 大小寫：一律 lowercase
+ *
+ * 沒命中規則的字串會原樣 lowercase 回傳；後續的 convertToStandardUnit
+ * 會走守衛 fallback，避免被當成「克」灌水。
+ */
+export const normalizeUnit = (unit: string | undefined): string => {
   if (!unit) return ''
-  if (unit.includes('µg')) return 'ug'
-  if (unit.includes('mg')) return 'mg'
-  return unit.trim().toLowerCase()
+  return unit
+    .replace(/\s+/g, '')              // 1. 清掉所有空白（前後、中間）
+    .replace(/µ/g, 'u')               // 2. µ → u
+    .replace(/^mcg/i, 'ug')           // 3. mcg → ug（美式寫法）
+    .replace(/-?(α-?TE|RE|NE)$/i, '') // 4. 去掉當量後綴（含可選的連字號）
+    .toLowerCase()
 }
 
 const UNIT_CONVERSIONS = {
@@ -61,9 +78,24 @@ const UNIT_CONVERSIONS = {
   'ug': 1000000,
 } as const
 
-const convertToStandardUnit = (value: number, fromUnit: string, toUnit: string): number => {
-  const normalizedFrom = UNIT_CONVERSIONS[fromUnit as UnitConversionKey] || 1
-  const normalizedTo = UNIT_CONVERSIONS[toUnit as UnitConversionKey] || 1
+const isKnownUnit = (unit: string): unit is UnitConversionKey =>
+  unit in UNIT_CONVERSIONS
+
+/**
+ * 質量單位換算。兩邊單位都必須在 UNIT_CONVERSIONS 表內才會換算；
+ * 任一邊不認得就 console.warn 並回傳原值，避免把 'ugRE' 之類的怪單位
+ * 當成「克」(factor=1) 灌水成天文數字。
+ */
+export const convertToStandardUnit = (value: number, fromUnit: string, toUnit: string): number => {
+  if (!isKnownUnit(fromUnit) || !isKnownUnit(toUnit)) {
+    console.warn(
+      `[product-processor] unknown unit, skip conversion: from="${fromUnit}" to="${toUnit}" value=${value}`
+    )
+    return value
+  }
+
+  const normalizedFrom = UNIT_CONVERSIONS[fromUnit]
+  const normalizedTo = UNIT_CONVERSIONS[toUnit]
 
   if (normalizedFrom === normalizedTo) return value
 
@@ -79,8 +111,8 @@ const ingredientsProcessor = (
 
   const processedIngredients: Record<string, number> = {}
   for (const [key, entry] of Object.entries(ingredients)) {
-    const defaultUnit = normalizeDefaultUnit(NUTRIENT_UNITS[key]) || ''
-    const unit = entry.unit || ''
+    const defaultUnit = normalizeUnit(NUTRIENT_UNITS[key])
+    const unit = normalizeUnit(entry.unit)
     let convertedValue = Number(entry.value) || 0
     if (unit !== defaultUnit) {
       convertedValue = convertToStandardUnit(convertedValue, unit, defaultUnit)
