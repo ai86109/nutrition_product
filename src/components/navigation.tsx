@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
 import ConditionalContent from "@/components/conditional-content";
 import { Skeleton } from "@/components/ui/skeleton"
-import { ArrowLeft, BookOpen, Menu } from "lucide-react"
+import { ArrowLeft, BookOpen, CircleUser, Menu } from "lucide-react"
 import WishPoolButton from "@/components/wish-pool-button"
 import {
   Sheet,
@@ -27,6 +27,7 @@ export default function Navigation() {
   const pathname = usePathname();
   const isOnPatientsPage = pathname?.startsWith('/patients') ?? false;
   const isOnAdminPage = pathname?.startsWith('/admin') ?? false;
+  const isOnProfilePage = pathname?.startsWith('/profile') ?? false;
   const [sheetOpen, setSheetOpen] = useState(false);
 
   // Desktop 版的 patients 按鈕：在 /patients 時是「返回首頁」，其他頁面是「病人追蹤」
@@ -51,12 +52,20 @@ export default function Navigation() {
   );
 
   // Mobile 左上角的返回按鈕：只在非 admin 頁面顯示
-  const showMobileBackButton = !isOnAdminPage && isOnPatientsPage;
+  const showMobileBackButton = !isOnAdminPage && (isOnPatientsPage || isOnProfilePage);
 
   const gettingStartedButton = (
     <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/getting-started')}>
       <BookOpen className="size-4" />
       新手上路
+    </Button>
+  );
+
+  // 個人中心：只有登入後顯示。在 /profile 上不再額外顯示按鈕（左上角已有返回按鈕）。
+  const profileButton = user && !isOnProfilePage && (
+    <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/profile')}>
+      <CircleUser className="size-4" />
+      個人中心
     </Button>
   );
 
@@ -100,6 +109,7 @@ export default function Navigation() {
               <AvatarImage src={avatarUrl} alt="avatar" />
             </Avatar>
           )}
+          {profileButton}
           {gettingStartedButton}
           {patientsButtonDesktop}
           {adminButton}
@@ -128,6 +138,9 @@ export default function Navigation() {
                   )}
                   {userName && <div>Hi! {userName}</div>}
                 </div>
+              )}
+              {profileButton && (
+                <SheetClose asChild>{profileButton}</SheetClose>
               )}
               <SheetClose asChild>{gettingStartedButton}</SheetClose>
               {patientsButtonMobile && (

@@ -38,3 +38,13 @@ export interface CreateProductReportInput {
   category: ProductReportCategory
   description: string
 }
+
+/**
+ * 使用者「我回報的問題」用：含產品中文名（透過 supabase 內嵌查詢取得）。
+ * 不含 user_email、reporter_name 等 admin 才需要的欄位。
+ * product_name 可能為 null：對應產品已被刪除（FK on delete cascade，
+ *   實務上看不到，但保留欄位以對齊 supabase response 型別）。
+ */
+export interface MyProductReport extends ProductReport {
+  product_name: string | null
+}

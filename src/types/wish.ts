@@ -14,3 +14,6 @@ export interface Wish {
 export interface WishWithUser extends Wish {
   user_email: string | null
 }
+
+/** 使用者「我的許願」用：直接是 wishes 一行（不需要 user_email） */
+export type MyWish = Wish
