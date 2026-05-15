@@ -23,6 +23,8 @@ import { Pencil, Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { updateWishStatus } from '@/lib/supabase/mutations/wishes'
 import type { WishStatus, WishWithUser } from '@/types/wish'
+import MessageButton from '@/components/conversation/message-button'
+import ConversationSheet from '@/components/conversation/conversation-sheet'
 
 const STATUS_LABEL: Record<WishStatus, string> = {
   planned: '待處理',
@@ -60,6 +62,8 @@ interface WishPoolTableProps {
 export default function WishPoolTable({ wishes: initialWishes }: WishPoolTableProps) {
   const [wishes, setWishes] = useState<WishWithUser[]>(initialWishes)
   const [statusFilter, setStatusFilter] = useState<WishStatus | 'all'>('all')
+  const [openConvId, setOpenConvId] = useState<string | null>(null)
+  const openConv = wishes.find((w) => w.id === openConvId) ?? null
 
   const filtered = useMemo(() => {
     if (statusFilter === 'all') return wishes
@@ -147,12 +151,13 @@ export default function WishPoolTable({ wishes: initialWishes }: WishPoolTablePr
               <TableHead className="w-[140px]">狀態</TableHead>
               <TableHead className="w-[260px]">後台備註</TableHead>
               <TableHead className="w-[140px]">送出時間</TableHead>
+              <TableHead className="w-[80px]">訊息</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                   目前沒有符合條件的許願
                 </TableCell>
               </TableRow>
@@ -197,12 +202,39 @@ export default function WishPoolTable({ wishes: initialWishes }: WishPoolTablePr
                   <TableCell className="text-sm text-muted-foreground align-top pt-3">
                     {formatDateTime(wish.created_at)}
                   </TableCell>
+                  <TableCell className="align-top pt-2">
+                    <MessageButton
+                      unreadCount={wish.unread_count}
+                      onClick={() => setOpenConvId(wish.id)}
+                      ariaLabel="查看此許願的訊息"
+                    />
+                  </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      {openConv && (
+        <ConversationSheet
+          open={!!openConvId}
+          onOpenChange={(o) => {
+            if (!o) setOpenConvId(null)
+          }}
+          kind="wish"
+          id={openConv.id}
+          viewerRole="admin"
+          locked={openConv.status === 'completed'}
+          title={openConv.user_email ?? '（已刪除帳號）'}
+          subtitle={openConv.content}
+          onUnreadCleared={() => {
+            setWishes((list) =>
+              list.map((w) => (w.id === openConv.id ? { ...w, unread_count: 0 } : w)),
+            )
+          }}
+        />
+      )}
     </div>
   )
 }

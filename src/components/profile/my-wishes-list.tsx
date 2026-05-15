@@ -1,6 +1,9 @@
 "use client"
 
+import { useState } from "react"
 import { Badge } from "@/components/ui/badge"
+import MessageButton from "@/components/conversation/message-button"
+import ConversationSheet from "@/components/conversation/conversation-sheet"
 import type { MyWish, WishStatus } from "@/types/wish"
 
 const STATUS_LABEL: Record<WishStatus, string> = {
@@ -27,9 +30,17 @@ function formatDateTime(dateStr: string) {
 
 interface MyWishesListProps {
   wishes: MyWish[]
+  /** 訊息抽屜開啟並標讀後立即把該筆 unread_count 設為 0（optimistic UI） */
+  onMarkRead?: (id: string) => void
 }
 
-export default function MyWishesList({ wishes }: MyWishesListProps) {
+export default function MyWishesList({
+  wishes,
+  onMarkRead,
+}: MyWishesListProps) {
+  const [openId, setOpenId] = useState<string | null>(null)
+  const openWish = wishes.find((w) => w.id === openId) ?? null
+
   if (wishes.length === 0) {
     return (
       <div className="rounded-md border bg-white p-8 text-center text-sm text-muted-foreground">
@@ -39,33 +50,58 @@ export default function MyWishesList({ wishes }: MyWishesListProps) {
   }
 
   return (
-    <div className="space-y-3">
-      {wishes.map((wish) => (
-        <div
-          key={wish.id}
-          className="rounded-md border bg-white p-4 space-y-2"
-        >
-          <div className="flex items-start justify-between gap-3">
-            <Badge variant={STATUS_VARIANT[wish.status]}>
-              {STATUS_LABEL[wish.status]}
-            </Badge>
-            <span className="text-xs text-muted-foreground tabular-nums">
-              {formatDateTime(wish.created_at)}
-            </span>
-          </div>
-
-          <div className="text-sm whitespace-pre-wrap">{wish.content}</div>
-
-          {wish.admin_note && (
-            <div className="rounded-md bg-muted/50 px-3 py-2 text-sm">
-              <div className="text-xs font-medium text-muted-foreground mb-1">
-                管理員回覆
+    <>
+      <div className="space-y-3">
+        {wishes.map((wish) => (
+          <div
+            key={wish.id}
+            className="rounded-md border bg-white p-4 space-y-2"
+          >
+            <div className="flex items-start justify-between gap-3">
+              <Badge variant={STATUS_VARIANT[wish.status]}>
+                {STATUS_LABEL[wish.status]}
+              </Badge>
+              <div className="flex items-center gap-3">
+                <span className="text-xs text-muted-foreground tabular-nums">
+                  {formatDateTime(wish.created_at)}
+                </span>
+                <MessageButton
+                  unreadCount={wish.unread_count}
+                  onClick={() => setOpenId(wish.id)}
+                  ariaLabel="查看此許願的訊息"
+                />
               </div>
-              <div className="whitespace-pre-wrap">{wish.admin_note}</div>
             </div>
-          )}
-        </div>
-      ))}
-    </div>
+
+            <div className="text-sm whitespace-pre-wrap">{wish.content}</div>
+
+            {wish.admin_note && (
+              <div className="rounded-md bg-muted/50 px-3 py-2 text-sm">
+                <div className="text-xs font-medium text-muted-foreground mb-1">
+                  管理員回覆
+                </div>
+                <div className="whitespace-pre-wrap">{wish.admin_note}</div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {openWish && (
+        <ConversationSheet
+          open={!!openId}
+          onOpenChange={(o) => {
+            if (!o) setOpenId(null)
+          }}
+          kind="wish"
+          id={openWish.id}
+          viewerRole="user"
+          locked={openWish.status === "completed"}
+          title="許願對話"
+          subtitle={openWish.content}
+          onUnreadCleared={() => onMarkRead?.(openWish.id)}
+        />
+      )}
+    </>
   )
 }

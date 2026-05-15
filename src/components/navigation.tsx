@@ -2,6 +2,7 @@
 
 import { useState } from "react"
 import { useAuth } from "@/contexts/AuthContext";
+import { useUnread } from "@/contexts/UnreadContext";
 import { Button } from "@/components/ui/button"
 import { useRouter, usePathname } from 'next/navigation'
 import { Avatar, AvatarImage } from "@/components/ui/avatar"
@@ -18,8 +19,25 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet"
 
+/** 包一層 div + 右上角紅點數字。給 nav 上的按鈕用。 */
+function WithUnreadBadge({ count, children }: { count: number; children: React.ReactNode }) {
+  if (count <= 0) return <>{children}</>
+  return (
+    <div className="relative inline-block">
+      {children}
+      <span
+        className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-[18px] text-center pointer-events-none"
+        aria-label={`${count} 則未讀`}
+      >
+        {count > 99 ? "99+" : count}
+      </span>
+    </div>
+  )
+}
+
 export default function Navigation() {
   const { session, loading, role } = useAuth();
+  const { myUnread, adminUnread } = useUnread();
   const isAdmin = role === 'admin';
   const user = session?.user || null;
   const { name: userName, avatar_url: avatarUrl} = user?.user_metadata || {};
@@ -63,16 +81,20 @@ export default function Navigation() {
 
   // 個人中心：只有登入後顯示。在 /profile 上不再額外顯示按鈕（左上角已有返回按鈕）。
   const profileButton = user && !isOnProfilePage && (
-    <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/profile')}>
-      <CircleUser className="size-4" />
-      個人中心
-    </Button>
+    <WithUnreadBadge count={myUnread}>
+      <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/profile')}>
+        <CircleUser className="size-4" />
+        個人中心
+      </Button>
+    </WithUnreadBadge>
   );
 
   const adminButton = isAdmin && (
-    <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/admin')}>
-      管理後台
-    </Button>
+    <WithUnreadBadge count={adminUnread}>
+      <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/admin')}>
+        管理後台
+      </Button>
+    </WithUnreadBadge>
   );
 
   const authButton = (

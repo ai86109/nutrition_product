@@ -28,6 +28,8 @@ export interface ProductReport {
 export interface ProductReportWithMeta extends ProductReport {
   product_name: string | null
   user_email: string | null
+  /** 對 admin 而言：user 寫的、且 created_at > last_read_by_admin_at 的訊息數 */
+  unread_count: number
 }
 
 /** 送出 report 時的 payload。user_id 由前端依登入狀態決定。 */
@@ -47,4 +49,6 @@ export interface CreateProductReportInput {
  */
 export interface MyProductReport extends ProductReport {
   product_name: string | null
+  /** admin 寫給我的、未讀的訊息數 */
+  unread_count: number
 }

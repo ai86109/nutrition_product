@@ -27,6 +27,8 @@ import type {
   ProductReportStatus,
   ProductReportWithMeta,
 } from '@/types/product-report'
+import MessageButton from '@/components/conversation/message-button'
+import ConversationSheet from '@/components/conversation/conversation-sheet'
 
 const STATUS_LABEL: Record<ProductReportStatus, string> = {
   planned: '待處理',
@@ -73,6 +75,8 @@ export default function ProductReportTable({
 }: ProductReportTableProps) {
   const [reports, setReports] = useState<ProductReportWithMeta[]>(initialReports)
   const [statusFilter, setStatusFilter] = useState<ProductReportStatus | 'all'>('all')
+  const [openConvId, setOpenConvId] = useState<string | null>(null)
+  const openConv = reports.find((r) => r.id === openConvId) ?? null
 
   const filtered = useMemo(() => {
     if (statusFilter === 'all') return reports
@@ -162,12 +166,13 @@ export default function ProductReportTable({
               <TableHead className="w-[140px]">狀態</TableHead>
               <TableHead className="w-[240px]">後台備註</TableHead>
               <TableHead className="w-[140px]">送出時間</TableHead>
+              <TableHead className="w-[80px]">訊息</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {filtered.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={8} className="text-center text-muted-foreground py-8">
                   目前沒有符合條件的回報
                 </TableCell>
               </TableRow>
@@ -236,12 +241,45 @@ export default function ProductReportTable({
                   <TableCell className="text-sm text-muted-foreground align-top pt-3">
                     {formatDateTime(report.created_at)}
                   </TableCell>
+                  <TableCell className="align-top pt-2">
+                    <MessageButton
+                      unreadCount={report.unread_count}
+                      onClick={() => setOpenConvId(report.id)}
+                      ariaLabel="查看此回報的訊息"
+                    />
+                  </TableCell>
                 </TableRow>
               ))
             )}
           </TableBody>
         </Table>
       </div>
+
+      {openConv && (
+        <ConversationSheet
+          open={!!openConvId}
+          onOpenChange={(o) => {
+            if (!o) setOpenConvId(null)
+          }}
+          kind="report"
+          id={openConv.id}
+          viewerRole="admin"
+          locked={openConv.status === 'completed'}
+          title={
+            openConv.user_email ??
+            openConv.reporter_name ??
+            '（匿名訪客）'
+          }
+          subtitle={`【${CATEGORY_LABEL[openConv.category]}】${openConv.product_name ?? '產品已下架'}\n${openConv.description}`}
+          onUnreadCleared={() => {
+            setReports((list) =>
+              list.map((r) =>
+                r.id === openConv.id ? { ...r, unread_count: 0 } : r,
+              ),
+            )
+          }}
+        />
+      )}
     </div>
   )
 }

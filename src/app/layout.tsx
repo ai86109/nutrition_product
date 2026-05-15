@@ -4,6 +4,7 @@ import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { UserPreferencesProvider } from "@/contexts/UserPreferencesContext";
+import { UnreadProvider } from "@/contexts/UnreadContext";
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -87,10 +88,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-200 min-h-screen flex flex-col`}
       >
         <AuthProvider>
-          <UserPreferencesProvider>
-            <div className="flex-1">{children}</div>
-            <Footer />
-          </UserPreferencesProvider>
+          <UnreadProvider>
+            <UserPreferencesProvider>
+              <div className="flex-1">{children}</div>
+              <Footer />
+            </UserPreferencesProvider>
+          </UnreadProvider>
         </AuthProvider>
         <Toaster />
         <Analytics />

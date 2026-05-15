@@ -42,8 +42,8 @@ export default function ProfilePage() {
   const reload = useCallback(async () => {
     if (!userId) return
     const [w, r] = await Promise.all([
-      listMyWishes(userId),
-      listMyProductReports(userId),
+      listMyWishes(),
+      listMyProductReports(),
     ])
     setWishes(w)
     setReports(r)
@@ -73,6 +73,21 @@ export default function ProfilePage() {
 
   if (!isLoggedIn) return null
 
+  // tab 上的未讀數 = 該類型所有 ticket 的 unread_count 加總
+  const reportsUnread = reports.reduce((sum, r) => sum + r.unread_count, 0)
+  const wishesUnread = wishes.reduce((sum, w) => sum + w.unread_count, 0)
+
+  // optimistic：開啟對話 sheet 並標讀後，立即把該筆 unread_count 設為 0
+  // （不等 reload round-trip）
+  const markReportRead = (id: string) =>
+    setReports((list) =>
+      list.map((r) => (r.id === id ? { ...r, unread_count: 0 } : r)),
+    )
+  const markWishRead = (id: string) =>
+    setWishes((list) =>
+      list.map((w) => (w.id === id ? { ...w, unread_count: 0 } : w)),
+    )
+
   return (
     <>
       <Navigation />
@@ -92,6 +107,14 @@ export default function ProfilePage() {
                   {reports.length}
                 </Badge>
               )}
+              {reportsUnread > 0 && (
+                <span
+                  className="ml-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-[18px] text-center"
+                  aria-label={`${reportsUnread} 則未讀`}
+                >
+                  {reportsUnread > 99 ? "99+" : reportsUnread}
+                </span>
+              )}
             </TabsTrigger>
             <TabsTrigger value="wishes">
               許願池
@@ -100,15 +123,26 @@ export default function ProfilePage() {
                   {wishes.length}
                 </Badge>
               )}
+              {wishesUnread > 0 && (
+                <span
+                  className="ml-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-[18px] text-center"
+                  aria-label={`${wishesUnread} 則未讀`}
+                >
+                  {wishesUnread > 99 ? "99+" : wishesUnread}
+                </span>
+              )}
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="reports">
-            <MyProductReportsList reports={reports} />
+            <MyProductReportsList
+              reports={reports}
+              onMarkRead={markReportRead}
+            />
           </TabsContent>
 
           <TabsContent value="wishes">
-            <MyWishesList wishes={wishes} />
+            <MyWishesList wishes={wishes} onMarkRead={markWishRead} />
           </TabsContent>
         </Tabs>
       </main>

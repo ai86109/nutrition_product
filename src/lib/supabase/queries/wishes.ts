@@ -23,16 +23,13 @@ export async function listWishes(
 }
 
 /**
- * 個人中心：列出登入使用者自己的許願，依時間倒序。
- * 走一般 SELECT，靠 RLS 的 wishes_select_own policy 過濾（auth.uid() = user_id）。
+ * 個人中心：列出登入使用者自己的許願，依時間倒序。含 unread_count（admin
+ * 寫給我、且 created_at > last_read_by_user_at 的訊息數）。
+ * 走 list_my_wishes RPC（SECURITY INVOKER；wishes_select_own RLS 仍然過濾）。
  */
-export async function listMyWishes(userId: string): Promise<MyWish[]> {
+export async function listMyWishes(): Promise<MyWish[]> {
   const supabase = createClient()
-  const { data, error } = await supabase
-    .from('wishes')
-    .select('*')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
+  const { data, error } = await supabase.rpc('list_my_wishes')
 
   if (error) {
     console.error('Error listing my wishes:', error)

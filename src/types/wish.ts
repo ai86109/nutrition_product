@@ -13,7 +13,11 @@ export interface Wish {
 /** Admin 列表用：含許願者 email（join auth.users 後取得，可能為 null） */
 export interface WishWithUser extends Wish {
   user_email: string | null
+  /** 對 admin 而言：user 寫的、且 created_at > last_read_by_admin_at 的訊息數 */
+  unread_count: number
 }
 
-/** 使用者「我的許願」用：直接是 wishes 一行（不需要 user_email） */
-export type MyWish = Wish
+/** 使用者「我的許願」用：含 unread_count（admin 寫給我的、未讀的訊息數） */
+export interface MyWish extends Wish {
+  unread_count: number
+}

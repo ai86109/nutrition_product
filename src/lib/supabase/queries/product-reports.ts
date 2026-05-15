@@ -2,7 +2,6 @@ import { createClient } from '@/utils/supabase/client'
 import { createClientForServer } from '@/utils/supabase/server'
 import type {
   MyProductReport,
-  ProductReport,
   ProductReportStatus,
   ProductReportWithMeta,
 } from '@/types/product-report'
@@ -44,35 +43,18 @@ export async function getPendingProductReportCount(): Promise<number> {
 }
 
 /**
- * 個人中心：列出登入使用者自己回報的問題，依時間倒序。
- * 走一般 SELECT + supabase 內嵌查詢取產品中文名（products 表本來就公開）。
- * 靠 RLS 的 product_reports_select_own policy 過濾（auth.uid() = user_id）。
+ * 個人中心：列出登入使用者自己回報的問題，依時間倒序。含 unread_count + 產品名。
+ * 走 list_my_product_reports RPC（SECURITY INVOKER；product_reports_select_own
+ * RLS 仍然過濾）。
  */
-export async function listMyProductReports(
-  userId: string,
-): Promise<MyProductReport[]> {
+export async function listMyProductReports(): Promise<MyProductReport[]> {
   const supabase = createClient()
-  const { data, error } = await supabase
-    .from('product_reports')
-    .select('*, products(name_zh)')
-    .eq('user_id', userId)
-    .order('created_at', { ascending: false })
+  const { data, error } = await supabase.rpc('list_my_product_reports')
 
   if (error) {
     console.error('Error listing my product reports:', error)
     return []
   }
 
-  // supabase 內嵌查詢 1:1 關聯：products 會是 { name_zh } | null
-  type Row = ProductReport & {
-    products: { name_zh: string | null } | null
-  }
-
-  return ((data ?? []) as Row[]).map((row) => {
-    const { products, ...rest } = row
-    return {
-      ...rest,
-      product_name: products?.name_zh ?? null,
-    }
-  })
+  return (data ?? []) as MyProductReport[]
 }
