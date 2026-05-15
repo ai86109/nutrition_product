@@ -91,7 +91,7 @@ export default function ConversationSheet({
   }, [viewerRole, kind, id])
 
   // 開啟時：fetch + mark read + 通知 parent
-  // 依賴只放真正會改變對話身份的 [open, kind, id]；fetchMessages 也只依賴這三個
+  // 依賴只放真正會改變對話身份的 [open, kind, id, viewerRole]；fetchMessages 也只依賴這幾個
   useEffect(() => {
     if (!open) return
     let cancelled = false
@@ -115,7 +115,8 @@ export default function ConversationSheet({
     // mark read 與 fetch 並行；失敗不擋使用者
     // 注意：標讀的 server side effect 已經發生，**不**受 cancelled 影響：
     //   即使使用者瞬間關掉 sheet，parent 仍應收到通知去更新 unread_count。
-    markConversationRead(kind, id)
+    // 必須傳 viewerRole，server 才知道要更新哪條指針（admin 帳號也可能以 user 視角看自己的對話）。
+    markConversationRead(kind, id, viewerRole)
       .then(() => {
         onUnreadClearedRef.current?.()
         refreshGlobalUnreadRef.current()
@@ -127,7 +128,7 @@ export default function ConversationSheet({
     return () => {
       cancelled = true
     }
-  }, [open, kind, id, fetchMessages])
+  }, [open, kind, id, viewerRole, fetchMessages])
 
   // 訊息變動時自動捲到底
   useEffect(() => {

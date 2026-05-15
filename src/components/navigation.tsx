@@ -37,7 +37,7 @@ function WithUnreadBadge({ count, children }: { count: number; children: React.R
 
 export default function Navigation() {
   const { session, loading, role } = useAuth();
-  const { myUnread, adminUnread } = useUnread();
+  const { myUnread } = useUnread();
   const isAdmin = role === 'admin';
   const user = session?.user || null;
   const { name: userName, avatar_url: avatarUrl} = user?.user_metadata || {};
@@ -79,22 +79,52 @@ export default function Navigation() {
     </Button>
   );
 
-  // 個人中心：只有登入後顯示。在 /profile 上不再額外顯示按鈕（左上角已有返回按鈕）。
-  const profileButton = user && !isOnProfilePage && (
-    <WithUnreadBadge count={myUnread}>
-      <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/profile')}>
-        <CircleUser className="size-4" />
-        個人中心
+  // 桌機版：在 /profile 時是「返回首頁」，其他頁面是「個人中心」（含未讀紅點）。
+  const profileButtonDesktop = user && (
+    isOnProfilePage ? (
+      <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/')}>
+        <ArrowLeft className="size-4" />
+        返回首頁
       </Button>
-    </WithUnreadBadge>
+    ) : (
+      <WithUnreadBadge count={myUnread}>
+        <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/profile')}>
+          <CircleUser className="size-4" />
+          個人中心
+        </Button>
+      </WithUnreadBadge>
+    )
   );
 
+  // 手機 sheet 內的「個人中心」：在 /profile 時隱藏（手機左上角已有返回按鈕）。
+  // 紅點直接 absolute 在 Button 內，避免被 WithUnreadBadge 包成 inline-block 後寬度只到 content。
+  const profileButtonMobile = user && !isOnProfilePage && (
+    <Button
+      variant="outline"
+      className="cursor-pointer relative"
+      onClick={() => router.push('/profile')}
+    >
+      <CircleUser className="size-4" />
+      個人中心
+      {myUnread > 0 && (
+        <span
+          className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-[18px] text-center pointer-events-none"
+          aria-label={`${myUnread} 則未讀`}
+        >
+          {myUnread > 99 ? "99+" : myUnread}
+        </span>
+      )}
+    </Button>
+  );
+
+  // 手機漢堡按鈕本身要顯示的紅點數：只算個人中心未讀（admin 後台不顯示紅點）
+  const mobileTotalUnread = myUnread;
+
+  // 管理後台按鈕：不再顯示紅點（admin 自己進後台會看到各 ticket 上的紅點）
   const adminButton = isAdmin && (
-    <WithUnreadBadge count={adminUnread}>
-      <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/admin')}>
-        管理後台
-      </Button>
-    </WithUnreadBadge>
+    <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/admin')}>
+      管理後台
+    </Button>
   );
 
   const authButton = (
@@ -131,7 +161,7 @@ export default function Navigation() {
               <AvatarImage src={avatarUrl} alt="avatar" />
             </Avatar>
           )}
-          {profileButton}
+          {profileButtonDesktop}
           {gettingStartedButton}
           {patientsButtonDesktop}
           {adminButton}
@@ -141,11 +171,21 @@ export default function Navigation() {
 
         {/* Mobile: hamburger menu (<md) */}
         <Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
-          <SheetTrigger asChild>
-            <Button variant="outline" size="icon" className="md:hidden cursor-pointer ml-auto" aria-label="開啟選單">
-              <Menu className="size-5" />
-            </Button>
-          </SheetTrigger>
+          <div className="md:hidden ml-auto relative inline-block">
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="cursor-pointer" aria-label="開啟選單">
+                <Menu className="size-5" />
+              </Button>
+            </SheetTrigger>
+            {mobileTotalUnread > 0 && (
+              <span
+                className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-semibold leading-[18px] text-center pointer-events-none"
+                aria-label={`${mobileTotalUnread} 則未讀`}
+              >
+                {mobileTotalUnread > 99 ? "99+" : mobileTotalUnread}
+              </span>
+            )}
+          </div>
           <SheetContent side="right" className="w-72">
             <SheetHeader>
               <SheetTitle>選單</SheetTitle>
@@ -161,8 +201,8 @@ export default function Navigation() {
                   {userName && <div>Hi! {userName}</div>}
                 </div>
               )}
-              {profileButton && (
-                <SheetClose asChild>{profileButton}</SheetClose>
+              {profileButtonMobile && (
+                <SheetClose asChild>{profileButtonMobile}</SheetClose>
               )}
               <SheetClose asChild>{gettingStartedButton}</SheetClose>
               {patientsButtonMobile && (

@@ -60,17 +60,23 @@ export async function createAdminConversationMessage(
 }
 
 /**
- * 標記對話為已讀。user 與 admin 共用，由後端依 caller 角色決定要更新
- * last_read_by_user_at 還是 last_read_by_admin_at。
+ * 標記對話為已讀。
+ * 必須帶 viewerRole（'user' | 'admin'），由前端決定要更新哪條指針 —
+ * 因為「caller 是 admin」不代表「視角是 admin」（admin 帳號的開發者
+ * 也會在 /profile 看自己的對話，那是 user 視角）。
+ * - 'user'：更新 last_read_by_user_at，且 RPC 內 where user_id = auth.uid()
+ * - 'admin'：更新 last_read_by_admin_at，但 RPC 會 assert_caller_is_admin()
  */
 export async function markConversationRead(
   kind: ConversationKind,
   id: string,
+  viewerRole: 'user' | 'admin',
 ): Promise<void> {
   const supabase = createClient()
   const { error } = await supabase.rpc('mark_conversation_read', {
     p_kind: kind,
     p_id: id,
+    p_viewer_role: viewerRole,
   })
 
   if (error) {
