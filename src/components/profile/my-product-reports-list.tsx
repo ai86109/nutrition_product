@@ -72,14 +72,9 @@ export default function MyProductReportsList({
             className="rounded-md border bg-white p-4 space-y-2"
           >
             <div className="flex items-start justify-between gap-3 flex-wrap">
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge variant={STATUS_VARIANT[report.status]}>
-                  {STATUS_LABEL[report.status]}
-                </Badge>
-                <Badge variant="outline" className="text-xs">
-                  {CATEGORY_LABEL[report.category]}
-                </Badge>
-              </div>
+              <Badge variant={STATUS_VARIANT[report.status]}>
+                {STATUS_LABEL[report.status]}
+              </Badge>
               <div className="flex items-center gap-3">
                 <span className="text-xs text-muted-foreground tabular-nums">
                   {formatDateTime(report.created_at)}
@@ -107,6 +102,12 @@ export default function MyProductReportsList({
 
             <div className="text-sm whitespace-pre-wrap">
               {report.description}
+            </div>
+
+            <div>
+              <Badge variant="outline" className="text-xs">
+                {CATEGORY_LABEL[report.category]}
+              </Badge>
             </div>
 
             {report.admin_note && (
