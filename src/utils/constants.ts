@@ -357,6 +357,20 @@ export const MAX_PATIENT_GROUP_NAME_LENGTH = 30
 export const MAX_PATIENT_DISEASE_HISTORY_LENGTH = 500
 export const MAX_SNAPSHOT_NOTES_LENGTH = 500
 
+/** 自訂營養品上限與字數限制。同樣未來可隨 tier 調整。 */
+export const MAX_CUSTOM_PRODUCTS = 3
+export const MAX_CUSTOM_PRODUCT_NAME_ZH_LENGTH = 50
+export const MAX_CUSTOM_PRODUCT_NAME_EN_LENGTH = 80
+export const MAX_CUSTOM_PRODUCT_BRAND_LENGTH = 30
+export const MAX_CUSTOM_PRODUCT_NOTES_LENGTH = 500
+export const MAX_CUSTOM_PRODUCT_VARIANT_UNIT_LENGTH = 10
+/** 自訂營養品 form 的合法值（必須與 DB check constraint 同步）。 */
+export const CUSTOM_PRODUCT_FORMS = ['liquid', 'powder', 'solid', 'other'] as const
+/** 自訂營養品的重量單位（必須與 DB check constraint 同步）。 */
+export const CUSTOM_PRODUCT_WEIGHT_UNITS = ['g', 'ml'] as const
+/** 自訂營養品 nutrition_facts 必填的四項基本營養素。 */
+export const CUSTOM_PRODUCT_REQUIRED_NUTRIENTS = ['calories', 'protein', 'carbohydrates', 'fat'] as const
+
 export const DEFAULT_NOTE_TEMPLATES_SETTINGS: NoteTemplate[] = []
 
 export const DRIS: DRISData = {
