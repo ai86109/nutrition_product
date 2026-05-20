@@ -6,7 +6,6 @@ import {
   MAX_CUSTOM_PRODUCT_BRAND_LENGTH,
   MAX_CUSTOM_PRODUCT_NAME_EN_LENGTH,
   MAX_CUSTOM_PRODUCT_NAME_ZH_LENGTH,
-  MAX_CUSTOM_PRODUCT_NOTES_LENGTH,
   MAX_CUSTOM_PRODUCT_VARIANT_UNIT_LENGTH,
 } from '@/utils/constants'
 
@@ -93,18 +92,6 @@ export const CustomProductInputSchema = z.object({
   standard_weight: z.number().positive('標準重量必須 > 0'),
   weight_unit: z.enum(CUSTOM_PRODUCT_WEIGHT_UNITS),
   nutrition_facts: NutritionFactsSchema,
-  notes: z
-    .union([
-      z
-        .string()
-        .trim()
-        .max(
-          MAX_CUSTOM_PRODUCT_NOTES_LENGTH,
-          `備註不可超過 ${MAX_CUSTOM_PRODUCT_NOTES_LENGTH} 字`
-        ),
-      z.null(),
-    ])
-    .optional(),
 })
 
 /** 建立 / 更新時整體 payload：product + variants 一起驗。 */

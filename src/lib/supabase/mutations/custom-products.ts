@@ -59,7 +59,6 @@ export async function createCustomProduct(
       standard_weight: product.standard_weight,
       weight_unit: product.weight_unit,
       nutrition_facts: product.nutrition_facts,
-      notes: product.notes?.trim() || null,
     })
     .select()
     .single()
@@ -130,7 +129,6 @@ export async function updateCustomProduct(
       standard_weight: product.standard_weight,
       weight_unit: product.weight_unit,
       nutrition_facts: product.nutrition_facts,
-      notes: product.notes?.trim() || null,
     })
     .eq('id', productId)
     .select()

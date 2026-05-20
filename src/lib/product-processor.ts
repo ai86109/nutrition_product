@@ -1,6 +1,8 @@
 import { NUTRIENT_UNITS } from '@/utils/constants'
 import { getCategoryLabel } from '@/utils/product-categories'
 import type { ProductImagePublic } from '@/types/product-images'
+import type { CustomProductWithVariants } from '@/types/custom-product'
+import type { ApiProductData, ApiProductListData } from '@/types/api'
 
 type FormMapKey = keyof typeof formMap
 type UnitMapKey = keyof typeof unitMap
@@ -9,6 +11,8 @@ type UnitConversionKey = keyof typeof UNIT_CONVERSIONS
 const formMap = {
   'powder': '粉劑',
   'liquid': '液劑',
+  'solid': '固態',
+  'other': '其他',
 } as const
 
 const unitMap = {
@@ -198,6 +202,95 @@ export const formatProductDetail = (
     spec,
     reviewStatus: is_approved,
     images,
+  }
+}
+
+// ---------------------------------------------------------------------
+// 自訂營養品 formatters
+//
+// 把 user_custom_products + user_custom_variants 轉成跟 FDA 公開產品
+// 一致的 ApiProductListData / ApiProductData 形狀，下游的搜尋、收藏、
+// 計算、snapshot 流程就不需要任何 if (isCustom) 分支。
+//
+// 兩邊差異對應：
+//   license_no              → custom product uuid（沒有碰撞，可共用 id 欄位）
+//   reviewStatus            → 自訂視為使用者自己審過 → 'true'
+//   productStatus           → 自訂沒有上下架概念 → null
+//   categories              → 自訂目前沒分類欄位 → 空陣列
+//   isCustom                → true（讓 UI 顯示「自訂」badge）
+// ---------------------------------------------------------------------
+
+const customVariantsAsRaw = (variants: CustomProductWithVariants['variants']): RawVariant[] =>
+  variants.map((v) => ({
+    is_default: v.is_default,
+    volume: v.volume,
+    quantity: v.quantity,
+    unit: v.unit,
+  }))
+
+const hasUsableCustomNutrition = (cp: CustomProductWithVariants): boolean => {
+  if (!cp.nutrition_facts || Object.keys(cp.nutrition_facts).length === 0) return false
+  const hasDefaultVariant = cp.variants.some((v) => v.is_default)
+  return hasDefaultVariant
+}
+
+/** 自訂產品列表 → ApiProductListData[]（給首頁 server-side 渲染）。 */
+export const formatCustomProductList = (
+  customProducts: CustomProductWithVariants[]
+): ApiProductListData[] => {
+  return customProducts
+    .filter(hasUsableCustomNutrition)
+    .map((cp) => {
+      const type = formMap[cp.form as FormMapKey] || cp.form || ''
+      return {
+        id: cp.id,
+        name: cp.name_zh,
+        engName: cp.name_en ?? '',
+        brand: cp.brand,
+        type,
+        reviewStatus: 'true',
+        productStatus: null,
+        categories: [],
+        isCustom: true,
+      }
+    })
+}
+
+/** 單一自訂產品 → ApiProductData（給 /api/products/[id] 詳細路由）。 */
+export const formatCustomProductDetail = (
+  cp: CustomProductWithVariants
+): ApiProductData | null => {
+  if (!hasUsableCustomNutrition(cp)) return null
+
+  const rawVariants = customVariantsAsRaw(cp.variants)
+  const defaultAmount = rawVariants.find((v) => v.is_default)?.volume ?? null
+  const type = formMap[cp.form as FormMapKey] || cp.form || ''
+  const standardWeight = cp.standard_weight
+  const factor = defaultAmount && standardWeight ? defaultAmount / standardWeight : 1
+  const per100Factor = standardWeight ? 100 / standardWeight : 1
+  const ingredients = ingredientsProcessor(cp.nutrition_facts, factor)
+  const ingredientsPer100 = ingredientsProcessor(cp.nutrition_facts, per100Factor)
+  const spec = rawVariants.map((variant) => ({
+    type: '',
+    defaultAmount: variant.quantity != null ? String(variant.quantity) : undefined,
+    unit: unitMap[variant.unit as UnitMapKey] || variant.unit,
+    volume: variant.volume != null ? String(variant.volume) : undefined,
+  }))
+
+  return {
+    id: cp.id,
+    name: cp.name_zh,
+    engName: cp.name_en ?? '',
+    brand: cp.brand,
+    type,
+    defaultAmount: defaultAmount != null ? String(defaultAmount) : '',
+    reviewStatus: 'true',
+    categories: [],
+    spec,
+    ingredients,
+    ingredientsPer100,
+    images: [],
+    isCustom: true,
   }
 }
 

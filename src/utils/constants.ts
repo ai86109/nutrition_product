@@ -362,7 +362,6 @@ export const MAX_CUSTOM_PRODUCTS = 3
 export const MAX_CUSTOM_PRODUCT_NAME_ZH_LENGTH = 50
 export const MAX_CUSTOM_PRODUCT_NAME_EN_LENGTH = 80
 export const MAX_CUSTOM_PRODUCT_BRAND_LENGTH = 30
-export const MAX_CUSTOM_PRODUCT_NOTES_LENGTH = 500
 export const MAX_CUSTOM_PRODUCT_VARIANT_UNIT_LENGTH = 10
 /** 自訂營養品 form 的合法值（必須與 DB check constraint 同步）。 */
 export const CUSTOM_PRODUCT_FORMS = ['liquid', 'powder', 'solid', 'other'] as const

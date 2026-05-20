@@ -29,6 +29,8 @@ export interface ApiProductListData {
   reviewStatus: string;
   productStatus: string | null;
   categories: string[];
+  /** 標示是否為使用者自訂營養品。FDA 公開資料為 undefined / false。 */
+  isCustom?: boolean;
 }
 
 // 詳細資料（使用者加入計算後才 fetch）
@@ -47,4 +49,6 @@ export interface ApiProductData {
   ingredientsPer100?: IngredientsData;
   // 產品圖片（已過濾 status='approved'、依 display_order 排序、含 publicUrl）
   images?: ProductImagePublic[];
+  /** 標示是否為使用者自訂營養品。FDA 公開資料為 undefined / false。 */
+  isCustom?: boolean;
 }

@@ -47,6 +47,14 @@ export default function ProductListItem({ item }: { item: ApiProductListData }) 
           )}
           <div className="flex items-center gap-1.5 mt-1 flex-wrap">
             <span className="text-xs text-muted-foreground">{item.brand}</span>
+            {item.isCustom && (
+              <Badge
+                variant="secondary"
+                className="text-[10px] px-1.5 py-0 h-4 border-transparent bg-violet-50 text-violet-600 hover:bg-violet-50"
+              >
+                自訂
+              </Badge>
+            )}
             {item.type && (
               <Badge
                 variant="secondary"

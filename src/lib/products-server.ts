@@ -1,6 +1,13 @@
 import { createClientForServer } from '@/utils/supabase/server'
-import { formatProductData, formatProductList, formatProductDetail } from './product-processor'
+import {
+  formatProductData,
+  formatProductList,
+  formatProductDetail,
+  formatCustomProductList,
+  formatCustomProductDetail,
+} from './product-processor'
 import type { ProductImagePublic } from '@/types/product-images'
+import type { CustomProductWithVariants } from '@/types/custom-product'
 
 const PRODUCT_IMAGES_BUCKET = 'product-images'
 
@@ -13,21 +20,85 @@ interface RawProductImageRow {
   height: number | null
 }
 
+/**
+ * 判斷 id 是否為 v4 UUID 字串（自訂產品 id 是 uuid，FDA license_no 是中文 + 數字）。
+ * 寬鬆寫法接受任何 RFC 4122 形狀，不只 v4，足夠用來分流。
+ */
+const UUID_REGEX = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+const isUuid = (s: string): boolean => UUID_REGEX.test(s)
+
+/**
+ * 取目前 user 的未刪除自訂產品（含 variants）。
+ * 未登入時 RLS 會返回空陣列。
+ */
+async function getCustomProductsForCurrentUser(): Promise<CustomProductWithVariants[]> {
+  try {
+    const supabase = await createClientForServer()
+    const { data, error } = await supabase
+      .from('user_custom_products')
+      .select(`*, variants:user_custom_variants(*)`)
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+
+    if (error) {
+      console.error('Custom products fetch error:', error)
+      return []
+    }
+    return (data ?? []) as CustomProductWithVariants[]
+  } catch (error) {
+    console.error('Error fetching custom products from Supabase:', error)
+    return []
+  }
+}
+
+/**
+ * 取目前 user 的單一自訂產品（含 variants）。
+ * 未登入或非本人 RLS 會擋下，回傳 null。
+ */
+async function getCustomProductForCurrentUser(
+  id: string
+): Promise<CustomProductWithVariants | null> {
+  try {
+    const supabase = await createClientForServer()
+    const { data, error } = await supabase
+      .from('user_custom_products')
+      .select(`*, variants:user_custom_variants(*)`)
+      .eq('id', id)
+      .maybeSingle()
+
+    if (error) {
+      console.error('Custom product detail fetch error:', error)
+      return null
+    }
+    return (data ?? null) as CustomProductWithVariants | null
+  } catch (error) {
+    console.error(`Error fetching custom product detail (${id}):`, error)
+    return null
+  }
+}
+
 // 清單用：DB 端過濾掉沒 nutrition_facts 的產品，且不抓 nutrition_facts/standard_weight 欄位以降低 payload
+// 自訂產品另外撈一次後合併（並行 fetch，未登入時 RLS 返回空陣列）
 export async function getProductListFromSupabase() {
   try {
     const supabase = await createClientForServer()
-    const { data: products, error } = await supabase
-      .from('products')
-      .select(`license_no, name_zh, name_en, brand, form, is_approved, product_status, categories, product_variants (*)`)
-      .not('nutrition_facts', 'is', null)
+    const [{ data: products, error }, customProducts] = await Promise.all([
+      supabase
+        .from('products')
+        .select(`license_no, name_zh, name_en, brand, form, is_approved, product_status, categories, product_variants (*)`)
+        .not('nutrition_facts', 'is', null),
+      getCustomProductsForCurrentUser(),
+    ])
 
     if (error) {
       console.error('Supabase error:', error)
       throw error
     }
 
-    return formatProductList(products)
+    const publicList = formatProductList(products)
+    const customList = formatCustomProductList(customProducts)
+    // 自訂放最前面，方便用戶搜尋時優先看到自己加的
+    return [...customList, ...publicList]
   } catch (error) {
     console.error('Error fetching product list from Supabase:', error)
     return []
@@ -37,7 +108,15 @@ export async function getProductListFromSupabase() {
 // 詳細用：單筆查詢，回傳完整 nutrition 資料 + 圖片清單
 //   product_images 用 LEFT JOIN（沒圖的產品仍會回傳，images 為空陣列）
 //   .eq filter 對 foreign table 做欄位篩選；RLS 端也會擋 non-approved，雙保險
+//   id 若為 UUID 則走自訂產品路徑；否則為 FDA license_no
 export async function getProductDetailFromSupabase(id: string) {
+  // 自訂產品（UUID）走獨立路徑
+  if (isUuid(id)) {
+    const customProduct = await getCustomProductForCurrentUser(id)
+    if (!customProduct) return null
+    return formatCustomProductDetail(customProduct)
+  }
+
   try {
     const supabase = await createClientForServer()
     const { data: product, error } = await supabase
@@ -111,7 +190,7 @@ export async function getProductsLastSyncedAt(): Promise<string | null> {
   return null
 }
 
-// 保留舊函式，供既有程式碼相容
+// 保留舊函式，供既有程式碼相容（首頁已改用 getProductListFromSupabase；這個只剩潛在 caller / 測試會用）
 export async function getProductFromSupabase() {
   try {
     const supabase = await createClientForServer()

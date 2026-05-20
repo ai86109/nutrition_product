@@ -33,7 +33,6 @@ export interface CustomProduct {
   weight_unit: CustomProductWeightUnit
 
   nutrition_facts: NutritionFacts
-  notes: string | null
 
   /** 軟刪除時間戳；NULL = 未刪除。 */
   deleted_at: string | null
@@ -73,7 +72,6 @@ export interface CustomProductInput {
   standard_weight: number
   weight_unit: CustomProductWeightUnit
   nutrition_facts: NutritionFacts
-  notes?: string | null
 }
 
 export interface CustomProductVariantInput {
