@@ -363,9 +363,13 @@ export const MAX_CUSTOM_PRODUCT_NAME_ZH_LENGTH = 50
 export const MAX_CUSTOM_PRODUCT_NAME_EN_LENGTH = 80
 export const MAX_CUSTOM_PRODUCT_BRAND_LENGTH = 30
 export const MAX_CUSTOM_PRODUCT_VARIANT_UNIT_LENGTH = 10
-/** 自訂營養品 form 的合法值（必須與 DB check constraint 同步）。 */
-export const CUSTOM_PRODUCT_FORMS = ['liquid', 'powder', 'solid', 'other'] as const
-/** 自訂營養品的重量單位（必須與 DB check constraint 同步）。 */
+/**
+ * 自訂營養品 form 的前端可選值。
+ * 注意：DB check constraint 目前仍允許 'other'（superset），這裡只列前端開放給使用者選的選項；
+ * 之後若要把 DB 也收緊成不含 'other'，再補一支 migration。
+ */
+export const CUSTOM_PRODUCT_FORMS = ['liquid', 'powder', 'solid'] as const
+/** 自訂營養品的重量單位（必須與 DB check constraint 同步）。由劑型自動帶入：液劑→ml、粉劑/固態→g。 */
 export const CUSTOM_PRODUCT_WEIGHT_UNITS = ['g', 'ml'] as const
 /** 自訂營養品 nutrition_facts 必填的四項基本營養素。 */
 export const CUSTOM_PRODUCT_REQUIRED_NUTRIENTS = ['calories', 'protein', 'carbohydrates', 'fat'] as const

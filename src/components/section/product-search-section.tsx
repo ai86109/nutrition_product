@@ -1,6 +1,6 @@
 "use client"
 
-import { Star } from "lucide-react"
+import { Plus, Star } from "lucide-react"
 import { CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -10,9 +10,15 @@ import ProductTable from "../product-search/product-table"
 import PaginationBlock from "../product-search/pagination-block";
 import HistoryBlock from "../product-search/history-block";
 import FavoriteBlock from "../product-search/favorite-block";
+import AddCustomProductDialog from "../custom-products/add-custom-product-dialog";
 import { usePagination } from "@/hooks/usePagination";
 import { useSearch } from "@/contexts/SearchContext";
 import { useUserPreferences } from "@/contexts/UserPreferencesContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useCustomProductCount } from "@/hooks/useCustomProducts";
+import { MAX_CUSTOM_PRODUCTS } from "@/utils/constants";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 // Avoid SSR warning: useLayoutEffect on the client only
 const useIsoLayoutEffect = typeof window !== "undefined" ? useLayoutEffect : useEffect
@@ -24,11 +30,28 @@ export default function ProductSearchSection() {
   const { filteredData } = useSearch()
   const { history, favorites } = useUserPreferences()
   const { currentPage, setCurrentPage, itemsPerPage } = usePagination()
+  const { isLoggedIn } = useAuth()
+  const { count: customCount, refresh: refreshCustomCount } = useCustomProductCount()
 
   const [activeTab, setActiveTab] = useState<string>("search")
+  const [addDialogOpen, setAddDialogOpen] = useState(false)
   const listRef = useRef<HTMLDivElement>(null)
   const [indicator, setIndicator] = useState<{ left: number; width: number }>({ left: 0, width: 0 })
   const [isReady, setIsReady] = useState(false)
+
+  const customAtCap = customCount >= MAX_CUSTOM_PRODUCTS
+
+  const handleAddCustomClick = () => {
+    if (!isLoggedIn) {
+      toast.error("請先登入後再使用自訂營養品功能")
+      return
+    }
+    if (customAtCap) {
+      toast.error(`自訂營養品已達上限 ${MAX_CUSTOM_PRODUCTS} 筆，請先到個人中心刪除其他自訂產品`)
+      return
+    }
+    setAddDialogOpen(true)
+  }
 
   const currentPageData = useMemo(() => {
     const startIndex = (currentPage - 1) * itemsPerPage
@@ -80,6 +103,33 @@ export default function ProductSearchSection() {
       <SearchForm
         handlePageChange={handlePageChange}
         onSearchSubmit={() => setActiveTab("search")}
+      />
+
+      {/* 加入自訂的營養品 入口 */}
+      <button
+        type="button"
+        onClick={handleAddCustomClick}
+        className={cn(
+          "mt-2 flex w-full items-center justify-center gap-1.5 rounded-md border border-dashed py-1.5 text-xs font-medium transition-colors",
+          customAtCap
+            ? "border-muted text-muted-foreground cursor-not-allowed opacity-60"
+            : "border-primary/40 text-primary hover:bg-primary/5 cursor-pointer"
+        )}
+        title={customAtCap ? `已達上限 ${MAX_CUSTOM_PRODUCTS} 筆` : "新增自訂的營養品"}
+      >
+        <Plus className="h-3.5 w-3.5" />
+        加入自訂的營養品
+        {isLoggedIn && (
+          <span className="text-muted-foreground/80">
+            ({customCount}/{MAX_CUSTOM_PRODUCTS})
+          </span>
+        )}
+      </button>
+
+      <AddCustomProductDialog
+        open={addDialogOpen}
+        onOpenChange={setAddDialogOpen}
+        onCreated={refreshCustomCount}
       />
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-4">
