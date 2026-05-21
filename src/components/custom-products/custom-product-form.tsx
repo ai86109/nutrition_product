@@ -20,7 +20,7 @@ import NutritionFields, {
   nutritionStateToFacts,
   type NutritionState,
 } from './nutrition-fields'
-import { useProduct } from '@/contexts/ProductContext'
+import { useProductOptional } from '@/contexts/ProductContext'
 import { CustomProductPayloadSchema } from '@/lib/custom-products/schema'
 import {
   CUSTOM_PRODUCT_FORMS,
@@ -112,6 +112,11 @@ interface CustomProductFormProps {
   /** Submit 按鈕在送出時顯示的 loading 文字 */
   submittingLabel?: string
   submitting?: boolean
+  /**
+   * 外部直接提供的品牌建議清單。沒有 ProductProvider 的頁面（例如 /profile 個人中心）
+   * 用這個帶入；未提供時退回 ProductContext 的 brandOptions（首頁）。
+   */
+  brandSuggestions?: string[]
 }
 
 export default function CustomProductForm({
@@ -122,22 +127,25 @@ export default function CustomProductForm({
   onCancel,
   submittingLabel = '處理中...',
   submitting,
+  brandSuggestions: brandSuggestionsProp,
 }: CustomProductFormProps) {
-  const { brandOptions } = useProduct()
+  // 用 optional 版：/profile 沒有 ProductProvider，拿不到就退回 prop 帶入的品牌建議
+  const product = useProductOptional()
   const [state, setState] = useState<FormState>(() => initialStateFrom(initial))
   const [errors, setErrors] = useState<string[]>([])
 
   // 計量單位由劑型決定（液劑→ml、粉劑/固態→g），不再讓使用者手選。
   const weightUnit = FORM_WEIGHT_UNIT[state.form]
 
-  // 把 brandOptions 過濾掉「全部」，取出去重後的純品牌名清單給 datalist 用
-  const brandSuggestions = useMemo(
-    () =>
-      brandOptions
-        .map((b) => b.name)
-        .filter((name) => name && name !== '全部'),
-    [brandOptions]
-  )
+  // 品牌建議：外部 prop 優先（/profile）；否則退回 context 的 brandOptions（首頁）
+  const brandSuggestions = useMemo(() => {
+    if (brandSuggestionsProp) {
+      return brandSuggestionsProp.filter((name) => name && name !== '全部')
+    }
+    return (product?.brandOptions ?? [])
+      .map((b) => b.name)
+      .filter((name) => name && name !== '全部')
+  }, [brandSuggestionsProp, product?.brandOptions])
 
   const patch = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setState((prev) => ({ ...prev, [key]: value }))

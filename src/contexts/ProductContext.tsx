@@ -68,3 +68,11 @@ export function useProduct(): ProductContextType {
   }
   return context
 }
+
+/**
+ * 非強制版：不在 ProductProvider 內（例如 /profile）也能呼叫，拿不到時回傳 undefined。
+ * 給「有 context 就用、沒有也能優雅降級」的元件用（例如自訂營養品表單的品牌建議）。
+ */
+export function useProductOptional(): ProductContextType | undefined {
+  return useContext(ProductContext)
+}

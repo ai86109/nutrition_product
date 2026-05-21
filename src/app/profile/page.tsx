@@ -11,11 +11,13 @@ import {
   TabsTrigger,
 } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
+import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/contexts/AuthContext"
 import { listMyWishes } from "@/lib/supabase/queries/wishes"
 import { listMyProductReports } from "@/lib/supabase/queries/product-reports"
 import MyWishesList from "@/components/profile/my-wishes-list"
 import MyProductReportsList from "@/components/profile/my-product-reports-list"
+import MyCustomProductsList from "@/components/profile/my-custom-products-list"
 import type { MyWish } from "@/types/wish"
 import type { MyProductReport } from "@/types/product-report"
 
@@ -93,6 +95,18 @@ export default function ProfilePage() {
       <Navigation />
       <main className="max-w-3xl mx-auto px-4 py-6">
         <h1 className="text-2xl font-bold mb-4">個人中心</h1>
+
+        <section className="space-y-3">
+          <div>
+            <h2 className="text-lg font-bold">自訂營養品</h2>
+            <p className="text-sm text-muted-foreground">
+              建立未收錄或自家配方的營養品，可在搜尋、計算與收藏中使用。
+            </p>
+          </div>
+          <MyCustomProductsList />
+        </section>
+
+        <Separator className="my-6" />
 
         <Tabs
           value={tab}

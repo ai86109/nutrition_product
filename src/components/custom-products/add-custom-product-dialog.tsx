@@ -22,12 +22,15 @@ interface AddCustomProductDialogProps {
   onOpenChange: (open: boolean) => void
   /** 新增成功後通知外層（例如重新撈 count） */
   onCreated?: () => void
+  /** 品牌建議；沒有 ProductProvider 的頁面（/profile）傳入，首頁不傳改用 context */
+  brandSuggestions?: string[]
 }
 
 export default function AddCustomProductDialog({
   open,
   onOpenChange,
   onCreated,
+  brandSuggestions,
 }: AddCustomProductDialogProps) {
   const { session } = useAuth()
   const userId = session?.user?.id
@@ -81,6 +84,7 @@ export default function AddCustomProductDialog({
           submitLabel="新增"
           submittingLabel="新增中..."
           submitting={submitting}
+          brandSuggestions={brandSuggestions}
         />
       </DialogContent>
     </Dialog>
