@@ -14,6 +14,10 @@ import CustomProductForm, {
   type CustomProductFormSubmitPayload,
 } from './custom-product-form'
 import { createCustomProduct } from '@/lib/supabase/mutations/custom-products'
+import {
+  uploadCustomProductImage,
+  deleteCustomProductImage,
+} from '@/lib/supabase/storage/custom-product-images'
 import { useAuth } from '@/contexts/AuthContext'
 import { CapLimitError } from '@/lib/errors'
 
@@ -44,14 +48,26 @@ export default function AddCustomProductDialog({
     }
 
     setSubmitting(true)
+    let uploadedPath: string | null = null
     try {
-      await createCustomProduct(userId, payload.product, payload.variants)
+      // 有選圖先上傳，拿到 path 再連同產品一起寫入
+      if (payload.imageBlob) {
+        uploadedPath = await uploadCustomProductImage(userId, payload.imageBlob)
+      }
+      await createCustomProduct(
+        userId,
+        payload.product,
+        payload.variants,
+        uploadedPath
+      )
       toast.success('已新增自訂營養品')
       onCreated?.()
       onOpenChange(false)
       // 重整 server component 讓首頁 allProducts 包含新建的自訂產品
       router.refresh()
     } catch (err: unknown) {
+      // 建立失敗時清掉剛上傳的孤兒圖
+      if (uploadedPath) await deleteCustomProductImage(uploadedPath)
       if (err instanceof CapLimitError) {
         toast.error(err.message)
       } else {

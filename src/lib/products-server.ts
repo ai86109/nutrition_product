@@ -10,6 +10,7 @@ import type { ProductImagePublic } from '@/types/product-images'
 import type { CustomProductWithVariants } from '@/types/custom-product'
 
 const PRODUCT_IMAGES_BUCKET = 'product-images'
+const CUSTOM_PRODUCT_IMAGES_BUCKET = 'custom-product-images'
 
 // 從 join 進來的 product_images row 形狀（最少需要的欄位）
 interface RawProductImageRow {
@@ -114,7 +115,22 @@ export async function getProductDetailFromSupabase(id: string) {
   if (isUuid(id)) {
     const customProduct = await getCustomProductForCurrentUser(id)
     if (!customProduct) return null
-    return formatCustomProductDetail(customProduct)
+
+    // 私有 bucket：用 createSignedUrl 產生有時效網址，沿用 ApiProductData.images 顯示
+    let images: ProductImagePublic[] = []
+    if (customProduct.image_path) {
+      const supabase = await createClientForServer()
+      const { data } = await supabase.storage
+        .from(CUSTOM_PRODUCT_IMAGES_BUCKET)
+        .createSignedUrl(customProduct.image_path, 60 * 60)
+      if (data?.signedUrl) {
+        images = [
+          { id: customProduct.id, publicUrl: data.signedUrl, width: null, height: null },
+        ]
+      }
+    }
+
+    return formatCustomProductDetail(customProduct, images)
   }
 
   try {

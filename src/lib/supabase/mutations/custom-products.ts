@@ -23,7 +23,8 @@ import { MAX_CUSTOM_PRODUCTS } from '@/utils/constants'
 export async function createCustomProduct(
   userId: string,
   product: CustomProductInput,
-  variants: CustomProductVariantInput[]
+  variants: CustomProductVariantInput[],
+  imagePath: string | null = null
 ): Promise<CustomProductWithVariants> {
   if (variants.length === 0) {
     throw new Error('至少需要一組包裝規格')
@@ -59,6 +60,7 @@ export async function createCustomProduct(
       standard_weight: product.standard_weight,
       weight_unit: product.weight_unit,
       nutrition_facts: product.nutrition_facts,
+      image_path: imagePath,
     })
     .select()
     .single()
@@ -110,7 +112,8 @@ export async function createCustomProduct(
 export async function updateCustomProduct(
   productId: string,
   product: CustomProductInput,
-  variants: CustomProductVariantInput[]
+  variants: CustomProductVariantInput[],
+  imagePath?: string | null
 ): Promise<CustomProductWithVariants> {
   if (variants.length === 0) {
     throw new Error('至少需要一組包裝規格')
@@ -119,17 +122,23 @@ export async function updateCustomProduct(
   const supabase = createClient()
 
   // ---- 1) update product
+  const productUpdate: Record<string, unknown> = {
+    name_zh: product.name_zh.trim(),
+    name_en: product.name_en?.trim() || null,
+    brand: product.brand.trim(),
+    form: product.form,
+    standard_weight: product.standard_weight,
+    weight_unit: product.weight_unit,
+    nutrition_facts: product.nutrition_facts,
+  }
+  // imagePath：undefined = 不更動圖片；null = 清除；string = 換新
+  if (imagePath !== undefined) {
+    productUpdate.image_path = imagePath
+  }
+
   const { data: productRow, error: productError } = await supabase
     .from('user_custom_products')
-    .update({
-      name_zh: product.name_zh.trim(),
-      name_en: product.name_en?.trim() || null,
-      brand: product.brand.trim(),
-      form: product.form,
-      standard_weight: product.standard_weight,
-      weight_unit: product.weight_unit,
-      nutrition_facts: product.nutrition_facts,
-    })
+    .update(productUpdate)
     .eq('id', productId)
     .select()
     .single()

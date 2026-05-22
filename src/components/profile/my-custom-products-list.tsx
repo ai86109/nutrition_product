@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { Plus, Pencil, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -10,6 +10,7 @@ import AddCustomProductDialog from '@/components/custom-products/add-custom-prod
 import EditCustomProductDialog from '@/components/custom-products/edit-custom-product-dialog'
 import { useCustomProducts } from '@/hooks/useCustomProducts'
 import { useProductBrandNames } from '@/hooks/useProductBrandNames'
+import { createCustomProductImageSignedUrls } from '@/lib/supabase/storage/custom-product-images'
 import {
   MAX_CUSTOM_PRODUCTS,
   CUSTOM_PRODUCT_REQUIRED_NUTRIENTS,
@@ -48,6 +49,30 @@ export default function MyCustomProductsList() {
   const [addOpen, setAddOpen] = useState(false)
   const [editing, setEditing] = useState<CustomProductWithVariants | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+
+  // 私有 bucket：為有圖的產品批次產生簽名 URL（productId -> signedUrl）
+  const [imageUrls, setImageUrls] = useState<Record<string, string>>({})
+  useEffect(() => {
+    const withImages = products.filter((p) => p.image_path)
+    if (withImages.length === 0) {
+      setImageUrls({})
+      return
+    }
+    let active = true
+    const paths = withImages.map((p) => p.image_path as string)
+    createCustomProductImageSignedUrls(paths).then((pathToUrl) => {
+      if (!active) return
+      const map: Record<string, string> = {}
+      for (const p of withImages) {
+        const url = p.image_path ? pathToUrl[p.image_path] : undefined
+        if (url) map[p.id] = url
+      }
+      setImageUrls(map)
+    })
+    return () => {
+      active = false
+    }
+  }, [products])
 
   const atCap = count >= MAX_CUSTOM_PRODUCTS
 
@@ -116,18 +141,28 @@ export default function MyCustomProductsList() {
         <ul className="space-y-3">
           {products.map((p) => (
             <li key={p.id} className="rounded-md border bg-white p-4 space-y-2">
-              {/* 標題列：名稱 / 劑型 / 操作 */}
+              {/* 標題列：縮圖 / 名稱 / 劑型 / 操作 */}
               <div className="flex items-start justify-between gap-3 flex-wrap">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-medium">{p.name_zh}</span>
-                    <Badge variant="secondary" className="text-[10px]">
-                      {FORM_LABELS[p.form]}
-                    </Badge>
-                  </div>
-                  <div className="text-xs text-muted-foreground mt-0.5">
-                    {p.brand}
-                    {p.name_en ? ` · ${p.name_en}` : ''}
+                <div className="flex items-start gap-3 min-w-0">
+                  {imageUrls[p.id] && (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                      src={imageUrls[p.id]}
+                      alt=""
+                      className="h-12 w-12 shrink-0 rounded-md border object-cover"
+                    />
+                  )}
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium">{p.name_zh}</span>
+                      <Badge variant="secondary" className="text-[10px]">
+                        {FORM_LABELS[p.form]}
+                      </Badge>
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">
+                      {p.brand}
+                      {p.name_en ? ` · ${p.name_en}` : ''}
+                    </div>
                   </div>
                 </div>
 
@@ -205,6 +240,7 @@ export default function MyCustomProductsList() {
         }}
         onUpdated={refresh}
         brandSuggestions={brandSuggestions}
+        initialImageUrl={editing ? imageUrls[editing.id] : undefined}
       />
     </div>
   )

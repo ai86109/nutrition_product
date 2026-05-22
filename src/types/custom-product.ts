@@ -34,6 +34,9 @@ export interface CustomProduct {
 
   nutrition_facts: NutritionFacts
 
+  /** 縮圖在 custom-product-images bucket 內的相對路徑（<user_id>/<uuid>.webp）；NULL = 無圖。 */
+  image_path: string | null
+
   /** 軟刪除時間戳；NULL = 未刪除。 */
   deleted_at: string | null
 

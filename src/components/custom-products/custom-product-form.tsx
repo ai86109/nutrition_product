@@ -1,6 +1,9 @@
 "use client"
 
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ImagePlus } from 'lucide-react'
+import { toast } from 'sonner'
+import { compressImage } from '@/lib/image-compression'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Separator } from '@/components/ui/separator'
@@ -97,6 +100,10 @@ function initialStateFrom(
 export interface CustomProductFormSubmitPayload {
   product: CustomProductInput
   variants: CustomProductVariantInput[]
+  /** 新選並壓縮好的圖片 blob；null/undefined = 沒有新圖 */
+  imageBlob?: Blob | null
+  /** 使用者清除了原本的圖片（edit 用）；新增時恆 false */
+  imageRemoved?: boolean
 }
 
 interface CustomProductFormProps {
@@ -117,6 +124,8 @@ interface CustomProductFormProps {
    * 用這個帶入；未提供時退回 ProductContext 的 brandOptions（首頁）。
    */
   brandSuggestions?: string[]
+  /** 既有圖片的簽名 URL（edit 用，顯示目前圖片）；新增時不傳。 */
+  initialImageUrl?: string
 }
 
 export default function CustomProductForm({
@@ -128,6 +137,7 @@ export default function CustomProductForm({
   submittingLabel = '處理中...',
   submitting,
   brandSuggestions: brandSuggestionsProp,
+  initialImageUrl,
 }: CustomProductFormProps) {
   // 用 optional 版：/profile 沒有 ProductProvider，拿不到就退回 prop 帶入的品牌建議
   const product = useProductOptional()
@@ -146,6 +156,55 @@ export default function CustomProductForm({
       .map((b) => b.name)
       .filter((name) => name && name !== '全部')
   }, [brandSuggestionsProp, product?.brandOptions])
+
+  // ---- 產品圖片（單張，選填）----
+  const fileInputRef = useRef<HTMLInputElement>(null)
+  const objectUrlRef = useRef<string | null>(null)
+  const [imageBlob, setImageBlob] = useState<Blob | null>(null)
+  const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [imageRemoved, setImageRemoved] = useState(false)
+  const [compressing, setCompressing] = useState(false)
+
+  // 卸載時釋放 object URL，避免記憶體洩漏
+  useEffect(() => {
+    return () => {
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
+    }
+  }, [])
+
+  // 預覽：移除後為 null；否則新選的優先，其次是既有圖（edit）
+  const previewUrl = imageRemoved ? null : imagePreview ?? initialImageUrl ?? null
+
+  const handleImagePick = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    e.target.value = '' // 清掉才能再次選同一個檔也觸發 onChange
+    if (!file) return
+    setCompressing(true)
+    try {
+      const { blob } = await compressImage(file)
+      if (objectUrlRef.current) URL.revokeObjectURL(objectUrlRef.current)
+      const url = URL.createObjectURL(blob)
+      objectUrlRef.current = url
+      setImageBlob(blob)
+      setImagePreview(url)
+      setImageRemoved(false)
+    } catch (err) {
+      console.error('Image compress failed:', err)
+      toast.error('圖片處理失敗，請換一張試試')
+    } finally {
+      setCompressing(false)
+    }
+  }
+
+  const handleRemoveImage = () => {
+    if (objectUrlRef.current) {
+      URL.revokeObjectURL(objectUrlRef.current)
+      objectUrlRef.current = null
+    }
+    setImageBlob(null)
+    setImagePreview(null)
+    setImageRemoved(true)
+  }
 
   const patch = <K extends keyof FormState>(key: K, value: FormState[K]) => {
     setState((prev) => ({ ...prev, [key]: value }))
@@ -189,7 +248,12 @@ export default function CustomProductForm({
     }
 
     setErrors([])
-    await onSubmit({ product, variants: variantsInput })
+    await onSubmit({
+      product,
+      variants: variantsInput,
+      imageBlob,
+      imageRemoved,
+    })
   }
 
   const isLocked = disabled || submitting
@@ -292,6 +356,64 @@ export default function CustomProductForm({
             {weightUnit}（下方營養成分依此標準填入）
           </span>
         </div>
+      </div>
+
+      <Separator />
+
+      {/* 產品圖片 */}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <Label className="text-sm font-bold">產品圖片</Label>
+          <span className="text-xs text-muted-foreground">選填，單張</span>
+        </div>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleImagePick}
+          disabled={isLocked || compressing}
+        />
+
+        {previewUrl ? (
+          <div className="flex items-center gap-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={previewUrl}
+              alt="產品圖片預覽"
+              className="h-20 w-20 rounded-md border object-cover"
+            />
+            <div className="flex flex-col gap-1.5">
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={isLocked || compressing}
+                className="inline-flex h-8 items-center justify-center rounded-md border border-input bg-background px-3 text-xs font-medium hover:bg-accent disabled:opacity-50"
+              >
+                {compressing ? '處理中...' : '更換圖片'}
+              </button>
+              <button
+                type="button"
+                onClick={handleRemoveImage}
+                disabled={isLocked || compressing}
+                className="inline-flex h-8 items-center justify-center rounded-md px-3 text-xs font-medium text-destructive hover:bg-destructive/5 disabled:opacity-50"
+              >
+                移除圖片
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isLocked || compressing}
+            className="flex h-20 w-20 flex-col items-center justify-center gap-1 rounded-md border border-dashed text-muted-foreground hover:bg-accent/50 disabled:opacity-50"
+          >
+            <ImagePlus className="h-5 w-5" />
+            <span className="text-[11px]">{compressing ? '處理中' : '上傳'}</span>
+          </button>
+        )}
       </div>
 
       <Separator />

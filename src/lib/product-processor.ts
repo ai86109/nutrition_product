@@ -256,9 +256,11 @@ export const formatCustomProductList = (
     })
 }
 
-/** 單一自訂產品 → ApiProductData（給 /api/products/[id] 詳細路由）。 */
+/** 單一自訂產品 → ApiProductData（給 /api/products/[id] 詳細路由）。
+ *  images 由 server side 用 createSignedUrl 預先算好 publicUrl 後傳入。 */
 export const formatCustomProductDetail = (
-  cp: CustomProductWithVariants
+  cp: CustomProductWithVariants,
+  images: ProductImagePublic[] = []
 ): ApiProductData | null => {
   if (!hasUsableCustomNutrition(cp)) return null
 
@@ -289,7 +291,7 @@ export const formatCustomProductDetail = (
     spec,
     ingredients,
     ingredientsPer100,
-    images: [],
+    images,
     isCustom: true,
   }
 }
