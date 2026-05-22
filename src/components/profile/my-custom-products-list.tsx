@@ -2,12 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { Plus, Pencil, Trash2, Download } from 'lucide-react'
+import { Plus, Pencil, Trash2, Download, Upload } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
 import AddCustomProductDialog from '@/components/custom-products/add-custom-product-dialog'
 import EditCustomProductDialog from '@/components/custom-products/edit-custom-product-dialog'
+import ImportCustomProductsDialog from '@/components/custom-products/import-custom-products-dialog'
 import { useCustomProducts } from '@/hooks/useCustomProducts'
 import { useProductBrandNames } from '@/hooks/useProductBrandNames'
 import {
@@ -60,6 +61,7 @@ export default function MyCustomProductsList() {
   const [editing, setEditing] = useState<CustomProductWithVariants | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
   const [exporting, setExporting] = useState(false)
+  const [importOpen, setImportOpen] = useState(false)
 
   // 私有 bucket：為有圖的產品批次產生簽名 URL（productId -> signedUrl）
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({})
@@ -163,6 +165,15 @@ export default function MyCustomProductsList() {
           已建立 {count} / {MAX_CUSTOM_PRODUCTS} 筆
         </span>
         <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setImportOpen(true)}
+            title="從 .nutribase.json 匯入"
+          >
+            <Upload className="size-3.5" />
+            匯入
+          </Button>
           {products.length > 0 && (
             <Button
               size="sm"
@@ -306,6 +317,12 @@ export default function MyCustomProductsList() {
         onUpdated={refresh}
         brandSuggestions={brandSuggestions}
         initialImageUrl={editing ? imageUrls[editing.id] : undefined}
+      />
+      <ImportCustomProductsDialog
+        open={importOpen}
+        onOpenChange={setImportOpen}
+        existingProducts={products}
+        onImported={refresh}
       />
     </div>
   )

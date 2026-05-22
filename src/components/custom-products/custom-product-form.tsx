@@ -27,6 +27,7 @@ import { useProductOptional } from '@/contexts/ProductContext'
 import { CustomProductPayloadSchema } from '@/lib/custom-products/schema'
 import {
   CUSTOM_PRODUCT_FORMS,
+  CUSTOM_PRODUCT_FORM_WEIGHT_UNIT,
   MAX_CUSTOM_PRODUCT_BRAND_LENGTH,
   MAX_CUSTOM_PRODUCT_NAME_EN_LENGTH,
   MAX_CUSTOM_PRODUCT_NAME_ZH_LENGTH,
@@ -35,7 +36,6 @@ import type {
   CustomProductForm,
   CustomProductInput,
   CustomProductVariantInput,
-  CustomProductWeightUnit,
   CustomProductWithVariants,
 } from '@/types/custom-product'
 import { cn } from '@/lib/utils'
@@ -44,13 +44,6 @@ const FORM_LABELS: Record<CustomProductForm, string> = {
   liquid: '液劑',
   powder: '粉劑',
   solid: '固態',
-}
-
-/** 劑型決定計量單位：液劑用 ml，粉劑 / 固態用 g。使用者不需另外選單位。 */
-const FORM_WEIGHT_UNIT: Record<CustomProductForm, CustomProductWeightUnit> = {
-  liquid: 'ml',
-  powder: 'g',
-  solid: 'g',
 }
 
 /** 表單內部使用的 state；submit 時轉成 mutation input。 */
@@ -145,7 +138,7 @@ export default function CustomProductForm({
   const [errors, setErrors] = useState<string[]>([])
 
   // 計量單位由劑型決定（液劑→ml、粉劑/固態→g），不再讓使用者手選。
-  const weightUnit = FORM_WEIGHT_UNIT[state.form]
+  const weightUnit = CUSTOM_PRODUCT_FORM_WEIGHT_UNIT[state.form]
 
   // 品牌建議：外部 prop 優先（/profile）；否則退回 context 的 brandOptions（首頁）
   const brandSuggestions = useMemo(() => {

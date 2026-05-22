@@ -373,6 +373,15 @@ export const CUSTOM_PRODUCT_FORMS = ['liquid', 'powder', 'solid'] as const
 export const CUSTOM_PRODUCT_WEIGHT_UNITS = ['g', 'ml'] as const
 /** 自訂營養品 nutrition_facts 必填的四項基本營養素。 */
 export const CUSTOM_PRODUCT_REQUIRED_NUTRIENTS = ['calories', 'protein', 'carbohydrates', 'fat'] as const
+/** 劑型 → 計量單位的單一真實來源（表單與匯入共用）。液劑→ml、粉劑/固態→g。 */
+export const CUSTOM_PRODUCT_FORM_WEIGHT_UNIT: Record<
+  (typeof CUSTOM_PRODUCT_FORMS)[number],
+  (typeof CUSTOM_PRODUCT_WEIGHT_UNITS)[number]
+> = {
+  liquid: 'ml',
+  powder: 'g',
+  solid: 'g',
+}
 
 export const DEFAULT_NOTE_TEMPLATES_SETTINGS: NoteTemplate[] = []
 
