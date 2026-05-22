@@ -13,6 +13,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
+import { cn } from '@/lib/utils'
 import { useAuth } from '@/contexts/AuthContext'
 import { MAX_CUSTOM_PRODUCTS } from '@/utils/constants'
 import {
@@ -56,6 +57,7 @@ export default function ImportCustomProductsDialog({
   const [preview, setPreview] = useState<ImportPreview | null>(null)
   const [strategy, setStrategy] = useState<ConflictStrategy>('skip')
   const [importing, setImporting] = useState(false)
+  const [dragOver, setDragOver] = useState(false)
 
   const reset = () => {
     setFile(null)
@@ -69,11 +71,7 @@ export default function ImportCustomProductsDialog({
     onOpenChange(next)
   }
 
-  const handlePick = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const f = e.target.files?.[0]
-    e.target.value = '' // 清掉才能再次選同一個檔
-    if (!f) return
-
+  const handleFile = async (f: File) => {
     let text: string
     try {
       text = await f.text()
@@ -89,6 +87,29 @@ export default function ImportCustomProductsDialog({
     }
     setFile(res.file)
     setPreview(previewImport(res.file.products, existingProducts))
+  }
+
+  const handlePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0]
+    e.target.value = '' // 清掉才能再次選同一個檔
+    if (f) handleFile(f)
+  }
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    setDragOver(true)
+  }
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    setDragOver(false)
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    setDragOver(false)
+    const f = e.dataTransfer.files?.[0]
+    if (f) handleFile(f)
   }
 
   const handleConfirm = async () => {
@@ -144,15 +165,31 @@ export default function ImportCustomProductsDialog({
         />
 
         {!file ? (
-          <div className="py-4">
-            <Button
-              variant="outline"
-              onClick={() => fileInputRef.current?.click()}
-              className="w-full"
-            >
-              <Upload className="size-4" />
-              選擇檔案
-            </Button>
+          <div
+            role="button"
+            tabIndex={0}
+            onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault()
+                fileInputRef.current?.click()
+              }
+            }}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            className={cn(
+              'flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed px-4 py-10 text-center cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              dragOver
+                ? 'border-primary bg-primary/5'
+                : 'border-input hover:bg-accent/40'
+            )}
+          >
+            <Upload className="size-6 text-muted-foreground" />
+            <p className="text-sm font-medium">
+              點擊選擇檔案，或將檔案拖曳到這裡
+            </p>
+            <p className="text-xs text-muted-foreground">支援 .nutribase.json</p>
           </div>
         ) : (
           <div className="space-y-4">
