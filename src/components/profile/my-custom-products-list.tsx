@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { Plus, Pencil, Trash2 } from 'lucide-react'
+import { Plus, Pencil, Trash2, Download } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -10,7 +10,17 @@ import AddCustomProductDialog from '@/components/custom-products/add-custom-prod
 import EditCustomProductDialog from '@/components/custom-products/edit-custom-product-dialog'
 import { useCustomProducts } from '@/hooks/useCustomProducts'
 import { useProductBrandNames } from '@/hooks/useProductBrandNames'
-import { createCustomProductImageSignedUrls } from '@/lib/supabase/storage/custom-product-images'
+import {
+  createCustomProductImageSignedUrls,
+  downloadCustomProductImageAsDataUrl,
+} from '@/lib/supabase/storage/custom-product-images'
+import {
+  toExportItem,
+  buildCustomProductExportFile,
+  singleExportFilename,
+  allExportFilename,
+  downloadJsonFile,
+} from '@/lib/custom-products/export'
 import {
   MAX_CUSTOM_PRODUCTS,
   CUSTOM_PRODUCT_REQUIRED_NUTRIENTS,
@@ -49,6 +59,7 @@ export default function MyCustomProductsList() {
   const [addOpen, setAddOpen] = useState(false)
   const [editing, setEditing] = useState<CustomProductWithVariants | null>(null)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [exporting, setExporting] = useState(false)
 
   // 私有 bucket：為有圖的產品批次產生簽名 URL（productId -> signedUrl）
   const [imageUrls, setImageUrls] = useState<Record<string, string>>({})
@@ -104,6 +115,36 @@ export default function MyCustomProductsList() {
     }
   }
 
+  const exportProducts = async (
+    items: CustomProductWithVariants[],
+    filename: string
+  ) => {
+    if (items.length === 0) return
+    setExporting(true)
+    try {
+      // 有圖的先抓 base64 一起嵌入；沒圖的就不帶
+      const exportItems = await Promise.all(
+        items.map(async (p) => {
+          const imageBase64 = p.image_path
+            ? await downloadCustomProductImageAsDataUrl(p.image_path)
+            : null
+          return toExportItem(p, imageBase64)
+        })
+      )
+      downloadJsonFile(filename, buildCustomProductExportFile(exportItems))
+      toast.success('已匯出 JSON')
+    } catch (err) {
+      console.error('Export custom products failed:', err)
+      toast.error('匯出失敗，請稍後再試')
+    } finally {
+      setExporting(false)
+    }
+  }
+
+  const handleExportOne = (p: CustomProductWithVariants) =>
+    exportProducts([p], singleExportFilename(p.name_zh))
+  const handleExportAll = () => exportProducts(products, allExportFilename())
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -121,16 +162,30 @@ export default function MyCustomProductsList() {
         <span className="text-sm text-muted-foreground">
           已建立 {count} / {MAX_CUSTOM_PRODUCTS} 筆
         </span>
-        <Button
-          size="sm"
-          variant="outline"
-          onClick={handleAddClick}
-          className={atCap ? 'opacity-60' : ''}
-          title={atCap ? `已達上限 ${MAX_CUSTOM_PRODUCTS} 筆` : '新增自訂的營養品'}
-        >
-          <Plus className="size-3.5" />
-          新增自訂營養品
-        </Button>
+        <div className="flex items-center gap-2">
+          {products.length > 0 && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={handleExportAll}
+              disabled={exporting}
+              title="把全部自訂營養品匯出成 JSON"
+            >
+              <Download className="size-3.5" />
+              匯出全部
+            </Button>
+          )}
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={handleAddClick}
+            className={atCap ? 'opacity-60' : ''}
+            title={atCap ? `已達上限 ${MAX_CUSTOM_PRODUCTS} 筆` : '新增自訂的營養品'}
+          >
+            <Plus className="size-3.5" />
+            新增自訂營養品
+          </Button>
+        </div>
       </div>
 
       {products.length === 0 ? (
@@ -167,6 +222,16 @@ export default function MyCustomProductsList() {
                 </div>
 
                 <div className="flex items-center gap-1 shrink-0">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 w-7 p-0"
+                    onClick={() => handleExportOne(p)}
+                    disabled={exporting || deletingId === p.id}
+                    aria-label="匯出"
+                  >
+                    <Download className="size-3.5" />
+                  </Button>
                   <Button
                     variant="ghost"
                     size="sm"

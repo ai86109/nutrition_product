@@ -49,6 +49,32 @@ export async function deleteCustomProductImage(path: string): Promise<void> {
   }
 }
 
+/**
+ * 下載一張圖並轉成 data URL（base64），給匯出嵌進 JSON 用。
+ * 失敗回傳 null（caller 視為「這筆沒帶圖」即可）。
+ */
+export async function downloadCustomProductImageAsDataUrl(
+  path: string
+): Promise<string | null> {
+  if (!path) return null
+  const supabase = createClient()
+  const { data, error } = await supabase.storage.from(BUCKET).download(path)
+  if (error || !data) {
+    console.error(`Error downloading custom image (${path}):`, error)
+    return null
+  }
+  return blobToDataUrl(data)
+}
+
+function blobToDataUrl(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onload = () => resolve(reader.result as string)
+    reader.onerror = () => reject(reader.error)
+    reader.readAsDataURL(blob)
+  })
+}
+
 /** 單張簽名 URL；失敗回傳 null。 */
 export async function createCustomProductImageSignedUrl(
   path: string,
