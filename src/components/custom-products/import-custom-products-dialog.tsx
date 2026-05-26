@@ -179,14 +179,16 @@ export default function ImportCustomProductsDialog({
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             className={cn(
-              'flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed px-4 py-10 text-center cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring',
+              'flex flex-col items-center justify-center gap-2 rounded-md border-2 border-dashed px-4 py-6 sm:py-10 text-center cursor-pointer transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring',
               dragOver
                 ? 'border-primary bg-primary/5'
                 : 'border-input hover:bg-accent/40'
             )}
           >
             <Upload className="size-6 text-muted-foreground" />
-            <p className="text-sm font-medium">
+            {/* 手機沒有拖曳的概念，文案差異化避免混淆 */}
+            <p className="text-sm font-medium sm:hidden">點此選擇檔案</p>
+            <p className="hidden sm:block text-sm font-medium">
               點擊選擇檔案，或將檔案拖曳到這裡
             </p>
             <p className="text-xs text-muted-foreground">支援 .nutribase.json</p>

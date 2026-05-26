@@ -2,10 +2,17 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
-import { Plus, Pencil, Trash2, Download, Upload } from 'lucide-react'
+import { Plus, Pencil, Trash2, Download, Upload, MoreHorizontal } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import AddCustomProductDialog from '@/components/custom-products/add-custom-product-dialog'
 import EditCustomProductDialog from '@/components/custom-products/edit-custom-product-dialog'
 import ImportCustomProductsDialog from '@/components/custom-products/import-custom-products-dialog'
@@ -159,17 +166,19 @@ export default function MyCustomProductsList() {
 
   return (
     <div className="space-y-3">
-      {/* header：count + 新增 */}
+      {/* header：count + 新增 / 匯入 / 匯出 */}
       <div className="flex items-center justify-between gap-2">
         <span className="text-sm text-muted-foreground">
           已建立 {count} / {MAX_CUSTOM_PRODUCTS} 筆
         </span>
         <div className="flex items-center gap-2">
+          {/* 桌面：匯入、匯出全部 並排顯示 */}
           <Button
             size="sm"
             variant="ghost"
             onClick={() => setImportOpen(true)}
             title="從 .nutribase.json 匯入"
+            className="hidden sm:inline-flex"
           >
             <Upload className="size-3.5" />
             匯入
@@ -181,11 +190,42 @@ export default function MyCustomProductsList() {
               onClick={handleExportAll}
               disabled={exporting}
               title="把全部自訂營養品匯出成 JSON"
+              className="hidden sm:inline-flex"
             >
               <Download className="size-3.5" />
               匯出全部
             </Button>
           )}
+
+          {/* 手機：匯入 / 匯出全部 收進 ⋯ 選單，避免擠到溢出 */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="sm:hidden h-9 w-9 p-0"
+                aria-label="更多操作"
+              >
+                <MoreHorizontal className="size-4" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setImportOpen(true)}>
+                <Upload className="size-3.5" />
+                匯入
+              </DropdownMenuItem>
+              {products.length > 0 && (
+                <DropdownMenuItem
+                  onClick={handleExportAll}
+                  disabled={exporting}
+                >
+                  <Download className="size-3.5" />
+                  匯出全部
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+
           <Button
             size="sm"
             variant="outline"
@@ -194,7 +234,8 @@ export default function MyCustomProductsList() {
             title={atCap ? `已達上限 ${MAX_CUSTOM_PRODUCTS} 筆` : '新增自訂的營養品'}
           >
             <Plus className="size-3.5" />
-            新增自訂營養品
+            <span className="hidden sm:inline">新增自訂營養品</span>
+            <span className="sm:hidden">新增</span>
           </Button>
         </div>
       </div>
@@ -207,9 +248,11 @@ export default function MyCustomProductsList() {
         <ul className="space-y-3">
           {products.map((p) => (
             <li key={p.id} className="rounded-md border bg-white p-4 space-y-2">
-              {/* 標題列：縮圖 / 名稱 / 劑型 / 操作 */}
-              <div className="flex items-start justify-between gap-3 flex-wrap">
-                <div className="flex items-start gap-3 min-w-0">
+              {/* 標題列：縮圖 / 名稱 / 劑型 / 操作。
+                  注意：外層不要 flex-wrap，否則名稱太長時操作按鈕會掉到下一行；
+                  改用 min-w-0 讓中間名稱區自己縮寬度＋換行。 */}
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-start gap-3 min-w-0 flex-1">
                   {imageUrls[p.id] && (
                     /* eslint-disable-next-line @next/next/no-img-element */
                     <img
@@ -218,21 +261,26 @@ export default function MyCustomProductsList() {
                       className="h-12 w-12 shrink-0 rounded-md border object-cover"
                     />
                   )}
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium">{p.name_zh}</span>
-                      <Badge variant="secondary" className="text-[10px]">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium break-words">
+                      {p.name_zh}
+                    </div>
+                    {/* 品牌名 + 劑型 badge 同一行：名稱不論多長都自己換行，
+                        劑型 badge 跟比較短的品牌行靠一起，視覺更穩定 */}
+                    <div className="mt-0.5 flex items-center gap-2 flex-wrap">
+                      <span className="text-xs text-muted-foreground break-words min-w-0">
+                        {p.brand}
+                        {p.name_en ? ` · ${p.name_en}` : ''}
+                      </span>
+                      <Badge variant="secondary" className="text-[10px] shrink-0">
                         {FORM_LABELS[p.form]}
                       </Badge>
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
-                      {p.brand}
-                      {p.name_en ? ` · ${p.name_en}` : ''}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1 shrink-0">
+                {/* 桌面：三顆 icon 並排；手機：收進 ⋯ 選單，避免誤觸刪除 */}
+                <div className="hidden sm:flex items-center gap-1 shrink-0">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -263,6 +311,47 @@ export default function MyCustomProductsList() {
                   >
                     <Trash2 className="size-3.5" />
                   </Button>
+                </div>
+
+                <div className="sm:hidden shrink-0">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="h-9 w-9 p-0"
+                        disabled={deletingId === p.id}
+                        aria-label="更多操作"
+                      >
+                        <MoreHorizontal className="size-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      <DropdownMenuItem
+                        onClick={() => handleExportOne(p)}
+                        disabled={exporting || deletingId === p.id}
+                      >
+                        <Download className="size-3.5" />
+                        匯出
+                      </DropdownMenuItem>
+                      <DropdownMenuItem
+                        onClick={() => setEditing(p)}
+                        disabled={deletingId === p.id}
+                      >
+                        <Pencil className="size-3.5" />
+                        編輯
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem
+                        variant="destructive"
+                        onClick={() => handleDelete(p)}
+                        disabled={deletingId === p.id}
+                      >
+                        <Trash2 className="size-3.5" />
+                        刪除
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
                 </div>
               </div>
 
