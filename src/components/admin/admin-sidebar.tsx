@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useState } from 'react'
-import { Users, Package, Sparkles, Flag, BookOpen, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { Users, Package, Sparkles, Flag, BookOpen, Activity, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const PRODUCTS_HREF = '/admin/products'
@@ -14,6 +14,11 @@ const navItems = [
     label: '會員管理',
     href: '/admin',
     icon: Users,
+  },
+  {
+    label: '使用分析',
+    href: '/admin/activity',
+    icon: Activity,
   },
   {
     label: '營養品管理',
