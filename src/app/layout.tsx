@@ -7,6 +7,7 @@ import { UserPreferencesProvider } from "@/contexts/UserPreferencesContext";
 import { UnreadProvider } from "@/contexts/UnreadContext";
 import Footer from "@/components/footer";
 import { Toaster } from "@/components/ui/sonner";
+import { ActivityHeartbeat } from "@/components/activity-heartbeat";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -88,6 +89,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-gray-200 min-h-screen flex flex-col`}
       >
         <AuthProvider>
+          <ActivityHeartbeat />
           <UnreadProvider>
             <UserPreferencesProvider>
               <div className="flex-1">{children}</div>
