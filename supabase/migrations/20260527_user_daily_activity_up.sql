@@ -9,11 +9,13 @@
 --
 --   寫入路徑（雙重保險）：
 --     1) src/middleware.ts 每個 page request 呼叫 record_user_activity()
---     2) src/hooks/useActivityHeartbeat.ts client 端 5 分鐘 + visibility-aware
+--     2) src/hooks/useActivityHeartbeat.ts client 端 1 分鐘 + visibility-aware
 --
 --   record_user_activity() 內含 throttle：同一筆 row 在 1 分鐘內被
 --   重複呼叫只會被 ON CONFLICT 攔下且 WHERE 為假，不會真的 UPDATE，
---   也不會報錯。所以 middleware + heartbeat 兩邊都打也安全。
+--   也不會報錯。Heartbeat 與 throttle 對齊都是 1 分鐘，所以
+--   hit_count 約等於「該日活躍的 1 分鐘區段數」，乘以 1 分鐘就是
+--   估計活躍時間。
 --
 --   日期以 Asia/Taipei 計算，避免 UTC 半夜跨日問題。
 -- =====================================================================
@@ -22,8 +24,8 @@
 -- ---------------------------------------------------------------------
 -- 1. user_daily_activity 表
 --    PK = (user_id, date) 自然去重，不需額外 unique constraint。
---    hit_count 代表「該日相隔 >1 分鐘的活動次數」，約等於活躍 5 分鐘
---    區段數（搭配 heartbeat 間隔）。
+--    hit_count 代表「該日相隔 ≥1 分鐘的活動事件數」。因為 heartbeat
+--    間隔與 DB throttle 都是 1 分鐘，hit_count × 1 分鐘 ≈ 估計活躍時間。
 -- ---------------------------------------------------------------------
 create table public.user_daily_activity (
   user_id        uuid        not null references auth.users(id) on delete cascade,

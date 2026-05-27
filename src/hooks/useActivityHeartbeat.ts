@@ -4,7 +4,7 @@ import { useEffect, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { useAuth } from '@/contexts/AuthContext'
 
-const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000 // 5 分鐘
+const HEARTBEAT_INTERVAL_MS = 1 * 60 * 1000 // 1 分鐘（與 DB throttle 對齊）
 
 /**
  * useActivityHeartbeat
@@ -15,10 +15,11 @@ const HEARTBEAT_INTERVAL_MS = 5 * 60 * 1000 // 5 分鐘
  * 行為：
  *   - 只有 tab visible 且使用者已登入時才會打。
  *   - 登入後立刻打一次（拿到使用者第一次活動時間）。
- *   - 之後每 5 分鐘打一次。
+ *   - 之後每 1 分鐘打一次。
  *   - 從隱藏切回顯示時補打一次（接續中斷的記錄）。
  *
- * DB 端有 1 分鐘 throttle，所以與 middleware 重複呼叫不會灌爆。
+ * Heartbeat 間隔與 DB throttle 對齊（都是 1 分鐘），這樣 hit_count
+ * 約等於「該日活躍的 1 分鐘區段數」，乘以 1 分鐘就是估計活躍時間。
  * 失敗只 console.error，不影響使用者操作。
  */
 export function useActivityHeartbeat() {

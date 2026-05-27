@@ -14,7 +14,8 @@ import { createServerClient } from '@supabase/ssr'
  * 注意：使用者大部分時間在主頁面內操作，Supabase 查詢直接打
  *      supabase.co 不會經過這支 middleware，所以光靠這裡只能抓
  *      到「初次載入 / 路由切換」。完整活躍紀錄要靠
- *      src/hooks/useActivityHeartbeat.ts client 端 heartbeat。
+ *      src/hooks/useActivityHeartbeat.ts client 端 heartbeat
+ *      （1 分鐘間隔 + visibility-aware）。
  */
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request })
