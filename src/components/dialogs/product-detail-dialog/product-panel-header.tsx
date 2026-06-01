@@ -126,6 +126,22 @@ export function ProductPanelHeader({
                 {effectiveType}
               </Badge>
             )}
+            {item.productStatus === 'inactive' && (
+              <Badge
+                variant="secondary"
+                className="text-[10px] px-1.5 py-0 h-4 border-transparent bg-rose-50 text-rose-600 hover:bg-rose-50"
+              >
+                下架
+              </Badge>
+            )}
+            {item.productStatus === 'extension_pending' && (
+              <Badge
+                variant="secondary"
+                className="text-[10px] px-1.5 py-0 h-4 border-transparent bg-violet-50 text-violet-600 hover:bg-violet-50"
+              >
+                展延中
+              </Badge>
+            )}
             {effectiveCategories.map((category) => (
               <Badge key={category} variant="outline" className="text-[10px] px-1.5 py-0 h-4">
                 {category}
