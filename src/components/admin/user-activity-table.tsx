@@ -28,7 +28,6 @@ import type { UserActivityItem } from '@/lib/supabase/queries/admin-activity'
 
 type SortKey =
   | 'active_days'
-  | 'total_hit_count'
   | 'estimated_minutes'
   | 'last_active_date'
 
@@ -60,7 +59,7 @@ function formatMinutes(min: number) {
 export default function UserActivityTable({ users, days }: UserActivityTableProps) {
   const [search, setSearch] = useState('')
   const [sort, setSort] = useState<SortState>({
-    key: 'total_hit_count',
+    key: 'estimated_minutes',
     direction: 'desc',
   })
   const { currentPage, setCurrentPage, itemsPerPage } = usePagination({
@@ -87,10 +86,6 @@ export default function UserActivityTable({ users, days }: UserActivityTableProp
         case 'active_days':
           av = a.active_days
           bv = b.active_days
-          break
-        case 'total_hit_count':
-          av = a.total_hit_count
-          bv = b.total_hit_count
           break
         case 'estimated_minutes':
           av = a.estimated_minutes
@@ -169,16 +164,6 @@ export default function UserActivityTable({ users, days }: UserActivityTableProp
                   variant="ghost"
                   size="sm"
                   className="-ml-3 h-7 px-2"
-                  onClick={() => toggleSort('total_hit_count')}
-                >
-                  總 hit_count{renderSortIcon('total_hit_count')}
-                </Button>
-              </TableHead>
-              <TableHead>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="-ml-3 h-7 px-2"
                   onClick={() => toggleSort('estimated_minutes')}
                 >
                   估計使用時間{renderSortIcon('estimated_minutes')}
@@ -199,7 +184,7 @@ export default function UserActivityTable({ users, days }: UserActivityTableProp
           <TableBody>
             {paginated.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center text-muted-foreground py-8">
+                <TableCell colSpan={6} className="text-center text-muted-foreground py-8">
                   {users.length === 0
                     ? `過去 ${days} 天沒有任何使用者活動紀錄`
                     : '沒有找到符合的使用者'}
@@ -216,7 +201,6 @@ export default function UserActivityTable({ users, days }: UserActivityTableProp
                   <TableCell className="font-medium">{user.name || '-'}</TableCell>
                   <TableCell className="text-muted-foreground">{user.email || '-'}</TableCell>
                   <TableCell>{user.active_days} 天</TableCell>
-                  <TableCell>{user.total_hit_count}</TableCell>
                   <TableCell
                     className={cn(
                       user.estimated_minutes >= 60 && 'font-medium'
