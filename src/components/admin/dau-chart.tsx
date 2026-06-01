@@ -41,7 +41,7 @@ export function DauChart({ data }: DauChartProps) {
   return (
     <ResponsiveContainer width="100%" height={300}>
       <LineChart data={data} margin={{ top: 10, right: 16, left: -8, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
+        <CartesianGrid strokeDasharray="3 3" stroke="var(--muted)" />
         <XAxis
           dataKey="date"
           tickFormatter={formatTickDate}
@@ -59,7 +59,7 @@ export function DauChart({ data }: DauChartProps) {
           formatter={(value: number) => [`${value} 人`, 'DAU']}
           contentStyle={{
             backgroundColor: 'white',
-            border: '1px solid hsl(var(--border))',
+            border: '1px solid var(--border)',
             borderRadius: 6,
             fontSize: 12,
           }}
@@ -67,7 +67,7 @@ export function DauChart({ data }: DauChartProps) {
         <Line
           type="monotone"
           dataKey="dau"
-          stroke="hsl(var(--primary))"
+          stroke="var(--primary)"
           strokeWidth={2}
           dot={{ r: 3 }}
           activeDot={{ r: 5 }}
