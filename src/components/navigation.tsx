@@ -48,18 +48,11 @@ export default function Navigation() {
   const isOnProfilePage = pathname?.startsWith('/profile') ?? false;
   const [sheetOpen, setSheetOpen] = useState(false);
 
-  // Desktop 版的 patients 按鈕：在 /patients 時是「返回首頁」，其他頁面是「病人追蹤」
-  const patientsButtonDesktop = user && (
-    isOnPatientsPage ? (
-      <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/')}>
-        <ArrowLeft className="size-4" />
-        返回首頁
-      </Button>
-    ) : (
-      <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/patients')}>
-        病人追蹤
-      </Button>
-    )
+  // Desktop 版的 patients 按鈕：在 /patients 時隱藏（返回首頁已移到左上角），其他頁面顯示「病人追蹤」
+  const patientsButtonDesktop = user && !isOnPatientsPage && (
+    <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/patients')}>
+      病人追蹤
+    </Button>
   );
 
   // Mobile 漢堡內的 patients 按鈕：只保留前往功能，返回按鈕已移到左上角
@@ -69,8 +62,8 @@ export default function Navigation() {
     </Button>
   );
 
-  // Mobile 左上角的返回按鈕：只在非 admin 頁面顯示
-  const showMobileBackButton = !isOnAdminPage && (isOnPatientsPage || isOnProfilePage);
+  // 左上角的返回首頁按鈕：桌機 + 手機統一顯示，只在非 admin 的子頁面（病人追蹤 / 個人中心）
+  const showBackButton = !isOnAdminPage && (isOnPatientsPage || isOnProfilePage);
 
   const gettingStartedButton = (
     <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/getting-started')}>
@@ -79,21 +72,14 @@ export default function Navigation() {
     </Button>
   );
 
-  // 桌機版：在 /profile 時是「返回首頁」，其他頁面是「個人中心」（含未讀紅點）。
-  const profileButtonDesktop = user && (
-    isOnProfilePage ? (
-      <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/')}>
-        <ArrowLeft className="size-4" />
-        返回首頁
+  // 桌機版：在 /profile 時隱藏（返回首頁已移到左上角），其他頁面顯示「個人中心」（含未讀紅點）。
+  const profileButtonDesktop = user && !isOnProfilePage && (
+    <WithUnreadBadge count={myUnread}>
+      <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/profile')}>
+        <CircleUser className="size-4" />
+        個人中心
       </Button>
-    ) : (
-      <WithUnreadBadge count={myUnread}>
-        <Button variant="outline" className="cursor-pointer" onClick={() => router.push('/profile')}>
-          <CircleUser className="size-4" />
-          個人中心
-        </Button>
-      </WithUnreadBadge>
-    )
+    </WithUnreadBadge>
   );
 
   // 手機 sheet 內的「個人中心」：在 /profile 時隱藏（手機左上角已有返回按鈕）。
@@ -135,11 +121,11 @@ export default function Navigation() {
 
   return (
     <nav className="flex items-center gap-2 px-4 pt-2">
-      {/* Mobile 左上角返回按鈕（非 admin 頁面）*/}
-      {showMobileBackButton && (
+      {/* 左上角返回首頁按鈕：桌機 + 手機統一（非 admin 子頁面）*/}
+      {showBackButton && (
         <Button
           variant="outline"
-          className="md:hidden cursor-pointer"
+          className="cursor-pointer"
           onClick={() => router.push('/')}
         >
           <ArrowLeft className="size-4" />
