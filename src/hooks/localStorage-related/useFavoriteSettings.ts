@@ -45,5 +45,16 @@ export function useFavoriteSettings() {
     }
   }
 
-  return { addFavorite, removeFavorite, isFavorite, toggleFavorite }
+  // 清掉「查不到對應產品」的失效收藏（產品已下架 / 自訂已刪除 / 無營養資料被排除）
+  // isValid 由呼叫端提供（通常是 allProducts 建出的 productMap.has）
+  const pruneOrphanFavorites = async (isValid: (id: string) => boolean) => {
+    if (!isLoggedIn) return
+    const cleaned = favorites.filter(isValid)
+    if (cleaned.length === favorites.length) return
+    const removed = favorites.length - cleaned.length
+    await updateSetting('favorite', cleaned)
+    toast.warning(`已移除 ${removed} 筆失效的收藏（產品已不存在）`)
+  }
+
+  return { addFavorite, removeFavorite, isFavorite, toggleFavorite, pruneOrphanFavorites }
 }
