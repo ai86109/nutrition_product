@@ -4,7 +4,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useUserPreferences } from "@/contexts/UserPreferencesContext"
 import { useProduct } from "@/contexts/ProductContext"
 import ProductListItem from "./product-list-item"
-import { ApiProductData } from "@/types"
+import { ApiProductListData } from "@/types"
 import { useHistorySettings } from "@/hooks/localStorage-related/useHistorySettings"
 
 export default function HistoryBlock() {
@@ -36,7 +36,7 @@ export default function HistoryBlock() {
       [...history]
         .reverse()
         .map((id) => productMap.get(id))
-        .filter((item): item is ApiProductData => Boolean(item)),
+        .filter((item): item is ApiProductListData => Boolean(item)),
     [history, productMap]
   )
 

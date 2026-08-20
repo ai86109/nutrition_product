@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { ApiProductData, ProductData } from "@/types";
+import { ApiProductData, ApiProductListData, ProductData } from "@/types";
 import { BioInfoProvider } from '@/contexts/BioInfoContext';
 import { ProductProvider } from "@/contexts/ProductContext";
 import { SearchProvider } from "@/contexts/SearchContext";
@@ -372,7 +372,7 @@ export const defaultSubmittedValues = {
 // product context
 export const createProductWrapper = (products: ApiProductData[] = mockProducts) => {
   const wrapper = ({ children }: { children: React.ReactNode }) => (
-    <ProductProvider allProducts={products}>{children}</ProductProvider>
+    <ProductProvider allProducts={products as unknown as ApiProductListData[]}>{children}</ProductProvider>
   )
   return wrapper
 }
@@ -381,7 +381,7 @@ export const createProductWrapper = (products: ApiProductData[] = mockProducts) 
 export function createSearchWrapper(products: ApiProductData[] = mockProducts) {
   return function Wrapper({ children }: { children: ReactNode }) {
     return (
-      <ProductProvider allProducts={products}>
+      <ProductProvider allProducts={products as unknown as ApiProductListData[]}>
         <SearchProvider>
           {children}
         </SearchProvider>

@@ -4,7 +4,7 @@ import { useUserPreferences } from "@/contexts/UserPreferencesContext"
 import { useAuth } from "@/contexts/AuthContext"
 import { useProduct } from "@/contexts/ProductContext"
 import ProductListItem from "./product-list-item"
-import { ApiProductData } from "@/types"
+import { ApiProductListData } from "@/types"
 import { useFavoriteSettings } from "@/hooks/localStorage-related/useFavoriteSettings"
 
 export default function FavoriteBlock() {
@@ -36,7 +36,7 @@ export default function FavoriteBlock() {
       [...favorites]
         .reverse()
         .map((id) => productMap.get(id))
-        .filter((item): item is ApiProductData => Boolean(item)),
+        .filter((item): item is ApiProductListData => Boolean(item)),
     [favorites, productMap]
   )
 
